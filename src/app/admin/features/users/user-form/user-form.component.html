@@ -1,0 +1,237 @@
+<div class="user-form-container">
+  <!-- Header -->
+  <div class="page-header admin-card animate-fade-in">
+    <div class="page-left">
+      <div class="breadcrumbs">
+        <span class="crumb">Nomencladores</span>
+        <mat-icon class="crumb-sep">chevron_right</mat-icon>
+        <span class="crumb">Usuarios</span>
+        <mat-icon class="crumb-sep">chevron_right</mat-icon>
+        <span class="crumb">{{ isEditMode ? 'Editar' : 'Nuevo' }}</span>
+      </div>
+      <h1 class="page-title">{{ title }}</h1>
+    </div>
+    <div class="page-right">
+      <button mat-stroked-button (click)="onCancel()">
+        <mat-icon>arrow_back</mat-icon>
+        Cancelar
+      </button>
+      <button 
+        mat-raised-button 
+        class="btn-danger"
+        [disabled]="userForm.invalid"
+        (click)="onSubmit()">
+        <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+        <span>{{ submitText }}</span>
+      </button>
+    </div>
+  </div>
+
+  <form [formGroup]="userForm" class="user-form">
+    
+    <!-- Información General -->
+    <mat-expansion-panel 
+      [expanded]="generalInfoExpanded"
+      (opened)="generalInfoExpanded = true"
+      (closed)="generalInfoExpanded = false">
+      
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <h3 class="section-title">Información General</h3>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <div class="form-content">
+        <!-- Fila 1: Nombre y Primer Apellido -->
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field-half">
+            <mat-label>Nombre *</mat-label>
+            <input matInput formControlName="name" placeholder="Ingresa el nombre">
+            @if (userForm.get('name')?.hasError('required') && userForm.get('name')?.touched) {
+              <mat-error>El nombre es requerido</mat-error>
+            }
+            @if (userForm.get('name')?.hasError('minlength') && userForm.get('name')?.touched) {
+              <mat-error>El nombre debe tener al menos 2 caracteres</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field-half">
+            <mat-label>Primer Apellido *</mat-label>
+            <input matInput formControlName="lastName" placeholder="Ingresa el primer apellido">
+            @if (userForm.get('lastName')?.hasError('required') && userForm.get('lastName')?.touched) {
+              <mat-error>El primer apellido es requerido</mat-error>
+            }
+            @if (userForm.get('lastName')?.hasError('minlength') && userForm.get('lastName')?.touched) {
+              <mat-error>El primer apellido debe tener al menos 2 caracteres</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <!-- Fila 2: Segundo Apellido y Correo electrónico -->
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field-half">
+            <mat-label>Segundo Apellido *</mat-label>
+            <input matInput formControlName="secondLastName" placeholder="Ingresa el segundo apellido">
+            @if (userForm.get('secondLastName')?.hasError('required') && userForm.get('secondLastName')?.touched) {
+              <mat-error>El segundo apellido es requerido</mat-error>
+            }
+            @if (userForm.get('secondLastName')?.hasError('minlength') && userForm.get('secondLastName')?.touched) {
+              <mat-error>El segundo apellido debe tener al menos 2 caracteres</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field-half">
+            <mat-label>Correo electrónico *</mat-label>
+            <input matInput formControlName="email" placeholder="Ingresa el correo electrónico">
+            <mat-icon matSuffix>email</mat-icon>
+            @if (userForm.get('email')?.hasError('required') && userForm.get('email')?.touched) {
+              <mat-error>El correo electrónico es requerido</mat-error>
+            }
+            @if (userForm.get('email')?.hasError('email') && userForm.get('email')?.touched) {
+              <mat-error>Ingresa un correo electrónico válido</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <!-- Fila 3: Número de identidad y Tienda -->
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field-half">
+            <mat-label>Número de identidad *</mat-label>
+            <input matInput formControlName="identityNumber" placeholder="Ingresa el número de identidad">
+            @if (userForm.get('identityNumber')?.hasError('required') && userForm.get('identityNumber')?.touched) {
+              <mat-error>El número de identidad es requerido</mat-error>
+            }
+            @if (userForm.get('identityNumber')?.hasError('pattern') && userForm.get('identityNumber')?.touched) {
+              <mat-error>El número de identidad debe tener 11 dígitos</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field-half">
+            <mat-label>Tienda</mat-label>
+            <mat-select formControlName="store" placeholder="Selecciona la tienda">
+              @for (store of stores; track store) {
+                <mat-option [value]="store">{{ store }}</mat-option>
+              }
+            </mat-select>
+            @if (userForm.get('store')?.hasError('required') && userForm.get('store')?.touched) {
+              <mat-error>La tienda es requerida</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <!-- Fila 4: Roles y Género -->
+        <div class="form-row">
+          <!-- Roles -->
+          <div class="roles-section form-field-half">
+            <label class="roles-label">Roles</label>
+            <div class="roles-checkboxes">
+              @for (role of roles; track role) {
+                <mat-checkbox 
+                  [checked]="isRoleSelected(role)"
+                  (change)="onRoleChange(role, $event.checked)"
+                  class="role-checkbox">
+                  {{ role }}
+                </mat-checkbox>
+              }
+            </div>
+            @if (userForm.get('roles')?.hasError('required') && userForm.get('roles')?.touched) {
+              <div class="error-message">Selecciona al menos un rol</div>
+            }
+          </div>
+
+          <!-- Género -->
+          <div class="gender-section form-field-half">
+            <label class="gender-label">Género</label>
+            <mat-radio-group formControlName="gender" class="gender-radios">
+              @for (gender of genders; track gender) {
+                <mat-radio-button [value]="gender" class="gender-radio">
+                  {{ gender }}
+                </mat-radio-button>
+              }
+            </mat-radio-group>
+            @if (userForm.get('gender')?.hasError('required') && userForm.get('gender')?.touched) {
+              <div class="error-message">Selecciona un género</div>
+            }
+          </div>
+        </div>
+
+        <!-- Estado -->
+        <div class="status-section">
+          <label class="status-label">Estado</label>
+          <mat-slide-toggle formControlName="active" color="primary">
+            {{ userForm.get('active')?.value ? 'Activo' : 'Inactivo' }}
+          </mat-slide-toggle>
+        </div>
+      </div>
+    </mat-expansion-panel>
+
+    <!-- Contraseña -->
+    <mat-expansion-panel 
+      [expanded]="passwordExpanded"
+      (opened)="passwordExpanded = true"
+      (closed)="passwordExpanded = false">
+      
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <h3 class="section-title">Contraseña</h3>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <div class="form-content">
+        <!-- Fila de Contraseñas -->
+        <div class="form-row">
+          <!-- Contraseña -->
+          <mat-form-field appearance="outline" class="form-field-half">
+            <mat-label>Contraseña *</mat-label>
+            <input 
+              matInput 
+              [type]="hidePassword ? 'password' : 'text'"
+              formControlName="password" 
+              placeholder="Ingresa la contraseña">
+            <button 
+              mat-icon-button 
+              matSuffix 
+              type="button"
+              (click)="togglePasswordVisibility()"
+              [attr.aria-label]="'Ocultar contraseña'"
+              [attr.aria-pressed]="hidePassword">
+              <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            @if (userForm.get('password')?.hasError('required') && userForm.get('password')?.touched) {
+              <mat-error>La contraseña es requerida</mat-error>
+            }
+            @if (userForm.get('password')?.hasError('minlength') && userForm.get('password')?.touched) {
+              <mat-error>La contraseña debe tener al menos 6 caracteres</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Confirmar Contraseña -->
+          <mat-form-field appearance="outline" class="form-field-half">
+            <mat-label>Confirmar contraseña *</mat-label>
+            <input 
+              matInput 
+              [type]="hideConfirmPassword ? 'password' : 'text'"
+              formControlName="confirmPassword" 
+              placeholder="Confirma la contraseña">
+            <button 
+              mat-icon-button 
+              matSuffix 
+              type="button"
+              (click)="toggleConfirmPasswordVisibility()"
+              [attr.aria-label]="'Ocultar contraseña'"
+              [attr.aria-pressed]="hideConfirmPassword">
+              <mat-icon>{{ hideConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            @if (userForm.get('confirmPassword')?.hasError('required') && userForm.get('confirmPassword')?.touched) {
+              <mat-error>La confirmación de contraseña es requerida</mat-error>
+            }
+            @if (userForm.get('confirmPassword')?.hasError('passwordMismatch') && userForm.get('confirmPassword')?.touched) {
+              <mat-error>Las contraseñas no coinciden</mat-error>
+            }
+          </mat-form-field>
+        </div>
+      </div>
+    </mat-expansion-panel>
+
+  </form>
+</div>

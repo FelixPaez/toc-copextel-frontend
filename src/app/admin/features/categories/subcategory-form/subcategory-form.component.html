@@ -1,0 +1,54 @@
+<div class="subcategory-form-dialog">
+  <h2 mat-dialog-title class="dialog-title">{{ title }}</h2>
+  
+  <mat-dialog-content class="dialog-content">
+    <form [formGroup]="subcategoryForm" class="subcategory-form">
+      
+      <!-- Campo Nombre -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nombre</mat-label>
+        <input matInput formControlName="name" placeholder="Ingresa el nombre de la subcategoría">
+        @if (subcategoryForm.get('name')?.hasError && subcategoryForm.get('name')?.touched) {
+          <mat-error>El nombre es requerido (mínimo 2 caracteres)</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Campo Categoría -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Categoría</mat-label>
+        <mat-select formControlName="categoryId" placeholder="Selecciona una categoría">
+          @for (category of categories; track category.id) {
+            <mat-option [value]="category.id">{{ category.name }}</mat-option>
+          }
+        </mat-select>
+        @if (subcategoryForm.get('categoryId')?.hasError && subcategoryForm.get('categoryId')?.touched) {
+          <mat-error>Debe seleccionar una categoría</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Toggle Estado -->
+      <div class="status-section">
+        <label class="status-label">Estado</label>
+        <mat-slide-toggle formControlName="active" color="primary">
+          Activo
+        </mat-slide-toggle>
+      </div>
+
+    </form>
+  </mat-dialog-content>
+
+  <div class="actions-footer">
+    <button mat-stroked-button type="button" (click)="onCancel()">
+      <mat-icon>arrow_back</mat-icon>
+      Cancelar
+    </button>
+    <button 
+      mat-raised-button 
+      color="primary" 
+      [disabled]="subcategoryForm.invalid"
+      (click)="onSubmit()">
+      <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+      {{ submitText }}
+    </button>
+  </div>
+</div>

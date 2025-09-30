@@ -1,0 +1,380 @@
+<div class="vendor-form-container">
+  <!-- Header -->
+  <div class="page-header admin-card animate-fade-in">
+    <div class="page-left">
+      <div class="breadcrumbs">
+        <span class="crumb">Nomencladores</span>
+        <mat-icon class="crumb-sep">chevron_right</mat-icon>
+        <span class="crumb">Vendedores</span>
+        <mat-icon class="crumb-sep">chevron_right</mat-icon>
+        <span class="crumb">{{ isEditMode ? 'Editar' : 'Nuevo' }}</span>
+      </div>
+      <h1 class="page-title">{{ title }}</h1>
+    </div>
+    <div class="page-right">
+      <button mat-stroked-button (click)="onCancel()">
+        <mat-icon>arrow_back</mat-icon>
+        Cancelar
+      </button>
+      <button 
+        mat-raised-button 
+        class="btn-danger"
+        [disabled]="vendorForm.invalid || isUploading"
+        (click)="onSubmit()">
+        @if (isUploading) {
+          <mat-icon class="spinning">refresh</mat-icon>
+        }
+        @if (isUploading) {
+          <span>Procesando...</span>
+        }
+        @if (!isUploading) {
+          <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+        }
+        @if (!isUploading) {
+          <span>{{ submitText }}</span>
+        }
+      </button>
+    </div>
+  </div>
+
+    <form [formGroup]="vendorForm" class="vendor-form">
+      
+      <!-- Información General -->
+      <mat-expansion-panel 
+        [expanded]="generalInfoExpanded"
+        (opened)="generalInfoExpanded = true"
+        (closed)="generalInfoExpanded = false">
+        
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <h3 class="section-title">Información General</h3>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div class="form-content">
+          <!-- Nombre -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Nombre *</mat-label>
+            <input matInput formControlName="name" placeholder="Ingresa el nombre del vendedor">
+            @if (vendorForm.get('name')?.hasError('required') && vendorForm.get('name')?.touched) {
+              <mat-error>El nombre es requerido</mat-error>
+            }
+            @if (vendorForm.get('name')?.hasError('minlength') && vendorForm.get('name')?.touched) {
+              <mat-error>El nombre debe tener al menos 2 caracteres</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Email -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Correo electrónico *</mat-label>
+            <input matInput formControlName="email" placeholder="Ingresa el correo electrónico">
+            <mat-icon matSuffix>email</mat-icon>
+            @if (vendorForm.get('email')?.hasError('required') && vendorForm.get('email')?.touched) {
+              <mat-error>El correo electrónico es requerido</mat-error>
+            }
+            @if (vendorForm.get('email')?.hasError('email') && vendorForm.get('email')?.touched) {
+              <mat-error>Ingresa un correo electrónico válido</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Teléfono -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Teléfono *</mat-label>
+            <input matInput formControlName="phone" placeholder="Ingresa el número de teléfono">
+            <mat-icon matSuffix>phone</mat-icon>
+            @if (vendorForm.get('phone')?.hasError('required') && vendorForm.get('phone')?.touched) {
+              <mat-error>El teléfono es requerido</mat-error>
+            }
+            @if (vendorForm.get('phone')?.hasError('pattern') && vendorForm.get('phone')?.touched) {
+              <mat-error>Ingresa un número de teléfono válido</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Canal de Telegram -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Canal de Telegram *</mat-label>
+            <input matInput formControlName="telegramChannel" placeholder="Ingresa el enlace del canal de Telegram">
+            <mat-icon matSuffix>telegram</mat-icon>
+            <mat-hint>{{ telegramExample }}</mat-hint>
+            @if (vendorForm.get('telegramChannel')?.hasError('required') && vendorForm.get('telegramChannel')?.touched) {
+              <mat-error>El canal de Telegram es requerido</mat-error>
+            }
+            @if (vendorForm.get('telegramChannel')?.hasError('pattern') && vendorForm.get('telegramChannel')?.touched) {
+              <mat-error>Ingresa un enlace de Telegram válido</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Grupo de WhatsApp -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Grupo de WhatsApp *</mat-label>
+            <input matInput formControlName="whatsappGroup" placeholder="Ingresa el enlace del grupo de WhatsApp">
+            <mat-icon matSuffix>chat</mat-icon>
+            <mat-hint>{{ whatsappExample }}</mat-hint>
+            @if (vendorForm.get('whatsappGroup')?.hasError('required') && vendorForm.get('whatsappGroup')?.touched) {
+              <mat-error>El grupo de WhatsApp es requerido</mat-error>
+            }
+            @if (vendorForm.get('whatsappGroup')?.hasError('pattern') && vendorForm.get('whatsappGroup')?.touched) {
+              <mat-error>Ingresa un enlace de WhatsApp válido</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Dirección -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Dirección *</mat-label>
+            <input matInput formControlName="address" placeholder="Ingresa la dirección">
+            <mat-icon matSuffix>location_on</mat-icon>
+            @if (vendorForm.get('address')?.hasError('required') && vendorForm.get('address')?.touched) {
+              <mat-error>La dirección es requerida</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Provincia y Municipio -->
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Provincia</mat-label>
+              <mat-select formControlName="province" (selectionChange)="onProvinceChange($event.value)">
+                @for (province of provinces; track province) {
+                  <mat-option [value]="province">{{ province }}</mat-option>
+                }
+              </mat-select>
+              <mat-icon matSuffix>location_city</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Municipio</mat-label>
+              <mat-select formControlName="municipality" [disabled]="!availableMunicipalities.length">
+                @for (municipality of availableMunicipalities; track municipality) {
+                  <mat-option [value]="municipality">{{ municipality }}</mat-option>
+                }
+              </mat-select>
+              <mat-icon matSuffix>place</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <!-- Estado -->
+          <div class="status-section">
+            <label class="status-label">Estado</label>
+            <mat-slide-toggle formControlName="active" color="primary">
+              {{ vendorForm.get('active')?.value ? 'Activo' : 'Inactivo' }}
+            </mat-slide-toggle>
+          </div>
+        </div>
+      </mat-expansion-panel>
+
+      <!-- Descripción, imagen y logo -->
+      <mat-expansion-panel 
+        [expanded]="descriptionExpanded"
+        (opened)="descriptionExpanded = true"
+        (closed)="descriptionExpanded = false">
+        
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <h3 class="section-title">Descripción, imagen y logo</h3>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div class="form-content">
+          <!-- Descripción -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Descripción *</mat-label>
+            <textarea matInput formControlName="description" rows="4" placeholder="Ingresa la descripción del vendedor"></textarea>
+            @if (vendorForm.get('description')?.hasError('required') && vendorForm.get('description')?.touched) {
+              <mat-error>La descripción es requerida</mat-error>
+            }
+            @if (vendorForm.get('description')?.hasError('minlength') && vendorForm.get('description')?.touched) {
+              <mat-error>La descripción debe tener al menos 10 caracteres</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Imagen y Logo -->
+          <div class="image-upload-row">
+            <!-- Imagen -->
+            <div class="image-upload-section">
+              <label class="upload-label">Imagen</label>
+              <div 
+                class="image-upload-area"
+                (dragover)="onDragOver($event)"
+                (dragleave)="onDragLeave($event)"
+                (drop)="onDrop($event, 'image')"
+                [class.has-image]="vendorForm.get('imageUrl')?.value">
+                
+                @if (vendorForm.get('imageUrl')?.value) {
+                  <div class="image-preview">
+                    <img [src]="vendorForm.get('imageUrl')?.value" alt="Preview" class="preview-img">
+                    <div class="image-overlay">
+                      <button type="button" mat-icon-button class="remove-btn" (click)="onImageDelete('image')">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="upload-placeholder">
+                    <mat-icon class="upload-icon">photo_camera</mat-icon>
+                    <p class="upload-text">Arrastra una imagen aquí o haz clic para seleccionar</p>
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      (change)="onImageUpload($event, 'image')"
+                      class="file-input"
+                      #imageInput>
+                    <button type="button" mat-raised-button (click)="imageInput.click()" class="select-btn">
+                      Seleccionar Archivo
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Logo -->
+            <div class="image-upload-section">
+              <label class="upload-label">Logotipo</label>
+              <div 
+                class="image-upload-area"
+                (dragover)="onDragOver($event)"
+                (dragleave)="onDragLeave($event)"
+                (drop)="onDrop($event, 'logo')"
+                [class.has-image]="vendorForm.get('logoUrl')?.value">
+                
+                @if (vendorForm.get('logoUrl')?.value) {
+                  <div class="image-preview">
+                    <img [src]="vendorForm.get('logoUrl')?.value" alt="Preview" class="preview-img">
+                    <div class="image-overlay">
+                      <button type="button" mat-icon-button class="remove-btn" (click)="onImageDelete('logo')">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="upload-placeholder">
+                    <mat-icon class="upload-icon">photo_camera</mat-icon>
+                    <p class="upload-text">Arrastra un logo aquí o haz clic para seleccionar</p>
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      (change)="onImageUpload($event, 'logo')"
+                      class="file-input"
+                      #logoInput>
+                    <button type="button" mat-raised-button (click)="logoInput.click()" class="select-btn">
+                      Seleccionar Archivo
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-expansion-panel>
+
+      <!-- Credenciales del API de Enzona - CUP -->
+      <mat-expansion-panel 
+        [expanded]="enzonaExpanded"
+        (opened)="enzonaExpanded = true"
+        (closed)="enzonaExpanded = false">
+        
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <h3 class="section-title">Credenciales del API de Enzona - CUP</h3>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div class="form-content">
+          <div class="security-notice">
+            <mat-icon class="security-icon">lock</mat-icon>
+            <span class="security-text">Las credenciales para el acceso al API de Enzona están cifradas de extremo a extremo. Nadie fuera de la plataforma o Enzona puede recuperarlas.</span>
+          </div>
+
+          <div formGroupName="enzonaCredentials" class="credentials-form">
+            <!-- Moneda -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Moneda</mat-label>
+              <mat-select formControlName="currency">
+                <mat-option value="CUP">$ CUP</mat-option>
+                <mat-option value="USD">$ USD</mat-option>
+                <mat-option value="EUR">€ EUR</mat-option>
+              </mat-select>
+              <mat-icon matSuffix>attach_money</mat-icon>
+            </mat-form-field>
+
+            <!-- Cuenta o Tarjeta -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Cuenta o Tarjeta</mat-label>
+              <input matInput formControlName="account" placeholder="Ingresa la cuenta o tarjeta">
+            </mat-form-field>
+
+            <!-- MerchantUuid -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>MerchantUuid</mat-label>
+              <input matInput formControlName="merchantUuid" placeholder="Ingresa el MerchantUuid">
+            </mat-form-field>
+
+            <!-- ConsumerKey -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>ConsumerKey</mat-label>
+              <input matInput formControlName="consumerKey" placeholder="Ingresa el ConsumerKey">
+              <mat-icon matSuffix>vpn_key</mat-icon>
+              <button mat-icon-button matSuffix type="button" class="toggle-visibility">
+                <mat-icon>visibility</mat-icon>
+              </button>
+            </mat-form-field>
+
+            <!-- ConsumerSecret -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>ConsumerSecret</mat-label>
+              <input matInput formControlName="consumerSecret" placeholder="Ingresa el ConsumerSecret">
+              <mat-icon matSuffix>vpn_key</mat-icon>
+              <button mat-icon-button matSuffix type="button" class="toggle-visibility">
+                <mat-icon>visibility</mat-icon>
+              </button>
+            </mat-form-field>
+          </div>
+        </div>
+      </mat-expansion-panel>
+
+      <!-- Información del API de Transfermovil - CUP -->
+      <mat-expansion-panel 
+        [expanded]="transfermovilExpanded"
+        (opened)="transfermovilExpanded = true"
+        (closed)="transfermovilExpanded = false">
+        
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <h3 class="section-title">Información del API de Transfermovil - CUP</h3>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div class="form-content">
+          <div formGroupName="transfermovilCredentials" class="credentials-form">
+            <!-- Moneda -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Moneda</mat-label>
+              <mat-select formControlName="currency">
+                <mat-option value="CUP">$ CUP</mat-option>
+                <mat-option value="USD">$ USD</mat-option>
+                <mat-option value="EUR">€ EUR</mat-option>
+              </mat-select>
+              <mat-icon matSuffix>attach_money</mat-icon>
+            </mat-form-field>
+
+            <!-- Cuenta o Tarjeta -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Cuenta o Tarjeta</mat-label>
+              <input matInput formControlName="account" placeholder="Ingresa la cuenta o tarjeta">
+            </mat-form-field>
+
+            <!-- UserName -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>UserName</mat-label>
+              <input matInput formControlName="userName" placeholder="Ingresa el UserName">
+            </mat-form-field>
+
+            <!-- Source -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Source</mat-label>
+              <input matInput formControlName="source" placeholder="Ingresa el Source">
+            </mat-form-field>
+          </div>
+        </div>
+      </mat-expansion-panel>
+
+    </form>
+</div>

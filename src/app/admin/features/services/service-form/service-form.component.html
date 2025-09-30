@@ -1,0 +1,83 @@
+<div class="service-form-dialog">
+  <h2 mat-dialog-title class="dialog-title">{{ title }}</h2>
+  
+  <mat-dialog-content class="dialog-content">
+    <form [formGroup]="serviceForm" class="service-form">
+      
+      <!-- Campo Nombre -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nombre</mat-label>
+        <input matInput formControlName="name" placeholder="Ingresa el nombre del servicio">
+        @if (serviceForm.get('name')?.hasError('required') && serviceForm.get('name')?.touched) {
+          <mat-error>El nombre es requerido</mat-error>
+        }
+        @if (serviceForm.get('name')?.hasError('minlength') && serviceForm.get('name')?.touched) {
+          <mat-error>El nombre debe tener al menos 2 caracteres</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Campo Especificaciones -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Especificaciones</mat-label>
+        <textarea matInput formControlName="specifications" rows="4" placeholder="Ingresa las especificaciones del servicio"></textarea>
+        @if (serviceForm.get('specifications')?.hasError('required') && serviceForm.get('specifications')?.touched) {
+          <mat-error>Las especificaciones son requeridas</mat-error>
+        }
+        @if (serviceForm.get('specifications')?.hasError('minlength') && serviceForm.get('specifications')?.touched) {
+          <mat-error>Las especificaciones deben tener al menos 10 caracteres</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Campos de Precios -->
+      <div class="price-fields">
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Precio CUP</mat-label>
+          <input matInput type="number" formControlName="priceCUP" placeholder="0.00" step="0.01" min="0">
+          <span matSuffix>CUP</span>
+          @if (serviceForm.get('priceCUP')?.hasError('required') && serviceForm.get('priceCUP')?.touched) {
+            <mat-error>El precio CUP es requerido</mat-error>
+          }
+          @if (serviceForm.get('priceCUP')?.hasError('min') && serviceForm.get('priceCUP')?.touched) {
+            <mat-error>El precio debe ser mayor o igual a 0</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Precio MLC</mat-label>
+          <input matInput type="number" formControlName="priceMLC" placeholder="0.00" step="0.01" min="0">
+          <span matSuffix>MLC</span>
+          @if (serviceForm.get('priceMLC')?.hasError('required') && serviceForm.get('priceMLC')?.touched) {
+            <mat-error>El precio MLC es requerido</mat-error>
+          }
+          @if (serviceForm.get('priceMLC')?.hasError('min') && serviceForm.get('priceMLC')?.touched) {
+            <mat-error>El precio debe ser mayor o igual a 0</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <!-- Toggle Estado -->
+      <div class="status-section">
+        <label class="status-label">Estado</label>
+        <mat-slide-toggle formControlName="active" color="primary">
+          {{ serviceForm.get('active')?.value ? 'Activo' : 'Inactivo' }}
+        </mat-slide-toggle>
+      </div>
+
+    </form>
+  </mat-dialog-content>
+
+  <div class="actions-footer">
+    <button mat-stroked-button type="button" (click)="onCancel()">
+      <mat-icon>arrow_back</mat-icon>
+      Cancelar
+    </button>
+    <button 
+      mat-raised-button 
+      color="primary" 
+      [disabled]="serviceForm.invalid"
+      (click)="onSubmit()">
+      <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+      {{ submitText }}
+    </button>
+  </div>
+</div>

@@ -1,0 +1,166 @@
+@use "sass:color";
+
+$primary-color: var(--admin-primary);
+$red-color: var(--admin-danger);
+$gray-100: var(--admin-gray-100);
+$gray-200: var(--admin-gray-200);
+$gray-300: var(--admin-gray-300);
+$gray-400: var(--admin-gray-400);
+$gray-500: var(--admin-gray-500);
+$gray-600: var(--admin-gray-600);
+$gray-700: var(--admin-gray-700);
+$gray-800: var(--admin-gray-800);
+$gray-900: var(--admin-gray-900);
+$white: var(--admin-white);
+
+.user-detail-dialog {
+  padding: 24px;
+  width: 400px;
+  max-width: 90vw;
+
+  .dialog-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: $gray-800;
+    margin: 0 0 20px 0;
+    text-align: center;
+  }
+
+  .dialog-content {
+    padding: 0;
+    margin-bottom: 20px;
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+
+      .user-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--admin-primary), var(--admin-primary-hover));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--admin-shadow);
+
+        .avatar-initials {
+          font-size: 32px;
+          font-weight: 700;
+          color: $white;
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+      }
+
+      .user-details {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+
+        .email-info {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 12px 16px;
+          background: $gray-100;
+          border-radius: var(--admin-radius);
+          border: 1px solid $gray-200;
+
+          .email-icon {
+            color: var(--admin-primary);
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+          }
+
+          .email-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: $gray-700;
+          }
+        }
+
+        .detail-item {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+
+          .detail-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: $gray-600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+
+          .detail-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: $gray-800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            .status-active {
+              color: var(--admin-success);
+              font-size: 18px;
+              width: 18px;
+              height: 18px;
+            }
+
+            .status-inactive {
+              color: $gray-500;
+              font-size: 18px;
+              width: 18px;
+              height: 18px;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .dialog-actions {
+    padding: 16px 0 0 0;
+    margin: 0;
+    justify-content: center;
+
+    .btn-danger.mat-mdc-raised-button {
+      background-color: var(--admin-danger);
+      color: $white;
+      box-shadow: var(--admin-shadow);
+      padding: 12px 24px;
+      font-weight: 600;
+    }
+
+    .btn-danger.mat-mdc-raised-button:hover {
+      background-color: color.adjust(#df0029, $lightness: -6%);
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .user-detail-dialog {
+    padding: 16px;
+    width: 320px;
+
+    .dialog-title {
+      font-size: 20px;
+    }
+
+    .user-info {
+      .user-avatar {
+        width: 60px;
+        height: 60px;
+
+        .avatar-initials {
+          font-size: 24px;
+        }
+      }
+    }
+  }
+}

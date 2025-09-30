@@ -1,0 +1,41 @@
+<div class="category-form-dialog">
+  <h2 mat-dialog-title class="dialog-title">{{ title }}</h2>
+  
+  <mat-dialog-content class="dialog-content">
+    <form [formGroup]="categoryForm" class="category-form">
+      
+      <!-- Campo Nombre -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nombre</mat-label>
+        <input matInput formControlName="name" placeholder="Ingresa el nombre de la categoría">
+        @if (categoryForm.get('name')?.hasError && categoryForm.get('name')?.touched) {
+          <mat-error>El nombre es requerido (mínimo 2 caracteres)</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Toggle Estado -->
+      <div class="status-section">
+        <label class="status-label">Estado</label>
+        <mat-slide-toggle formControlName="active" color="primary">
+          Activo
+        </mat-slide-toggle>
+      </div>
+
+    </form>
+  </mat-dialog-content>
+
+  <div class="actions-footer">
+    <button mat-stroked-button type="button" (click)="onCancel()">
+      <mat-icon>arrow_back</mat-icon>
+      Cancelar
+    </button>
+    <button 
+      mat-raised-button 
+      color="primary" 
+      [disabled]="categoryForm.invalid"
+      (click)="onSubmit()">
+      <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+      {{ submitText }}
+    </button>
+  </div>
+</div>

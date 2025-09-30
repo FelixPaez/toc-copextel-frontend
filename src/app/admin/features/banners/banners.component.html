@@ -1,0 +1,78 @@
+<div class="banners-container">
+  <!-- Header -->
+  <div class="page-header admin-card animate-fade-in">
+    <div class="page-left">
+      <div class="breadcrumbs">
+        <span class="crumb">Nomencladores</span>
+        <mat-icon class="crumb-sep">chevron_right</mat-icon>
+        <span class="crumb">Banners</span>
+      </div>
+      <h1 class="page-title">Banners</h1>
+    </div>
+    <div class="page-right">
+      <button mat-raised-button class="btn-danger" routerLink="./new">
+        <mat-icon>add</mat-icon>
+        Nuevo
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabla de Banners -->
+  <mat-card class="banners-table-card admin-card animate-fade-in hover-raise">
+    <mat-card-content>
+      <div class="table-header">
+        <div class="table-right">
+          <h3 class="table-title">Listado de banners</h3>
+        </div>
+      </div>
+      
+      <table mat-table [dataSource]="banners" class="banners-table admin-table">
+        
+        <!-- Título Column -->
+        <ng-container matColumnDef="title">
+          <th mat-header-cell *matHeaderCellDef>Título</th>
+          <td mat-cell *matCellDef="let banner">
+            <span class="banner-title">{{ banner.title }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Subtítulo Column -->
+        <ng-container matColumnDef="subtitle">
+          <th mat-header-cell *matHeaderCellDef>Subtítulo</th>
+          <td mat-cell *matCellDef="let banner">
+            <span class="banner-subtitle">{{ banner.subtitle }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Activo Column -->
+        <ng-container matColumnDef="isActive">
+          <th mat-header-cell *matHeaderCellDef>Activo</th>
+          <td mat-cell *matCellDef="let banner">
+            @if (banner.isActive) {
+              <mat-icon class="icon-active">check_circle</mat-icon>
+            } @else {
+              <mat-icon class="icon-inactive">cancel</mat-icon>
+            }
+          </td>
+        </ng-container>
+
+        <!-- Acciones Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Acciones</th>
+          <td mat-cell *matCellDef="let banner" class="actions-cell">
+            <button mat-icon-button class="action-btn" aria-label="Editar" (click)="onEdit(banner)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button class="action-btn warn" aria-label="Eliminar" (click)="onDelete(banner)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+    </mat-card-content>
+  </mat-card>
+</div>

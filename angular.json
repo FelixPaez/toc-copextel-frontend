@@ -40,8 +40,10 @@
               "src/assets"
             ],
             "styles": [
+              "@angular/material/prebuilt-themes/deeppurple-amber.css",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/assets/styles/app/_app.scss",
+              "src/styles/admin.scss",
               "src/styles.css"
             ],
             "stylePreprocessorOptions": {

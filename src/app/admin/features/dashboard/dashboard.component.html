@@ -1,0 +1,135 @@
+<div class="dashboard-container">
+  <!-- Hero header -->
+  <div class="dashboard-hero admin-card animate-pop-in hover-raise">
+    <div class="hero-info">
+      <div class="hero-avatar admin-avatar avatar-lg">{{ (currentUser?.fullName || 'Admin').charAt(0) }}</div>
+      <div class="hero-texts">
+        <div class="hero-greet text-muted">Bienvenido</div>
+        <h1 class="hero-title">{{ currentUser?.fullName || 'Administrador Sistema' }}</h1>
+        <p class="hero-subtitle"><mat-icon>notifications_none</mat-icon> No tiene mensajes ni alertas pendientes</p>
+        <div class="hero-pills">
+          <button mat-stroked-button class="btn-pill hero-btn is-active">
+            <mat-icon>storefront</mat-icon>
+            Todas las Tiendas
+            <mat-icon>expand_more</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="hero-actions">
+      <button mat-stroked-button class="btn-pill hero-btn">
+        <mat-icon>mail</mat-icon>
+        Mensajes
+      </button>
+      <button mat-raised-button color="warn" class="btn-pill hero-cta">
+        <mat-icon>notifications</mat-icon>
+        Alertas
+      </button>
+    </div>
+  </div>
+
+  <!-- Métricas Cards (tres tarjetas) -->
+  <div class="metrics-grid">
+    <!-- Órdenes -->
+    <mat-card class="metric-card admin-card animate-fade-in hover-raise">
+      <button mat-icon-button class="metric-menu" [matMenuTriggerFor]="metricMenu"><mat-icon>more_vert</mat-icon></button>
+      <mat-card-content>
+        <div class="metric-header">Órdenes</div>
+        <div class="metric-core">
+          <div class="metric-number primary">0</div>
+          <div class="metric-label">Ventas</div>
+        </div>
+        <div class="metric-footer">Entregadas: <strong>0</strong></div>
+      </mat-card-content>
+    </mat-card>
+    
+    <!-- Productos -->
+    <mat-card class="metric-card admin-card animate-fade-in hover-raise">
+      <button mat-icon-button class="metric-menu" [matMenuTriggerFor]="metricMenu"><mat-icon>more_vert</mat-icon></button>
+      <mat-card-content>
+        <div class="metric-header">Productos</div>
+        <div class="metric-core">
+          <div class="metric-sub">Disponibles</div>
+        </div>
+        <div class="metric-footer">Agotados hoy: <strong>0</strong></div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Clientes -->
+    <mat-card class="metric-card admin-card animate-fade-in hover-raise">
+      <button mat-icon-button class="metric-menu" [matMenuTriggerFor]="metricMenu"><mat-icon>more_vert</mat-icon></button>
+      <mat-card-content>
+        <div class="metric-header">Clientes</div>
+        <div class="metric-core">
+          <div class="metric-number success">10</div>
+          <div class="metric-label">Total</div>
+        </div>
+        <div class="metric-footer">Nuevo: <strong>10</strong></div>
+      </mat-card-content>
+    </mat-card>
+    <mat-menu #metricMenu="matMenu">
+      <button mat-menu-item><mat-icon>visibility</mat-icon><span>Ver detalle</span></button>
+      <button mat-menu-item><mat-icon>file_download</mat-icon><span>Exportar</span></button>
+    </mat-menu>
+  </div>
+
+  <!-- Filtros superiores (píldoras) -->
+  <div class="dashboard-pills">
+    <button mat-stroked-button color="primary" class="pill active">Generales</button>
+    <button mat-stroked-button class="pill" disabled>Ventas</button>
+    <button mat-stroked-button class="pill" disabled>Operaciones</button>
+  </div>
+
+  <!-- Contenido Principal -->
+  <div class="main-content">
+    <!-- Gráfico de Ventas -->
+    <mat-card class="chart-card admin-card hover-raise">
+      <mat-card-header>
+        <mat-card-title>Ventas del Mes</mat-card-title>
+        <mat-card-subtitle>Análisis de ventas mensuales</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="chart-placeholder">
+          <mat-icon class="chart-icon">bar_chart</mat-icon>
+          <p>Gráfico de ventas mensuales</p>
+          <small>Aquí se mostrará el gráfico con ECharts o Chart.js</small>
+        </div>
+      </mat-card-content>
+      <div class="chart-tabs">
+        <button mat-stroked-button class="tab active">Esta Semana</button>
+        <button mat-stroked-button class="tab">Último Mes</button>
+      </div>
+    </mat-card>
+
+    <!-- Pedidos Recientes -->
+    <mat-card class="orders-card admin-card hover-raise">
+      <mat-card-header>
+        <mat-card-title>Pedidos Recientes</mat-card-title>
+        <mat-card-subtitle>Últimos pedidos realizados</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="orders-list">
+          @for (order of recentOrders; track order.id) {
+            <div class="order-item">
+              <div class="order-info">
+                <h4>{{order.id}}</h4>
+                <p>{{order.customer}}</p>
+              </div>
+              <div class="order-details">
+                <span class="order-amount">{{order.amount}}</span>
+                <span class="order-status" [class]="'status-' + getStatusColor(order.status)">{{order.status}}</span>
+              </div>
+            </div>
+          }
+        </div>
+        <mat-divider></mat-divider>
+        <div class="view-all">
+          <button mat-button color="primary">
+            Ver todos los pedidos
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

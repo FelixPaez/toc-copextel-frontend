@@ -1,0 +1,138 @@
+<div class="banner-form-container">
+  <!-- Header -->
+  <div class="form-header admin-card animate-fade-in">
+    <div class="breadcrumbs">
+      <span class="crumb">Nomencladores</span>
+      <mat-icon class="crumb-sep">chevron_right</mat-icon>
+      <span class="crumb">Banners</span>
+      <mat-icon class="crumb-sep">chevron_right</mat-icon>
+      <span class="crumb">{{ isEditMode ? 'Editar' : 'Nuevo' }}</span>
+    </div>
+    <div class="header-content">
+      <h1>{{ isEditMode ? 'Editar Banner' : 'Agregar Banner' }}</h1>
+      <p>{{ isEditMode ? 'Modifica la información del banner' : 'Crea un nuevo banner para tu tienda' }}</p>
+    </div>
+  </div>
+
+  <!-- Formulario -->
+  <div class="form-content">
+    <mat-card class="form-card admin-card animate-fade-in hover-raise">
+      <mat-card-content>
+        <form [formGroup]="bannerForm" (ngSubmit)="onSubmit()" class="banner-form">
+          
+          <!-- Campo Título -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Título</mat-label>
+            <input matInput formControlName="title" placeholder="Ingresa el título del banner">
+            @if (bannerForm.get('title')?.hasError && bannerForm.get('title')?.touched) {
+              <mat-error>{{ titleError }}</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Campo Subtítulo -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Subtítulo</mat-label>
+            <textarea 
+              matInput 
+              formControlName="subtitle" 
+              placeholder="Descripción del banner"
+              rows="3"
+              maxlength="200">
+            </textarea>
+            <mat-hint align="end">{{ bannerForm.get('subtitle')?.value?.length || 0 }}/200</mat-hint>
+          </mat-form-field>
+
+          <!-- Campo Categoría -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Categoría</mat-label>
+            <mat-select formControlName="category">
+              @for (category of categories; track category) {
+                <mat-option [value]="category">{{ category }}</mat-option>
+              }
+            </mat-select>
+            @if (bannerForm.get('category')?.hasError && bannerForm.get('category')?.touched) {
+              <mat-error>{{ categoryError }}</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Área de Carga de Imagen -->
+          <div class="image-upload-section">
+            <label class="upload-label">Imagen del Banner</label>
+            <div 
+              class="image-upload-area"
+              (dragover)="onDragOver($event)"
+              (dragleave)="onDragLeave($event)"
+              (drop)="onDrop($event)"
+              [class.has-image]="imagePreview">
+              
+              @if (imagePreview) {
+                <div class="image-preview">
+                  <img [src]="imagePreview" alt="Preview" class="preview-img">
+                  <div class="image-overlay">
+                    <button type="button" mat-icon-button class="remove-btn" (click)="removeImage()">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              } @else {
+                <div class="upload-placeholder">
+                  <mat-icon class="upload-icon">photo_camera</mat-icon>
+                  <p class="upload-text">Arrastra una imagen aquí o haz clic para seleccionar</p>
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    (change)="onFileSelected($event)"
+                    class="file-input"
+                    #fileInput>
+                  <button type="button" mat-stroked-button (click)="fileInput.click()" class="select-btn">
+                    Seleccionar Archivo
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Toggle Estado -->
+          <div class="status-section">
+            <label class="status-label">Estado</label>
+            <mat-slide-toggle formControlName="isActive" color="primary">
+              Activo
+            </mat-slide-toggle>
+          </div>
+
+          <!-- Progress Bar -->
+          @if (isUploading) {
+            <mat-progress-bar mode="indeterminate" class="upload-progress"></mat-progress-bar>
+          }
+
+          <!-- Botones de Acción -->
+          <div class="actions-footer">
+            <button mat-stroked-button type="button" (click)="onCancel()">
+              <mat-icon>arrow_back</mat-icon>
+              Cancelar
+            </button>
+            <button 
+              mat-raised-button 
+              color="primary" 
+              [disabled]="bannerForm.invalid || isUploading"
+              (click)="onSubmit()">
+              @if (isUploading) {
+                <mat-icon class="spinning">refresh</mat-icon>
+              }
+              @if (isUploading) {
+                <span>Procesando...</span>
+              }
+              @if (!isUploading) {
+                <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+              }
+              @if (!isUploading) {
+                <span>{{ isEditMode ? 'Guardar' : 'Agregar' }}</span>
+              }
+            </button>
+          </div>
+
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

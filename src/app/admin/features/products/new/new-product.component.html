@@ -1,0 +1,143 @@
+<div class="new-product-container">
+  <div class="page-header admin-card">
+    <div class="page-left">
+      <div class="breadcrumbs">
+        <span class="crumb">Tienda</span>
+        <mat-icon class="crumb-sep">chevron_right</mat-icon>
+        <span class="crumb">Productos</span>
+        <mat-icon class="crumb-sep">chevron_right</mat-icon>
+        <span class="crumb current">Nuevo</span>
+      </div>
+      <h1 class="page-title">Nuevo Producto</h1>
+    </div>
+    <span class="spacer"></span>
+    <button mat-raised-button color="primary" [disabled]="!isDirty" (click)="onSave()"><mat-icon>save</mat-icon> Guardar</button>
+  </div>
+
+  <mat-accordion class="sections">
+    <mat-expansion-panel class="admin-card" [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title>Información general</mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <div class="form-grid">
+        <!-- Fila 1: Nombre 6, Cant. disponible 2, Cant. en venta 2, Unidad 2 -->
+        <mat-form-field appearance="outline" class="col-6">
+          <mat-label>Nombre</mat-label>
+          <input matInput placeholder="Nombre del producto" (input)="isDirty = true" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="col-2"><mat-label>Cantidad disponible</mat-label><input matInput (input)="isDirty = true" /></mat-form-field>
+        <mat-form-field appearance="outline" class="col-2"><mat-label>Cantidad en venta</mat-label><input matInput (input)="isDirty = true" /></mat-form-field>
+        <mat-form-field appearance="outline" class="col-2"><mat-label>Unidad de medida</mat-label><input matInput (input)="isDirty = true" /></mat-form-field>
+
+        <!-- Fila 2: Código 3, Categoría 3, Subcategoría 3, Peso 3 -->
+        <mat-form-field appearance="outline" class="col-2"><mat-label>Código</mat-label><input matInput (input)="isDirty = true" /></mat-form-field>
+        <mat-form-field appearance="outline" class="col-2">
+          <mat-label>Categoría</mat-label>
+          <mat-select (selectionChange)="isDirty = true">
+            <mat-option value="electro">Electrodomésticos</mat-option>
+            <mat-option value="redes">Redes</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="col-2">
+          <mat-label>Sub Categoría</mat-label>
+          <mat-select (selectionChange)="isDirty = true">
+            <mat-option value="varios">Varios</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="col-2"><mat-label>Peso (kg)</mat-label><input matInput (input)="isDirty = true" /></mat-form-field>
+        <mat-form-field appearance="outline" class="col-2"><mat-label>Volumen (m3)</mat-label><input matInput (input)="isDirty = true" /></mat-form-field>
+        <mat-form-field appearance="outline" class="col-2"><mat-label>Dimensiones (L-A-H)</mat-label><input matInput (input)="isDirty = true" /></mat-form-field>
+
+        <!-- Fila 3: Especificaciones y Garantía en una fila -->
+        <mat-form-field appearance="outline" class="col-6"><mat-label>Especificaciones</mat-label><textarea matInput rows="4" (input)="isDirty = true"></textarea></mat-form-field>
+        <mat-form-field appearance="outline" class="col-6"><mat-label>Garantía</mat-label><textarea matInput rows="3" (input)="isDirty = true"></textarea></mat-form-field>
+         
+        <!-- Fila: Toggle Estado -->
+        <div class="col-6 toggle-line">
+          <span class="field-label">Estado</span>
+          <mat-slide-toggle color="primary" (change)="isDirty = true"></mat-slide-toggle>
+        </div>
+
+        <!-- Fila: Toggle Oferta del día-->
+        <div class="col-6 toggle-line">
+          <span class="field-label">Marcar como oferta del día</span>
+          <mat-slide-toggle (change)="isDirty = true"></mat-slide-toggle>
+        </div>
+      </div>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel class="admin-card">
+      <mat-expansion-panel-header>
+        <mat-panel-title>Niveles de precios</mat-panel-title>
+      </mat-expansion-panel-header>
+      <div class="price-block">
+        <div class="price-row">
+          <div class="price-title">Sector Empresarial</div>
+          <mat-slide-toggle (change)="isDirty = true">Inactivo</mat-slide-toggle>
+          <mat-form-field appearance="outline"><mat-label>Precio CUP</mat-label><input matInput placeholder="CUP 0" (input)="isDirty = true" /></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>Precio MLC</mat-label><input matInput placeholder="MLC 0" (input)="isDirty = true" /></mat-form-field>
+        </div>
+        <div class="price-row">
+          <div class="price-title">Personas Naturales</div>
+          <mat-slide-toggle (change)="isDirty = true">Inactivo</mat-slide-toggle>
+          <mat-form-field appearance="outline"><mat-label>Precio CUP</mat-label><input matInput placeholder="CUP 0" (input)="isDirty = true" /></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>Precio MLC</mat-label><input matInput placeholder="MLC 0" (input)="isDirty = true" /></mat-form-field>
+        </div>
+      </div>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel class="admin-card">
+      <mat-expansion-panel-header>
+        <mat-panel-title>Servicios del producto</mat-panel-title>
+      </mat-expansion-panel-header>
+      <div class="service-row">
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Nombre del servicio</mat-label>
+          <mat-select (selectionChange)="isDirty = true">
+            <mat-option value="garantia">Garantía extendida</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <button [style.margin-bottom]="'10px'" mat-icon-button aria-label="Eliminar"><mat-icon>delete</mat-icon></button>
+      </div>
+      <button mat-stroked-button><mat-icon>add</mat-icon> Agregar servicio</button>
+    </mat-expansion-panel>
+
+    <mat-expansion-panel class="admin-card">
+      <mat-expansion-panel-header>
+        <mat-panel-title>Imágenes</mat-panel-title>
+      </mat-expansion-panel-header>
+      <div class="images-block">
+        <!-- Grid de imágenes arriba -->
+        @if (imagePreviews.length) {
+          <div class="image-grid">
+            @for (src of imagePreviews; let i = $index; track i) {
+              <div class="image-card">
+                <img [src]="src" alt="Imagen" />
+                <button mat-mini-fab color="primary" class="delete" (click)="removeImage(i)"><mat-icon>delete</mat-icon></button>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Fila con dropzone y botón a la derecha -->
+        <div class="upload-row">
+          <div class="dropzone" [class.is-dragging]="isDragging" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+            <div class="drop-hint"><mat-icon>cloud_upload</mat-icon> Arrastra y suelta imágenes aquí</div>
+          </div>
+          <div class="actions">
+            <button mat-stroked-button class="add-image-btn" type="button" (click)="fileInput.click()"><mat-icon>add</mat-icon> Agregar imagen</button>
+            <input #fileInput type="file" accept="image/*" multiple hidden (change)="onImagesSelected($event)" />
+          </div>
+        </div>
+      </div>
+    </mat-expansion-panel>
+  </mat-accordion>
+
+  <div class="actions-footer">
+    <button mat-stroked-button type="button" (click)="onCancel()"><mat-icon>arrow_back</mat-icon> Cancelar</button>
+    <button mat-raised-button color="primary" [disabled]="!isDirty" (click)="onSave()"><mat-icon>save</mat-icon> Guardar</button>
+  </div>
+</div>
+
+

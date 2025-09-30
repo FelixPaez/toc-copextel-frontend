@@ -1,0 +1,190 @@
+// Variables globales del tema Admin (CSS variables)
+:root {
+  --admin-font-family: 'Nunito', sans-serif;
+
+  --admin-primary: #2f47c2;
+  --admin-primary-rgb: 47, 71, 194;
+  --admin-primary-hover: #263aa9;
+  --admin-primary-light: #3a59d8;
+
+  --admin-accent: #ff6b35;
+  --admin-accent-rgb: 255, 107, 53;
+  --admin-accent-light: #f7931e;
+
+  --admin-warn: #ff9800;
+  --admin-warn-rgb: 255, 152, 0;
+  --admin-warn-light: #ffb74d;
+
+  --admin-success: #4caf50;
+  --admin-success-rgb: 76, 175, 80;
+
+  --admin-danger: #df0029;
+  --admin-danger-rgb: 223, 0, 41;
+
+  --admin-gray-100: #f8f9fa;
+  --admin-gray-200: #eee;
+  --admin-gray-300: #dee2e6;
+  --admin-gray-500: #bbb;
+  --admin-gray-600: #6c757d;
+  --admin-gray-700: #495057;
+  --admin-gray-800: #343a40;
+  --admin-gray-900: #212529;
+
+  --admin-white: #fff;
+
+  /* Dimensiones y espaciados */
+  --admin-radius: 12px;
+  --admin-gap: 16px;
+  --admin-card-padding: 20px;
+  --admin-table-cell-padding: 16px 12px;
+
+  /* Sombras */
+  --admin-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --admin-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.15);
+
+  /* Layout */
+  --admin-sidenav-width: 300px;
+  --admin-topbar-height: 76px;
+  --admin-hero-bg: linear-gradient(180deg, #4e6cf3 0%, #1e3a8a 100%);
+  --admin-sidenav-bg-start: #ffffff;
+  --admin-sidenav-bg-end: #f3f5ff;
+  --admin-topbar-bg-start: #ffffff;
+  --admin-topbar-bg-end: #f7f9ff;
+
+  /* Focus ring */
+  --admin-focus-ring: 0 0 0 2px rgba(var(--admin-primary-rgb), 0.1);
+  --admin-pill-radius: 9999px;
+}
+
+// Estilos globales reutilizables para el área Admin
+
+// Tarjetas estándar
+.admin-card {
+  border-radius: var(--admin-radius);
+  box-shadow: var(--admin-shadow);
+  border: 1px solid var(--admin-gray-200);
+
+  .mat-mdc-card-content {
+    padding: var(--admin-card-padding);
+  }
+
+  &:hover {
+    box-shadow: var(--admin-shadow-hover);
+  }
+}
+
+// Tablas estándar
+.admin-table {
+  width: 100%;
+
+  .mat-mdc-header-row {
+    background-color: var(--admin-gray-100);
+  }
+
+  .mat-mdc-header-cell {
+    font-weight: 600;
+    color: var(--admin-gray-800);
+    font-size: 14px;
+    padding: var(--admin-table-cell-padding);
+  }
+
+  .mat-mdc-row {
+    .mat-mdc-cell {
+      padding: var(--admin-table-cell-padding);
+      border-bottom: 1px solid var(--admin-gray-200);
+    }
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.02);
+    }
+  }
+}
+
+// Avatar reutilizable (usa utilidades de la plantilla para tamaños: .avatar-sm, .avatar-md, .avatar-lg)
+.admin-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: var(--admin-primary);
+  color: var(--admin-white);
+  font-weight: 600;
+  user-select: none;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .avatar-initials {
+    font-size: 0.85rem;
+    line-height: 1;
+  }
+}
+
+// Snackbar (para NotificationService)
+.mat-mdc-snack-bar-container.success-notification {
+  background-color: var(--admin-success);
+  color: var(--admin-white);
+}
+
+.mat-mdc-snack-bar-container.error-notification {
+  background-color: var(--admin-danger);
+  color: var(--admin-white);
+}
+
+.mat-mdc-snack-bar-container.warning-notification {
+  background-color: var(--admin-warn);
+  color: var(--admin-gray-900);
+}
+
+.mat-mdc-snack-bar-container.info-notification {
+  background-color: var(--admin-accent);
+  color: var(--admin-white);
+}
+
+/* Botones tipo píldora (tabs/filtros) */
+.btn-pill.mat-mdc-stroked-button {
+  border-radius: var(--admin-pill-radius);
+  padding-inline: 14px;
+  border-color: var(--admin-gray-300);
+  color: var(--admin-gray-700);
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+.btn-pill.is-active,
+.btn-pill.mat-mdc-stroked-button.is-active {
+  background: rgba(var(--admin-primary-rgb), .08);
+  border-color: var(--admin-primary);
+  color: var(--admin-primary);
+}
+
+/* Utilidades de animación */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes popIn {
+  0% { transform: scale(.9); opacity: 0; }
+  60% { transform: scale(1.02); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.animate-fade-in { animation: fadeInUp .3s ease both; }
+.animate-pop-in { animation: popIn .35s ease both; }
+.hover-raise { transition: transform .2s ease, box-shadow .2s ease; }
+.hover-raise:hover { transform: translateY(-2px); box-shadow: var(--admin-shadow-hover); }
+
+/* Tipografía utilidades */
+.text-muted { color: var(--admin-gray-600); }
+.text-strong { font-weight: 700; }
+
+.mat-mdc-snack-bar-container.success-notification .mdc-button__label,
+.mat-mdc-snack-bar-container.error-notification .mdc-button__label,
+.mat-mdc-snack-bar-container.warning-notification .mdc-button__label,
+.mat-mdc-snack-bar-container.info-notification .mdc-button__label {
+  color: inherit;
+}
+
+

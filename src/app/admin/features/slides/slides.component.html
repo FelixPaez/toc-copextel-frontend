@@ -1,0 +1,74 @@
+<div class="slides-container">
+  <!-- Header -->
+  <div class="page-header admin-card animate-fade-in">
+    <div class="page-left">
+      <div class="breadcrumbs">
+        <span class="crumb">Nomencladores</span>
+        <mat-icon class="crumb-sep">chevron_right</mat-icon>
+        <span class="crumb">Diapositivas</span>
+      </div>
+      <h1 class="page-title">Listado de Diapositivas</h1>
+    </div>
+    <div class="page-right">
+      <button mat-raised-button class="btn-danger" (click)="onAddSlide()">
+        <mat-icon>add</mat-icon>
+        Nueva
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabla de Diapositivas -->
+  <mat-card class="slides-table-card admin-card animate-fade-in hover-raise">
+    <mat-card-content>
+      <div class="table-header">
+        <div class="table-right">
+          <h3 class="table-title">Listado de diapositivas</h3>
+        </div>
+      </div>
+      
+      <table mat-table [dataSource]="slides" class="slides-table admin-table">
+        
+        <!-- Título Column -->
+        <ng-container matColumnDef="title">
+          <th mat-header-cell *matHeaderCellDef>Título</th>
+          <td mat-cell *matCellDef="let slide" class="slide-title">{{ slide.title }}</td>
+        </ng-container>
+
+        <!-- Subtítulo Column -->
+        <ng-container matColumnDef="subtitle">
+          <th mat-header-cell *matHeaderCellDef>Subtítulo</th>
+          <td mat-cell *matCellDef="let slide" class="slide-subtitle">{{ slide.subtitle }}</td>
+        </ng-container>
+
+        <!-- Activo Column -->
+        <ng-container matColumnDef="active">
+          <th mat-header-cell *matHeaderCellDef>Activo</th>
+          <td mat-cell *matCellDef="let slide">
+            @if (slide.active) { 
+              <mat-icon class="icon-active">check_circle</mat-icon> 
+            }
+            @else { 
+              <mat-icon class="icon-inactive">cancel</mat-icon> 
+            }
+          </td>
+        </ng-container>
+
+        <!-- Acciones Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Acciones</th>
+          <td mat-cell *matCellDef="let slide" class="actions-cell">
+            <button mat-icon-button class="action-btn" aria-label="Editar" (click)="onEditSlide(slide)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button class="action-btn warn" aria-label="Eliminar" (click)="onDeleteSlide(slide)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </mat-card-content>
+  </mat-card>
+</div>

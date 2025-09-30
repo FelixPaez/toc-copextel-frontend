@@ -1,0 +1,355 @@
+@use "sass:color";
+
+// Tokens admin (CSS variables)
+$primary-color: var(--admin-primary);
+$red-color: var(--admin-danger);
+$gray-100: var(--admin-gray-100);
+$gray-200: var(--admin-gray-200);
+$gray-300: var(--admin-gray-300);
+$gray-500: var(--admin-gray-500);
+$gray-600: var(--admin-gray-600);
+$gray-700: var(--admin-gray-700);
+$gray-800: var(--admin-gray-800);
+$gray-900: var(--admin-gray-900);
+$white: var(--admin-white);
+
+.customers-container {
+  padding: 24px;
+  background-color: $gray-100;
+  min-height: 100vh;
+  font-family: 'Nunito', sans-serif;
+}
+
+// Header
+.customers-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  
+  .header-content {
+    h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: $gray-800;
+      margin: 0 0 8px 0;
+    }
+    
+    p {
+      font-size: 16px;
+      color: $gray-600;
+      margin: 0;
+    }
+  }
+  
+  .add-button {
+    ::ng-deep .mat-mdc-raised-button {
+      background-color: $primary-color;
+      &:hover { background-color: var(--admin-primary-hover); }
+    }
+  }
+}
+
+// Estadísticas Grid
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  border-radius: var(--admin-radius);
+  box-shadow: var(--admin-shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--admin-shadow-hover);
+  }
+  
+  ::ng-deep .mat-mdc-card-content {
+    padding: var(--admin-card-padding);
+  }
+}
+
+.stat-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.stat-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: $primary-color;
+}
+
+.stat-info {
+  flex: 1;
+  
+  h3 {
+    font-size: 14px;
+    font-weight: 500;
+    color: $gray-600;
+    margin: 0 0 4px 0;
+  }
+  
+  .stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: $gray-800;
+    margin: 0 0 4px 0;
+  }
+  
+  .stat-change {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    
+    &.positive { background-color: rgba(var(--admin-success-rgb), 0.1); color: var(--admin-success); }
+    
+    &.negative {
+      background-color: rgba($red-color, 0.1);
+      color: $red-color;
+    }
+  }
+}
+
+// Filtros
+.filters-card {
+  margin-bottom: 24px;
+  border-radius: var(--admin-radius);
+  box-shadow: var(--admin-shadow);
+  
+  ::ng-deep .mat-mdc-card-content {
+    padding: var(--admin-card-padding);
+  }
+}
+
+.filters-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.search-section {
+  position: relative;
+  flex: 1;
+  max-width: 400px;
+  
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $gray-500;
+    z-index: 1;
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 12px 12px 12px 44px;
+    border: 1px solid $gray-300;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: 'Nunito', sans-serif;
+    
+    &:focus { outline: none; border-color: $primary-color; box-shadow: 0 0 0 2px rgba(var(--admin-primary-rgb), 0.1); }
+    
+    &::placeholder {
+      color: $gray-500;
+    }
+  }
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 12px;
+  
+  ::ng-deep .mat-mdc-stroked-button {
+    border-color: $gray-300;
+    color: $gray-700;
+    
+    &:hover {
+      border-color: $primary-color;
+      color: $primary-color;
+    }
+  }
+}
+
+// Tabla de clientes
+.customers-table-card {
+  border-radius: var(--admin-radius);
+  box-shadow: var(--admin-shadow);
+  overflow: hidden;
+  
+  ::ng-deep .mat-mdc-card-content {
+    padding: 0;
+  }
+}
+
+.customers-table {
+  width: 100%;
+  
+  ::ng-deep .mat-mdc-header-row {
+    background-color: $gray-100;
+    
+    .mat-mdc-header-cell {
+      font-weight: 600;
+      color: $gray-800;
+      font-size: 14px;
+      padding: 16px 12px;
+    }
+  }
+  
+  ::ng-deep .mat-mdc-row { &:hover { background-color: rgba(var(--admin-primary-rgb), 0.02); }
+    
+    .mat-mdc-cell {
+      padding: 16px 12px;
+      border-bottom: 1px solid $gray-200;
+    }
+  }
+}
+
+// Avatar del cliente
+.customer-avatar {
+  width: 40px;
+  height: 40px;
+  
+  ::ng-deep .mat-mdc-avatar {
+    background-color: $primary-color;
+    color: $white;
+    font-weight: 600;
+    font-size: 14px;
+  }
+}
+
+// Información del cliente
+.customer-info {
+  h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: $gray-800;
+    margin: 0 0 4px 0;
+  }
+  
+  p {
+    font-size: 12px;
+    color: $gray-600;
+    margin: 0;
+  }
+}
+
+.customer-email {
+  font-size: 14px;
+  color: $gray-700;
+}
+
+.customer-phone {
+  font-size: 14px;
+  color: $gray-700;
+}
+
+.join-date {
+  font-size: 14px;
+  color: $gray-700;
+}
+
+.orders-count {
+  font-size: 14px;
+  color: $gray-700;
+  font-weight: 500;
+}
+
+.total-spent {
+  font-weight: 600;
+  color: $gray-800;
+  font-size: 14px;
+}
+
+// Chips
+::ng-deep .mat-mdc-chip {
+  font-size: 12px;
+  font-weight: 500;
+  
+  &.mat-mdc-chip-selected {
+    &.mat-primary {
+      background-color: rgba($primary-color, 0.1);
+      color: $primary-color;
+    }
+    
+    &.mat-accent { background-color: rgba(var(--admin-accent-rgb), 0.1); color: var(--admin-accent); }
+    
+    &.mat-warn {
+      background-color: rgba($red-color, 0.1);
+      color: $red-color;
+    }
+    
+    &.mat-success { background-color: rgba(var(--admin-success-rgb), 0.1); color: var(--admin-success); }
+  }
+}
+
+// Paginación
+::ng-deep .mat-mdc-paginator {
+  border-top: 1px solid $gray-200;
+  background-color: $white;
+}
+
+// Responsive
+@media (max-width: 1024px) {
+  .customers-container {
+    padding: 16px;
+  }
+  
+  .customers-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    
+    .header-content h1 {
+      font-size: 24px;
+    }
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .filters-content {
+    .search-section {
+      max-width: none;
+    }
+  }
+  
+  .customers-table {
+    ::ng-deep .mat-mdc-header-cell,
+    ::ng-deep .mat-mdc-cell {
+      padding: 12px 8px;
+      font-size: 12px;
+    }
+  }
+  
+  .displayedColumns {
+    // Ocultar columnas menos importantes en móvil
+    .mat-column-phone,
+    .mat-column-joinDate,
+    .mat-column-orders {
+      display: none;
+    }
+  }
+}

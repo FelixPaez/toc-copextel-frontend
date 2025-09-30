@@ -7,5 +7,5 @@ import { Component } from '@angular/core';
     standalone: false
 })
 export class AppComponent {
-  title = 'bootDash';
+  title = 'Panel Administrativo - Tienda Online';
 }

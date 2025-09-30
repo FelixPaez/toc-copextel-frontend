@@ -1,0 +1,70 @@
+<div class="vendors-container">
+  <!-- Header -->
+  <div class="page-header admin-card animate-fade-in">
+    <div class="page-left">
+      <div class="breadcrumbs">
+        <span class="crumb">Nomencladores</span>
+        <mat-icon class="crumb-sep">chevron_right</mat-icon>
+        <span class="crumb">Vendedores</span>
+      </div>
+      <h1 class="page-title">Listado de Vendedores</h1>
+    </div>
+    <div class="page-right">
+      <mat-form-field appearance="outline" class="search-field">
+        
+        <input matInput [formControl]="searchControl" placeholder="Buscar vendedor...">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+      
+      <button mat-raised-button class="btn-danger" (click)="onAddVendor()">
+        <mat-icon>add</mat-icon>
+        Nuevo
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabla de Vendedores -->
+  <mat-card class="vendors-table-card admin-card animate-fade-in hover-raise">
+    <mat-card-content>
+      <div class="table-header">
+        <div class="table-right">
+          <h3 class="table-title">Listado de vendedores</h3>
+        </div>
+      </div>
+      
+      <table mat-table [dataSource]="dataSource" class="vendors-table admin-table">
+        <!-- Nombre Column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Nombre</th>
+          <td mat-cell *matCellDef="let vendor">{{ vendor.name }}</td>
+        </ng-container>
+
+        <!-- Activo Column -->
+        <ng-container matColumnDef="active">
+          <th mat-header-cell *matHeaderCellDef>Activo</th>
+          <td mat-cell *matCellDef="let vendor">
+            @if (vendor.active) { <mat-icon class="icon-active">check_circle</mat-icon> }
+            @else { <mat-icon class="icon-inactive">cancel</mat-icon> }
+          </td>
+        </ng-container>
+
+        <!-- Acciones Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Acciones</th>
+          <td mat-cell *matCellDef="let vendor" class="actions-cell">
+            <button mat-icon-button class="action-btn" aria-label="Editar" (click)="onEditVendor(vendor)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button class="action-btn warn" aria-label="Eliminar" (click)="onDeleteVendor(vendor)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </mat-card-content>
+    <mat-paginator [pageSizeOptions]="[5, 10, 25, 50]" showFirstLastButtons class="vendors-paginator"></mat-paginator>
+  </mat-card>
+</div>

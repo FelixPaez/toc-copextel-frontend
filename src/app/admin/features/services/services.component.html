@@ -1,0 +1,101 @@
+<div class="services-container">
+  <!-- Header -->
+  <div class="page-header admin-card animate-fade-in">
+    <div class="page-left">
+      <div class="breadcrumbs">
+        <span class="crumb">Nomencladores</span>
+        <mat-icon class="crumb-sep">chevron_right</mat-icon>
+        <span class="crumb">Servicios</span>
+      </div>
+      <h1 class="page-title">Servicios</h1>
+    </div>
+    <div class="page-right">
+      
+        <mat-form-field appearance="outline" class="search-field">
+         
+          <input matInput [formControl]="searchControl" placeholder="Buscar servicios...">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+     
+      <button mat-raised-button class="btn-danger" (click)="onAddService()">
+        <mat-icon>add</mat-icon>
+        Nuevo
+      </button>
+    </div>
+  </div>
+
+  <!-- Services Table -->
+  <mat-card class="services-table-card admin-card animate-fade-in hover-raise">
+    <mat-card-content>
+      <div class="table-header">
+        <div class="table-right">
+          <h3 class="table-title">Listado de servicios</h3>
+        </div>
+      </div>
+      
+      <table mat-table [dataSource]="services" class="services-table admin-table">
+        
+        <!-- Nombre Column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Nombre</th>
+          <td mat-cell *matCellDef="let service" class="service-name">{{ service.name }}</td>
+        </ng-container>
+
+        <!-- Precio CUP Column -->
+        <ng-container matColumnDef="priceCUP">
+          <th mat-header-cell *matHeaderCellDef>Precio CUP</th>
+          <td mat-cell *matCellDef="let service" class="price-cup">{{ formatPrice(service.priceCUP) }}</td>
+        </ng-container>
+
+        <!-- Precio MLC Column -->
+        <ng-container matColumnDef="priceMLC">
+          <th mat-header-cell *matHeaderCellDef>Precio MLC</th>
+          <td mat-cell *matCellDef="let service" class="price-mlc">{{ formatPrice(service.priceMLC) }}</td>
+        </ng-container>
+
+        <!-- Activo Column -->
+        <ng-container matColumnDef="active">
+          <th mat-header-cell *matHeaderCellDef>Activo</th>
+          <td mat-cell *matCellDef="let service">
+            @if (service.active) { 
+              <mat-icon class="icon-active">check_circle</mat-icon> 
+            }
+            @else { 
+              <mat-icon class="icon-inactive">cancel</mat-icon> 
+            }
+          </td>
+        </ng-container>
+
+        <!-- Acciones Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Acciones</th>
+          <td mat-cell *matCellDef="let service" class="actions-cell">
+            <button mat-icon-button class="action-btn" aria-label="Ver" (click)="onViewService(service)">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button mat-icon-button class="action-btn" aria-label="Editar" (click)="onEditService(service)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button class="action-btn warn" aria-label="Eliminar" (click)="onDeleteService(service)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      <!-- Pagination -->
+      <mat-paginator 
+        [length]="totalItems"
+        [pageSize]="pageSize"
+        [pageIndex]="pageIndex"
+        [pageSizeOptions]="[5, 10, 25, 50]"
+        [showFirstLastButtons]="true"
+        (page)="onPageChange($event)"
+        class="services-paginator">
+      </mat-paginator>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,139 @@
+<div class="categories-container">
+  <!-- Header -->
+  <div class="page-header admin-card animate-fade-in">
+    <div class="page-left">
+      <div class="breadcrumbs">
+        <span class="crumb">Nomencladores</span>
+        <mat-icon class="crumb-sep">chevron_right</mat-icon>
+        <span class="crumb">Categorías</span>
+      </div>
+      <h1 class="page-title">Categorías</h1>
+    </div>
+  </div>
+
+  <!-- Categories Section -->
+  <mat-card class="categories-card admin-card animate-fade-in hover-raise">
+    <mat-expansion-panel 
+      [expanded]="categoriesExpanded"
+      (opened)="categoriesExpanded = true"
+      (closed)="categoriesExpanded = false">
+      
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <h3 class="section-title">Listado de categorías</h3>
+        </mat-panel-title>
+        <div class="section-actions">
+          <button mat-raised-button class="btn-danger" (click)="onAddCategory(); $event.stopPropagation()">
+            <mat-icon>add</mat-icon>
+            Nueva
+          </button>
+        </div>
+      </mat-expansion-panel-header>
+
+      <div class="table-container">
+        <table mat-table [dataSource]="categories" class="categories-table admin-table">
+          
+          <!-- Nombre Column -->
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Nombre</th>
+            <td mat-cell *matCellDef="let category">
+              <span class="category-name">{{ category.name }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Activo Column -->
+          <ng-container matColumnDef="active">
+            <th mat-header-cell *matHeaderCellDef>Activo</th>
+            <td mat-cell *matCellDef="let category">
+              @if (category.active) { 
+                <mat-icon class="icon-active">check_circle</mat-icon> 
+              }
+              @else { 
+                <mat-icon class="icon-inactive">cancel</mat-icon> 
+              }
+            </td>
+          </ng-container>
+
+          <!-- Acciones Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Acciones</th>
+            <td mat-cell *matCellDef="let category" class="actions-cell">
+              <button mat-icon-button class="action-btn" aria-label="Editar" (click)="onEditCategory(category)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button class="action-btn warn" aria-label="Eliminar" (click)="onDeleteCategory(category)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="categoriesDisplayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: categoriesDisplayedColumns;"></tr>
+        </table>
+      </div>
+    </mat-expansion-panel>
+  </mat-card>
+
+  <!-- Subcategories Section -->
+  <mat-card class="subcategories-card admin-card animate-fade-in hover-raise">
+    <mat-expansion-panel 
+      [expanded]="subcategoriesExpanded"
+      (opened)="subcategoriesExpanded = true"
+      (closed)="subcategoriesExpanded = false">
+      
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <h3 class="section-title">Listado de sub categorías</h3>
+        </mat-panel-title>
+        <div class="section-actions">
+          <button mat-raised-button class="btn-danger" (click)="onAddSubcategory(); $event.stopPropagation()">
+            <mat-icon>add</mat-icon>
+            Nueva
+          </button>
+        </div>
+      </mat-expansion-panel-header>
+      
+      <div class="table-container">
+        <table mat-table [dataSource]="subcategories" class="subcategories-table admin-table">
+          
+          <!-- Nombre Column -->
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Nombre</th>
+            <td mat-cell *matCellDef="let subcategory">
+              <span class="subcategory-name">{{ subcategory.name }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Activo Column -->
+          <ng-container matColumnDef="active">
+            <th mat-header-cell *matHeaderCellDef>Activo</th>
+            <td mat-cell *matCellDef="let subcategory">
+              @if (subcategory.active) { 
+                <mat-icon class="icon-active">check_circle</mat-icon> 
+              }
+              @else { 
+                <mat-icon class="icon-inactive">cancel</mat-icon> 
+              }
+            </td>
+          </ng-container>
+
+          <!-- Acciones Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Acciones</th>
+            <td mat-cell *matCellDef="let subcategory" class="actions-cell">
+              <button mat-icon-button class="action-btn" aria-label="Editar" (click)="onEditSubcategory(subcategory)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button class="action-btn warn" aria-label="Eliminar" (click)="onDeleteSubcategory(subcategory)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="subcategoriesDisplayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: subcategoriesDisplayedColumns;"></tr>
+        </table>
+      </div>
+    </mat-expansion-panel>
+  </mat-card>
+</div>

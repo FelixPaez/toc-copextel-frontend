@@ -1,0 +1,45 @@
+<div class="user-detail-dialog">
+  <h2 mat-dialog-title class="dialog-title">{{ getUserDisplayName() }}</h2>
+  
+  <mat-dialog-content class="dialog-content">
+    <div class="user-info">
+      <div class="user-avatar">
+        <span class="avatar-initials">{{ getUserInitials() }}</span>
+      </div>
+      
+      <div class="user-details">
+        <div class="email-info">
+          <mat-icon class="email-icon">email</mat-icon>
+          <span class="email-text">{{ data.user.email }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Número de identidad:</span>
+          <span class="detail-value">{{ data.user.identityNumber }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Unidad Organizativa:</span>
+          <span class="detail-value">{{ data.user.organizationalUnit }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Activo:</span>
+          <span class="detail-value">
+            @if (data.user.active) {
+              <mat-icon class="status-active">check_circle</mat-icon>
+            } @else {
+              <mat-icon class="status-inactive">cancel</mat-icon>
+            }
+          </span>
+        </div>
+      </div>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="dialog-actions">
+    <button mat-raised-button class="btn-danger" (click)="onClose()">
+      Cerrar
+    </button>
+  </mat-dialog-actions>
+</div>

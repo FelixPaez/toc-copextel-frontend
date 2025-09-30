@@ -1,0 +1,229 @@
+@use "sass:color";
+
+/* Variables mapeadas a tokens globales */
+$primary-color: var(--admin-primary);
+$red-color: var(--admin-danger);
+$gray-100: var(--admin-gray-100);
+$gray-200: var(--admin-gray-200);
+$gray-300: var(--admin-gray-300);
+$gray-500: var(--admin-gray-500);
+$gray-600: var(--admin-gray-600);
+$gray-700: var(--admin-gray-700);
+$gray-800: var(--admin-gray-800);
+$gray-900: var(--admin-gray-900);
+$white: var(--admin-white);
+
+.categories-container {
+  padding: 24px;
+  background-color: $gray-100;
+  min-height: 100vh;
+  font-family: 'Nunito', sans-serif;
+}
+
+/* Header con breadcrumbs */
+.page-header { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  gap: 16px; 
+  padding: 16px 20px; 
+  margin-bottom: 16px; 
+  background: linear-gradient(180deg, var(--admin-topbar-bg-start), var(--admin-topbar-bg-end)); 
+  border: 1px solid $gray-200; 
+  border-radius: var(--admin-radius); 
+}
+
+.page-left { 
+  display: flex; 
+  flex-direction: column; 
+}
+
+.breadcrumbs { 
+  display: flex; 
+  align-items: center; 
+  gap: 6px; 
+  color: $gray-600; 
+  font-size: 11px; 
+  margin-bottom: 6px; 
+}
+
+.crumb-sep { 
+  font-size: 12px; 
+  width: 12px; 
+  height: 12px; 
+  color: $gray-500; 
+  display: flex; 
+  align-items: center; 
+}
+
+.page-title { 
+  margin: 0; 
+  font-size: 28px; 
+  font-weight: 800; 
+  letter-spacing: .2px; 
+  color: $gray-800; 
+}
+
+/* Cards */
+.categories-card, .subcategories-card {
+  border-radius: var(--admin-radius);
+  box-shadow: var(--admin-shadow);
+  overflow: hidden;
+  margin-bottom: 16px;
+  
+  ::ng-deep .mat-mdc-card-content {
+    padding: 0;
+  }
+}
+
+/* Section Headers */
+
+.section-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: $gray-800;
+  white-space: nowrap;
+}
+
+.section-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-right: 16px;
+}
+
+.btn-danger.mat-mdc-raised-button { 
+  background-color: var(--admin-danger); 
+  color: $white; 
+  box-shadow: var(--admin-shadow); 
+}
+
+.btn-danger.mat-mdc-raised-button:hover { 
+  background-color: color.adjust(#df0029, $lightness: -6%); 
+}
+
+
+/* Expansion Panel Styles */
+::ng-deep .mat-expansion-panel-header {
+  padding: 16px 20px;
+  font-weight: 700;
+  color: $gray-800;
+  
+  .mat-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+}
+
+::ng-deep .mat-expansion-panel-body {
+  padding: 0;
+}
+
+/* Tables */
+.table-container {
+  overflow-x: auto;
+}
+
+.categories-table, .subcategories-table {
+  width: 100%; 
+  
+  ::ng-deep .mat-mdc-header-row {
+    background-color: $gray-100;
+    border-bottom: 1px solid $gray-200;
+    
+    .mat-mdc-header-cell {
+      font-weight: 600;
+      color: $gray-800;
+      font-size: 14px;
+      padding: 16px 12px;
+    }
+  }
+  
+  ::ng-deep .mat-mdc-row {
+    &:hover {
+      background-color: rgba(var(--admin-primary-rgb), 0.02);
+    }
+    
+    .mat-mdc-cell {
+      padding: 16px 12px;
+      border-bottom: 1px solid $gray-200;
+    }
+    &:last-child .mat-mdc-cell { 
+      border-bottom: none; 
+    }
+  }
+}
+
+/* Category/Subcategory Info */
+.category-name, .subcategory-name { 
+  font-size: 14px; 
+  font-weight: 600; 
+  color: $gray-800; 
+}
+
+.icon-active { color: var(--admin-success); }
+.icon-inactive { color: $gray-500; }
+
+.actions-cell { 
+  display: flex; 
+  align-items: center; 
+  gap: 6px; 
+  vertical-align: middle;
+  height: 100%;
+  min-height: 48px;
+}
+
+.action-btn { 
+  border: 1px solid $gray-300; 
+  border-radius: 18px; 
+  width: 28px; 
+  height: 28px; 
+}
+
+.action-btn .mat-icon { 
+  font-size: 16px; 
+  width: 16px; 
+  height: 16px; 
+  line-height: 16px; 
+}
+
+.action-btn.warn { 
+  border-color: var(--admin-warn); 
+  color: var(--admin-warn); 
+}
+
+// Responsive
+@media (max-width: 1024px) {
+  .categories-container {
+    padding: 16px;
+  }
+  
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    
+    .page-title { 
+      font-size: 24px; 
+    }
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .categories-table, .subcategories-table {
+    ::ng-deep .mat-mdc-header-cell,
+    ::ng-deep .mat-mdc-cell {
+      padding: 12px 8px;
+      font-size: 12px;
+    }
+  }
+}

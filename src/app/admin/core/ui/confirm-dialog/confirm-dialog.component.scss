@@ -1,0 +1,29 @@
+.dialog { display: grid; grid-template-rows: auto 1fr auto; gap: 0; min-height: 0; padding: 20px; }
+.dialog-header { display: flex; align-items: center; gap: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--admin-gray-200); }
+.icon-badge { display: inline-flex; width: 36px; height: 36px; border-radius: 10px; align-items: center; justify-content: center; }
+.titles { display: flex; flex-direction: column; gap: 2px; }
+.dialog-title { margin: 0; font-weight: 800; color: var(--admin-gray-800); }
+.dialog-subtitle { font-size: 12px; color: var(--admin-gray-600); }
+.dialog-content { padding: 12px 0 16px 0; color: var(--admin-gray-700); overflow: auto; }
+.dialog-content p { margin: 0; }
+.dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 0; padding-top: 12px; border-top: 1px solid var(--admin-gray-200); }
+
+/* Variantes por tipo */
+.type-primary .icon-badge { background: rgba(var(--admin-primary-rgb), .1); color: var(--admin-primary); }
+.type-warn .icon-badge { background: rgba(var(--admin-warn-rgb), .12); color: var(--admin-warn); }
+.type-danger .icon-badge { background: rgba(var(--admin-danger-rgb), .12); color: var(--admin-danger); }
+.type-success .icon-badge { background: rgba(var(--admin-success-rgb), .12); color: var(--admin-success); }
+
+.type-primary .btn-confirm { background-color: var(--admin-primary); color: var(--admin-white); }
+.type-warn .btn-confirm { background-color: var(--admin-warn); color: var(--admin-gray-900); }
+.type-danger .btn-confirm { background-color: var(--admin-danger); color: var(--admin-white); }
+.type-success .btn-confirm { background-color: var(--admin-success); color: var(--admin-white); }
+
+.btn-cancel { border-color: var(--admin-gray-300); color: var(--admin-gray-700); }
+
+:host ::ng-deep .mat-mdc-dialog-surface { border-radius: var(--admin-radius); box-shadow: var(--admin-shadow); padding: 0; overflow: hidden; }
+.dialog-content { max-height: 36vh; }
+
+@media (min-height: 800px) { .dialog-content { max-height: 44vh; } }
+@media (max-height: 600px) { .dialog-content { max-height: 28vh; } }
+
