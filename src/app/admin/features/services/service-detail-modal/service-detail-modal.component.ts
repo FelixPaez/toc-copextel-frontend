@@ -248,7 +248,7 @@ export interface ServiceDetailData {
       }
     }
 
-    // Responsive
+    /* Responsive */
     @media (max-width: 768px) {
       .service-detail-dialog {
         min-width: 300px;

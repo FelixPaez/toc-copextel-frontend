@@ -1,8 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { map, tap, catchError, delay } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { catchError, switchMap, tap } from 'rxjs/operators';
+
+// Utils
+import { AuthUtils } from '../utils/auth.utils';
+
+// Types
+import { IResponse } from '../models/shared.types';
+import { StorageService } from './storage.service';
 
 // Interfaces
 export interface LoginCredentials {
@@ -11,86 +18,32 @@ export interface LoginCredentials {
   rememberMe?: boolean;
 }
 
-export interface AuthToken {
-  accessToken: string;
-  refreshToken: string;
-  expiresIn: number;
-  tokenType: string;
-}
-
 export interface AuthState {
   user: any | null;
-  token: AuthToken | null;
+  token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  menu?: any;
 }
 
-export interface User {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  fullName: string;
-  avatar?: string;
-  role: string;
-  permissions: string[];
-  isActive: boolean;
-  lastLogin?: Date;
-  createdAt: Date;
-  updatedAt: Date;
-}
+// Variables
+import { environment } from '../../../../environments/environment';
 
-export interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  message?: string;
-  errors?: any[];
-  pagination?: any;
-  timestamp: Date;
-}
+// API Url
+const API_URL_GATEWAY = environment.API_URL_GATEWAY;
+const TOKEN_KEY = 'tocAccessToken';
+const USER_KEY = 'tocUser';
+const MENU_KEY = 'tocMenu';
 
+/**
+ * Auth Service
+ * Servicio de autenticación con integración al backend real
+ */
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly API_URL = '/api/auth';
-  private readonly TOKEN_KEY = 'auth_token';
-  private readonly USER_KEY = 'current_user';
-
-  // Usuario de ejemplo para testing
-  private readonly DEMO_USER: User = {
-    id: '1',
-    email: 'admin@tienda.com',
-    firstName: 'Administrador',
-    lastName: 'Sistema',
-    fullName: 'Administrador Sistema',
-    avatar: 'assets/images/faces/1.jpg',
-    role: 'admin',
-    permissions: [
-      'dashboard:read',
-      'products:read',
-      'products:write',
-      'orders:read',
-      'orders:write',
-      'customers:read',
-      'customers:write',
-      
-      'reports:read',
-      'settings:read',
-      'settings:write'
-    ],
-    isActive: true,
-    lastLogin: new Date(),
-    createdAt: new Date('2023-01-01'),
-    updatedAt: new Date()
-  };
-
-  private readonly DEMO_TOKEN: AuthToken = {
-    accessToken: 'demo-access-token-12345',
-    refreshToken: 'demo-refresh-token-12345',
-    expiresIn: new Date(Date.now() + 24 * 60 * 60 * 1000).getTime(), // 24 horas
-    tokenType: 'Bearer'
-  };
+  private _authenticated: boolean = false;
 
   private authStateSubject = new BehaviorSubject<AuthState>({
     user: null,
@@ -101,135 +54,44 @@ export class AuthService {
 
   public authState$ = this.authStateSubject.asObservable();
 
+  /**
+   * Constructor
+   */
   constructor(
-    private http: HttpClient,
-    private router: Router
+    private _httpClient: HttpClient,
+    private _router: Router,
+    private _storageService: StorageService
   ) {
-    this.initializeAuth();
+    // Inicializar estado desde storage
+    this._initializeAuth();
   }
 
-  /**
-   * Initialize authentication state from storage
-   */
-  private initializeAuth(): void {
-    const token = this.getItem<AuthToken>(this.TOKEN_KEY);
-    const user = this.getItem<User>(this.USER_KEY);
+  // -----------------------------------------------------------------------------------------------------
+  // @ Accessors
+  // -----------------------------------------------------------------------------------------------------
 
-    if (token && user && !this.isTokenExpired(token)) {
-      this.authStateSubject.next({
-        user,
-        token,
-        isAuthenticated: true,
-        isLoading: false
-      });
-    }
+  /**
+   * Setter & getter for access token
+   */
+  set tocAccessToken(token: string) {
+    this._storageService.setItem(TOKEN_KEY, token);
   }
 
-  /**
-   * Login user
-   */
-  login(credentials: LoginCredentials): Observable<User> {
-    this.setLoading(true);
-
-    // Simular autenticación con usuario demo
-    return of({ success: true, data: { user: this.DEMO_USER, token: this.DEMO_TOKEN } }).pipe(
-      delay(1000), // Simular delay de red
-      map(response => {
-        if (!response.success) {
-          throw new Error('Login failed');
-        }
-
-        const { user, token } = response.data!;
-        
-        // Store authentication data
-        this.setItem(this.TOKEN_KEY, token);
-        this.setItem(this.USER_KEY, user);
-
-        // Update auth state
-        this.authStateSubject.next({
-          user,
-          token,
-          isAuthenticated: true,
-          isLoading: false
-        });
-
-        return user;
-      }),
-      catchError(error => {
-        this.setLoading(false);
-        return throwError(() => error);
-      })
-    );
-  }
-
-  /**
-   * Logout user
-   */
-  logout(): void {
-    // Clear storage
-    this.removeItem(this.TOKEN_KEY);
-    this.removeItem(this.USER_KEY);
-
-    // Update auth state
-    this.authStateSubject.next({
-      user: null,
-      token: null,
-      isAuthenticated: false,
-      isLoading: false
-    });
-
-    this.router.navigate(['/auth/login']);
-  }
-
-  /**
-   * Refresh authentication token
-   */
-  refreshToken(): Observable<AuthToken> {
-    const currentToken = this.getItem<AuthToken>(this.TOKEN_KEY);
-    
-    if (!currentToken?.refreshToken) {
-      return throwError(() => new Error('No refresh token available'));
-    }
-
-    return this.http.post<ApiResponse<AuthToken>>(
-      `${this.API_URL}/refresh`,
-      { refreshToken: currentToken.refreshToken }
-    ).pipe(
-      map(response => {
-        if (!response.success) {
-          throw new Error(response.message || 'Token refresh failed');
-        }
-
-        const newToken = response.data!;
-        this.setItem(this.TOKEN_KEY, newToken);
-
-        // Update auth state
-        const currentState = this.authStateSubject.value;
-        this.authStateSubject.next({
-          ...currentState,
-          token: newToken
-        });
-
-        return newToken;
-      }),
-      catchError(error => {
-        this.logout();
-        return throwError(() => error);
-      })
-    );
+  get tocAccessToken(): string {
+    return this._storageService.getItem<string>(TOKEN_KEY) || '';
   }
 
   /**
    * Get current user
    */
-  getCurrentUser(): User | null {
+  getCurrentUser(): any | null {
     return this.authStateSubject.value.user;
   }
 
   /**
    * Get current token
    */
-  getCurrentToken(): AuthToken | null {
+  getCurrentToken(): string | null {
     return this.authStateSubject.value.token;
   }
 
@@ -240,86 +102,238 @@ export class AuthService {
     return this.authStateSubject.value.isAuthenticated;
   }
 
+  // -----------------------------------------------------------------------------------------------------
+  // @ Public methods
+  // -----------------------------------------------------------------------------------------------------
+
   /**
-   * Check if user has specific role
+   * Inicializar autenticación desde storage
    */
-  hasRole(role: string): boolean {
-    const user = this.getCurrentUser();
-    return user?.role === role;
+  private _initializeAuth(): void {
+    const token = this.tocAccessToken;
+    const user = this._storageService.getItem<any>(USER_KEY);
+    const menu = this._storageService.getItem<any>(MENU_KEY);
+
+    if (token && user && !AuthUtils.isTokenExpired(token)) {
+      this._authenticated = true;
+      this.authStateSubject.next({
+        user,
+        token,
+        isAuthenticated: true,
+        isLoading: false,
+        menu
+      });
+    } else {
+      // Limpiar si el token está expirado
+      if (token && AuthUtils.isTokenExpired(token)) {
+        this._clearAuth();
+      }
+    }
   }
 
   /**
-   * Check if user has any of the specified roles
+   * Sign in
+   *
+   * @param credentials - Credenciales de login
    */
-  hasAnyRole(roles: string[]): boolean {
-    const user = this.getCurrentUser();
-    return user ? roles.includes(user.role) : false;
+  public signIn(credentials: LoginCredentials): Observable<IResponse> {
+    // Lanzar error si el usuario ya está autenticado
+    if (this._authenticated) {
+      return throwError(() => new Error('Ya ha iniciado sesión.'));
+    }
+
+    this._setLoading(true);
+
+    return this._httpClient.post<IResponse>(`${API_URL_GATEWAY}/auth/admin/signin`, credentials).pipe(
+      switchMap((response) => {
+        // Almacenar el token de acceso en el storage
+        this.tocAccessToken = response.token || '';
+
+        // Establecer la bandera de autenticado a true
+        this._authenticated = true;
+
+        // Almacenar el usuario
+        if (response.user) {
+          this._storageService.setItem(USER_KEY, response.user);
+        }
+
+        // Almacenar el menú
+        if (response.menu) {
+          this._storageService.setItem(MENU_KEY, response.menu);
+        }
+
+        // Actualizar el estado
+        this.authStateSubject.next({
+          user: response.user || null,
+          token: response.token || null,
+          isAuthenticated: true,
+          isLoading: false,
+          menu: response.menu || null
+        });
+
+        // Retornar la respuesta
+        return of(response);
+      }),
+      catchError((error) => {
+        this._setLoading(false);
+        this._authenticated = false;
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
-   * Check if user has specific permission
+   * Sign in using the access token
    */
-  hasPermission(permission: string): boolean {
-    const user = this.getCurrentUser();
-    return user?.permissions.includes(permission) || false;
+  public signInUsingToken(): Observable<boolean> {
+    // Renovar token
+    return this._httpClient.get<IResponse>(`${API_URL_GATEWAY}/auth/admin/refresh-token`).pipe(
+      catchError(() => {
+        // Retornar false si hay error
+        return of(false);
+      }),
+      switchMap((response: IResponse | boolean) => {
+        if (response === false) {
+          return of(false);
+        }
+
+        const apiResponse = response as IResponse;
+
+        // Almacenar el token de acceso en el storage
+        if (apiResponse.token) {
+          this.tocAccessToken = apiResponse.token;
+        }
+
+        // Establecer la bandera de autenticado a true
+        this._authenticated = true;
+
+        // Almacenar el usuario
+        if (apiResponse.user) {
+          this._storageService.setItem(USER_KEY, apiResponse.user);
+        }
+
+        // Almacenar el menú
+        if (apiResponse.menu) {
+          this._storageService.setItem(MENU_KEY, apiResponse.menu);
+        }
+
+        // Actualizar el estado
+        this.authStateSubject.next({
+          user: apiResponse.user || null,
+          token: apiResponse.token || null,
+          isAuthenticated: true,
+          isLoading: false,
+          menu: apiResponse.menu || null
+        });
+
+        // Retornar true
+        return of(true);
+      })
+    );
   }
 
   /**
-   * Check if user has any of the specified permissions
+   * Sign out
    */
-  hasAnyPermission(permissions: string[]): boolean {
-    const user = this.getCurrentUser();
-    return user ? permissions.some(permission => user.permissions.includes(permission)) : false;
+  public signOut(): Observable<boolean> {
+    // Limpiar autenticación
+    this._clearAuth();
+
+    // Redirigir al login
+    this._router.navigate(['/admin/auth/login']);
+
+    // Retornar el observable
+    return of(true);
   }
 
   /**
-   * Check if token is expired
+   * Forgot password
+   *
+   * @param email - Email del usuario
    */
-  private isTokenExpired(token: AuthToken): boolean {
-    if (!token.expiresIn) return true;
-    
-    const expirationTime = new Date(token.expiresIn).getTime();
-    const currentTime = new Date().getTime();
-    
-    return currentTime >= expirationTime;
+  forgotPassword(email: string): Observable<any> {
+    return this._httpClient.post(`${API_URL_GATEWAY}/auth/admin/forgot-password`, { email });
   }
 
   /**
-   * Set loading state
+   * Reset password
+   *
+   * @param passwordData - Datos para resetear contraseña
    */
-  private setLoading(isLoading: boolean): void {
+  resetPassword(passwordData: { token: string; password: string }): Observable<any> {
+    return this._httpClient.post(`${API_URL_GATEWAY}/auth/admin/reset-password`, passwordData);
+  }
+
+  /**
+   * Unlock session
+   *
+   * @param credentials - Credenciales para desbloquear sesión
+   */
+  unlockSession(credentials: { email: string; password: string }): Observable<any> {
+    return this._httpClient.post(`${API_URL_GATEWAY}/auth/admin/unlock-session`, credentials);
+  }
+
+  /**
+   * Check the authentication status
+   */
+  public check(): Observable<boolean> {
+    // Verificar si el usuario está autenticado
+    if (this._authenticated) {
+      return of(true);
+    }
+
+    // Verificar la disponibilidad del token de acceso
+    const token = this.tocAccessToken;
+
+    if (token === 'undefined' || !token) {
+      // Remover el token de acceso del storage
+      this._clearAuth();
+
+      // Establecer la bandera de autenticado a false
+      this._authenticated = false;
+
+      // Retornar false
+      return of(false);
+    }
+
+    // Verificar la fecha de expiración del token
+    if (AuthUtils.isTokenExpired(token)) {
+      return of(false);
+    }
+
+    // Si el token existe y no ha expirado, iniciar sesión usando el token
+    return this.signInUsingToken();
+  }
+
+  /**
+   * Limpiar datos de autenticación
+   */
+  private _clearAuth(): void {
+    // Remover el token de acceso del storage
+    this._storageService.removeItem(TOKEN_KEY);
+    this._storageService.removeItem(USER_KEY);
+    this._storageService.removeItem(MENU_KEY);
+
+    // Establecer la bandera de autenticado a false
+    this._authenticated = false;
+
+    // Actualizar el estado
+    this.authStateSubject.next({
+      user: null,
+      token: null,
+      isAuthenticated: false,
+      isLoading: false
+    });
+  }
+
+  /**
+   * Establecer estado de carga
+   */
+  private _setLoading(isLoading: boolean): void {
     const currentState = this.authStateSubject.value;
     this.authStateSubject.next({
       ...currentState,
       isLoading
     });
-  }
-
-  // Storage methods
-  private setItem<T>(key: string, value: T): void {
-    try {
-      const serializedValue = JSON.stringify(value);
-      localStorage.setItem(key, serializedValue);
-    } catch (error) {
-      console.error('Error setting item in storage:', error);
-    }
-  }
-
-  private getItem<T>(key: string): T | null {
-    try {
-      const item = localStorage.getItem(key);
-      return item ? JSON.parse(item) : null;
-    } catch (error) {
-      console.error('Error getting item from storage:', error);
-      return null;
-    }
-  }
-
-  private removeItem(key: string): void {
-    try {
-      localStorage.removeItem(key);
-    } catch (error) {
-      console.error('Error removing item from storage:', error);
-    }
   }
 }

@@ -5,97 +5,182 @@
       <div class="breadcrumbs">
         <span class="crumb">Nomencladores</span>
         <mat-icon class="crumb-sep">chevron_right</mat-icon>
-        <span class="crumb">Servicios</span>
+        <span class="crumb current">Servicios</span>
       </div>
       <h1 class="page-title">Servicios</h1>
     </div>
     <div class="page-right">
-      
-        <mat-form-field appearance="outline" class="search-field">
-         
-          <input matInput [formControl]="searchControl" placeholder="Buscar servicios...">
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
-     
-      <button mat-raised-button class="btn-danger" (click)="onAddService()">
+      <div class="search-section">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input 
+          type="text" 
+          [formControl]="searchControl"
+          placeholder="Buscar servicios..." 
+          class="search-input">
+      </div>
+      <button mat-raised-button color="primary" (click)="onAddService()">
         <mat-icon>add</mat-icon>
         Nuevo
       </button>
     </div>
   </div>
 
+  <!-- Filtros -->
+  <mat-card class="filters-card admin-card animate-fade-in">
+    <mat-card-content>
+      <div class="filters-row">
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Estado</mat-label>
+          <mat-select [formControl]="activeFilter">
+            <mat-option value="all">Todos</mat-option>
+            <mat-option value="active">Activos</mat-option>
+            <mat-option value="inactive">Inactivos</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-stroked-button (click)="clearFilters()" class="clear-filters-btn">
+          <mat-icon>clear</mat-icon>
+          Limpiar Filtros
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
   <!-- Services Table -->
   <mat-card class="services-table-card admin-card animate-fade-in hover-raise">
     <mat-card-content>
       <div class="table-header">
-        <div class="table-right">
+        <div class="table-left">
           <h3 class="table-title">Listado de servicios</h3>
+          @if (pagination) {
+            <span class="table-subtitle">
+              Mostrando {{ pagination.startIndex || 0 }} - {{ pagination.endIndex || 0 }} de {{ pagination.length || 0 }} servicios
+            </span>
+          }
+        </div>
+        <div class="table-right">
+          <button mat-icon-button class="table-actions" [matMenuTriggerFor]="tableMenu">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #tableMenu="matMenu">
+            <button mat-menu-item>
+              <mat-icon>download</mat-icon>
+              <span>Exportar</span>
+            </button>
+            <button mat-menu-item>
+              <mat-icon>print</mat-icon>
+              <span>Imprimir</span>
+            </button>
+          </mat-menu>
         </div>
       </div>
-      
-      <table mat-table [dataSource]="services" class="services-table admin-table">
-        
-        <!-- Nombre Column -->
-        <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef>Nombre</th>
-          <td mat-cell *matCellDef="let service" class="service-name">{{ service.name }}</td>
-        </ng-container>
 
-        <!-- Precio CUP Column -->
-        <ng-container matColumnDef="priceCUP">
-          <th mat-header-cell *matHeaderCellDef>Precio CUP</th>
-          <td mat-cell *matCellDef="let service" class="price-cup">{{ formatPrice(service.priceCUP) }}</td>
-        </ng-container>
+      @if (isLoading) {
+        <div class="loading-container">
+          <mat-spinner diameter="50"></mat-spinner>
+          <p>Cargando servicios...</p>
+        </div>
+      } @else {
+        <div class="table-container">
+          <table mat-table [dataSource]="dataSource" matSort class="services-table admin-table">
+            
+            <!-- Nombre Column -->
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="name">Nombre</th>
+              <td mat-cell *matCellDef="let service" class="service-name">{{ service.name }}</td>
+            </ng-container>
 
-        <!-- Precio MLC Column -->
-        <ng-container matColumnDef="priceMLC">
-          <th mat-header-cell *matHeaderCellDef>Precio MLC</th>
-          <td mat-cell *matCellDef="let service" class="price-mlc">{{ formatPrice(service.priceMLC) }}</td>
-        </ng-container>
+            <!-- Precio CUP Column -->
+            <ng-container matColumnDef="priceCUP">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="priceCUP">Precio CUP</th>
+              <td mat-cell *matCellDef="let service" class="price-cup">
+                {{ formatPrice(service.priceCUP || 0, 'CUP') }}
+              </td>
+            </ng-container>
 
-        <!-- Activo Column -->
-        <ng-container matColumnDef="active">
-          <th mat-header-cell *matHeaderCellDef>Activo</th>
-          <td mat-cell *matCellDef="let service">
-            @if (service.active) { 
-              <mat-icon class="icon-active">check_circle</mat-icon> 
-            }
-            @else { 
-              <mat-icon class="icon-inactive">cancel</mat-icon> 
-            }
-          </td>
-        </ng-container>
+            <!-- Precio MLC Column -->
+            <ng-container matColumnDef="priceMLC">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="priceMLC">Precio MLC</th>
+              <td mat-cell *matCellDef="let service" class="price-mlc">
+                {{ formatPrice(service.priceMLC || 0, 'MLC') }}
+              </td>
+            </ng-container>
 
-        <!-- Acciones Column -->
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>Acciones</th>
-          <td mat-cell *matCellDef="let service" class="actions-cell">
-            <button mat-icon-button class="action-btn" aria-label="Ver" (click)="onViewService(service)">
-              <mat-icon>visibility</mat-icon>
-            </button>
-            <button mat-icon-button class="action-btn" aria-label="Editar" (click)="onEditService(service)">
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button mat-icon-button class="action-btn warn" aria-label="Eliminar" (click)="onDeleteService(service)">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </td>
-        </ng-container>
+            <!-- Activo Column -->
+            <ng-container matColumnDef="active">
+              <th mat-header-cell *matHeaderCellDef>Activo</th>
+              <td mat-cell *matCellDef="let service">
+                <button 
+                  mat-icon-button 
+                  [color]="service.active ? 'primary' : ''"
+                  (click)="onToggleActive(service)"
+                  [matTooltip]="service.active ? 'Desactivar' : 'Activar'">
+                  @if (service.active) {
+                    <mat-icon class="icon-ok">check_circle</mat-icon>
+                  } @else {
+                    <mat-icon class="icon-disabled">cancel</mat-icon>
+                  }
+                </button>
+              </td>
+            </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-      </table>
+            <!-- Acciones Column -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Acciones</th>
+              <td mat-cell *matCellDef="let service" class="actions-cell">
+                <button 
+                  mat-icon-button 
+                  class="action-btn" 
+                  aria-label="Ver"
+                  (click)="onViewService(service)"
+                  matTooltip="Ver detalles">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                <button 
+                  mat-icon-button 
+                  class="action-btn" 
+                  aria-label="Editar"
+                  (click)="onEditService(service)"
+                  matTooltip="Editar">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button 
+                  mat-icon-button 
+                  class="action-btn warn" 
+                  aria-label="Eliminar"
+                  (click)="onDeleteService(service)"
+                  matTooltip="Eliminar">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </ng-container>
 
-      <!-- Pagination -->
-      <mat-paginator 
-        [length]="totalItems"
-        [pageSize]="pageSize"
-        [pageIndex]="pageIndex"
-        [pageSizeOptions]="[5, 10, 25, 50]"
-        [showFirstLastButtons]="true"
-        (page)="onPageChange($event)"
-        class="services-paginator">
-      </mat-paginator>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+            <!-- No data row -->
+            <tr class="mat-row" *matNoDataRow>
+              <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+                <div class="empty-state">
+                  <mat-icon>build</mat-icon>
+                  <p>No se encontraron servicios</p>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <mat-paginator 
+          [length]="pagination?.length || 0"
+          [pageSize]="pageSize"
+          [pageIndex]="pageIndex"
+          [pageSizeOptions]="[5, 10, 25, 50, 100]"
+          [showFirstLastButtons]="true"
+          (page)="onPageChange($event)"
+          aria-label="Seleccionar página de servicios">
+        </mat-paginator>
+      }
     </mat-card-content>
   </mat-card>
 </div>

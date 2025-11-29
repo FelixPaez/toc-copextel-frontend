@@ -4,6 +4,7 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 
 // Interceptors
+import { ApiKeyInterceptor } from './interceptors/api-key.interceptor';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { ErrorInterceptor } from './interceptors/error.interceptor';
 import { LoadingInterceptor } from './interceptors/loading.interceptor';
@@ -28,7 +29,12 @@ import { AuthService } from './services/auth.service';
     // Services
     AuthService,
     
-    // Interceptors
+    // Interceptors (orden importante: ApiKey -> Auth -> Error -> Loading)
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ApiKeyInterceptor,
+      multi: true
+    },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,

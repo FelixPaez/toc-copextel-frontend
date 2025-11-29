@@ -44,13 +44,15 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Get return URL from route parameters or default to dashboard
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+    // Get return URL from route parameters or default to admin dashboard
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/admin/dashboard';
     
     // If user is already authenticated, redirect to return URL
-    if (this.authService.isAuthenticated()) {
-      this.router.navigate([this.returnUrl]);
-    }
+    this.authService.check().subscribe(isAuthenticated => {
+      if (isAuthenticated) {
+        this.router.navigate([this.returnUrl]);
+      }
+    });
   }
 
   onSubmit(): void {
@@ -62,22 +64,31 @@ export class LoginComponent implements OnInit {
         password: this.loginForm.value.password
       };
 
-      this.authService.login(credentials).subscribe({
-        next: (user) => {
+      this.authService.signIn(credentials).subscribe({
+        next: (response) => {
           this.isLoading = false;
-          this.snackBar.open(`Bienvenido, ${user.firstName}!`, 'Cerrar', {
+          const user = response.user || this.authService.getCurrentUser();
+          const userName = user?.name || user?.email || 'Usuario';
+          
+          this.snackBar.open(`Bienvenido, ${userName}!`, 'Cerrar', {
             duration: 3000,
             horizontalPosition: 'center',
-            verticalPosition: 'top'
+            verticalPosition: 'top',
+            panelClass: ['success-snackbar']
           });
-          this.router.navigate([this.returnUrl]);
+          
+          // Redirigir al dashboard del admin
+          this.router.navigate(['/admin/dashboard']);
         },
         error: (error) => {
           this.isLoading = false;
-          this.snackBar.open(error.message || 'Error al iniciar sesión', 'Cerrar', {
+          const errorMessage = error?.error?.message || error?.message || 'Correo electrónico o contraseña incorrecta';
+          
+          this.snackBar.open(errorMessage, 'Cerrar', {
             duration: 5000,
             horizontalPosition: 'center',
-            verticalPosition: 'top'
+            verticalPosition: 'top',
+            panelClass: ['error-snackbar']
           });
         }
       });
@@ -85,6 +96,6 @@ export class LoginComponent implements OnInit {
   }
 
   onForgotPassword(): void {
-    this.router.navigate(['/auth/forgot-password']);
+    this.router.navigate(['/admin/auth/forgot-password']);
   }
 }

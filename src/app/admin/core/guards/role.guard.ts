@@ -32,28 +32,28 @@ export class RoleGuard implements CanActivate, CanActivateChild {
   canActivate(route: any): Observable<boolean | UrlTree> {
     const guardData: RoleGuardData = route.data?.roleGuard || {};
     
-    return this.authService.authState$.pipe(
+    return this.authService.check().pipe(
       take(1),
-      map(authState => {
-        if (!authState.isAuthenticated) {
-          return this.router.createUrlTree(['/auth/login']);
+      map(isAuthenticated => {
+        if (!isAuthenticated) {
+          return this.router.createUrlTree(['/admin/auth/login']);
         }
 
-        const user = authState.user;
+        const user = this.authService.getCurrentUser();
         if (!user) {
-          return this.router.createUrlTree(['/auth/login']);
+          return this.router.createUrlTree(['/admin/auth/login']);
         }
 
         // Check roles
         if (guardData.roles && guardData.roles.length > 0) {
-          if (!this.authService.hasAnyRole(guardData.roles)) {
+          if (!this.hasAnyRole(user, guardData.roles)) {
             return this.handleUnauthorized(guardData.redirectTo);
           }
         }
 
         // Check permissions
         if (guardData.permissions && guardData.permissions.length > 0) {
-          if (!this.authService.hasAnyPermission(guardData.permissions)) {
+          if (!this.hasAnyPermission(user, guardData.permissions)) {
             return this.handleUnauthorized(guardData.redirectTo);
           }
         }
@@ -61,6 +61,30 @@ export class RoleGuard implements CanActivate, CanActivateChild {
         return true;
       })
     );
+  }
+
+  /**
+   * Check if user has any of the specified roles
+   */
+  private hasAnyRole(user: any, roles: string[]): boolean {
+    if (!user || !user.roles) {
+      return false;
+    }
+    
+    const userRoles = Array.isArray(user.roles) ? user.roles : [user.roles];
+    return roles.some(role => userRoles.includes(role));
+  }
+
+  /**
+   * Check if user has any of the specified permissions
+   */
+  private hasAnyPermission(user: any, permissions: string[]): boolean {
+    if (!user || !user.permissions) {
+      return false;
+    }
+    
+    const userPermissions = Array.isArray(user.permissions) ? user.permissions : [user.permissions];
+    return permissions.some(permission => userPermissions.includes(permission));
   }
 
   /**
@@ -77,8 +101,8 @@ export class RoleGuard implements CanActivate, CanActivateChild {
     if (redirectTo) {
       return this.router.createUrlTree([redirectTo]);
     } else {
-      // Default redirect to dashboard or 403 page
-      return this.router.createUrlTree(['/error/403']);
+      // Default redirect to dashboard
+      return this.router.createUrlTree(['/admin/dashboard']);
     }
   }
 }

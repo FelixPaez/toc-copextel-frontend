@@ -169,6 +169,6 @@ export class AdminComponent {
   }
 
   onLogout(): void {
-    this.authService.logout();
+    this.authService.signOut();
   }
 }

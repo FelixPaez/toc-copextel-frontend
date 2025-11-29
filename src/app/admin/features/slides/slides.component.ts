@@ -1,89 +1,238 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTableModule } from '@angular/material/table';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+
+// Services
+import { SlidesService } from './slides.service';
+
+// Types
+import { Slide } from './slides.types';
+import { TablePagination } from '../../core/models/shared.types';
 
 // Components
 import { SlideFormComponent } from './slide-form/slide-form.component';
 
-// Models
-export interface Slide {
-  id: number;
-  title: string;
-  subtitle: string;
-  imageUrl?: string;
-  active: boolean;
-}
-
+/**
+ * Slides Component
+ * Componente para gestión de slides/banners
+ */
 @Component({
   selector: 'app-slides',
   standalone: true,
   imports: [
+    RouterModule,
     CommonModule,
+    ReactiveFormsModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
     MatTableModule,
-    MatDialogModule
+    MatPaginatorModule,
+    MatSortModule,
+    MatChipsModule,
+    MatMenuModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatProgressSpinnerModule,
+    MatTooltipModule,
+    MatDialogModule,
+    MatSnackBarModule
   ],
   templateUrl: './slides.component.html',
   styleUrls: ['./slides.component.scss']
 })
-export class SlidesComponent implements OnInit {
-  // Slides data
-  slides: Slide[] = [
-    { id: 1, title: 'qweqwe', subtitle: 'qweqwe', active: true },
-    { id: 2, title: 'Diapositiva 2', subtitle: 'Subtítulo de ejemplo', active: false },
-    { id: 3, title: 'Diapositiva 3', subtitle: 'Otro subtítulo', active: true }
-  ];
+export class SlidesComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+
+  // Table
+  displayedColumns: string[] = ['image', 'title', 'subtitle', 'active', 'actions'];
+  dataSource = new MatTableDataSource<Slide>([]);
   
-  displayedColumns: string[] = ['title', 'subtitle', 'active', 'actions'];
+  // Search
+  searchControl = new FormControl('');
 
+  // Filters
+  activeFilter = new FormControl('all');
+
+  // Data
+  slides: Slide[] = [];
+  
+  // Pagination
+  pagination: TablePagination | null = null;
+  pageSize = 10;
+  pageIndex = 0;
+
+  // Loading
+  isLoading = false;
+
+  // Private
+  private _unsubscribeAll: Subject<any> = new Subject<any>();
+
+  /**
+   * Constructor
+   */
   constructor(
-    private dialog: MatDialog,
-    private snackBar: MatSnackBar,
-    private router: Router
-  ) { }
+    private _slidesService: SlidesService,
+    private _router: Router,
+    private _dialog: MatDialog,
+    private _snackBar: MatSnackBar
+  ) {}
 
+  // -----------------------------------------------------------------------------------------------------
+  // @ Lifecycle hooks
+  // -----------------------------------------------------------------------------------------------------
+
+  /**
+   * On init
+   */
   ngOnInit(): void {
-    // Component initialization
+    // Load slides
+    this._loadSlides();
+
+    // Setup search
+    this.searchControl.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntil(this._unsubscribeAll)
+      )
+      .subscribe(search => {
+        this.pageIndex = 0;
+        this._loadSlides();
+      });
+
+    // Setup filters
+    this.activeFilter.valueChanges
+      .pipe(takeUntil(this._unsubscribeAll))
+      .subscribe(() => {
+        this.pageIndex = 0;
+        this._applyFilters();
+      });
+
+    // Subscribe to slides
+    this._slidesService.slides$
+      .pipe(takeUntil(this._unsubscribeAll))
+      .subscribe(slides => {
+        if (slides) {
+          this.slides = slides;
+          this._applyFilters();
+        }
+      });
+
+    // Subscribe to pagination
+    this._slidesService.pagination$
+      .pipe(takeUntil(this._unsubscribeAll))
+      .subscribe(pagination => {
+        this.pagination = pagination;
+      });
   }
 
-  // Slides actions
+  /**
+   * After view init
+   */
+  ngAfterViewInit(): void {
+    // Set paginator and sort
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  }
+
+  /**
+   * On destroy
+   */
+  ngOnDestroy(): void {
+    // Unsubscribe from all subscriptions
+    this._unsubscribeAll.next(null);
+    this._unsubscribeAll.complete();
+  }
+
+  // -----------------------------------------------------------------------------------------------------
+  // @ Public methods
+  // -----------------------------------------------------------------------------------------------------
+
+  /**
+   * Load slides
+   */
+  public loadSlides(): void {
+    this._loadSlides();
+  }
+
+  /**
+   * On page change
+   */
+  onPageChange(event: PageEvent): void {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this._loadSlides();
+  }
+
+  /**
+   * On sort change
+   */
+  onSortChange(sort: Sort): void {
+    this._loadSlides();
+  }
+
+  /**
+   * On add slide
+   */
   onAddSlide(): void {
-    const dialogRef = this.dialog.open(SlideFormComponent, {
+    const dialogRef = this._dialog.open(SlideFormComponent, {
       width: '600px',
       maxWidth: '90vw',
       disableClose: true,
       autoFocus: false
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().pipe(
+      takeUntil(this._unsubscribeAll)
+    ).subscribe(result => {
       if (result) {
-        const newSlide: Slide = {
-          id: this.slides.length + 1,
-          title: result.title,
-          subtitle: result.subtitle,
-          imageUrl: result.imageUrl,
-          active: result.active
-        };
-        this.slides.push(newSlide);
-        this.snackBar.open('Diapositiva agregada exitosamente!', 'Cerrar', {
-          duration: 3000,
-          horizontalPosition: 'center',
-          verticalPosition: 'top'
+        this._slidesService.createSlide(result).subscribe({
+          next: () => {
+            this._snackBar.open('Diapositiva agregada exitosamente', 'Cerrar', {
+              duration: 3000,
+              horizontalPosition: 'center',
+              verticalPosition: 'top'
+            });
+            this._loadSlides();
+          },
+          error: (error) => {
+            this._snackBar.open(
+              error?.error?.message || 'Error al agregar la diapositiva',
+              'Cerrar',
+              { duration: 5000 }
+            );
+          }
         });
       }
     });
   }
 
+  /**
+   * On edit slide
+   */
   onEditSlide(slide: Slide): void {
-    const dialogRef = this.dialog.open(SlideFormComponent, {
+    const dialogRef = this._dialog.open(SlideFormComponent, {
       width: '600px',
       maxWidth: '90vw',
       disableClose: true,
@@ -91,29 +240,152 @@ export class SlidesComponent implements OnInit {
       data: { slide }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().pipe(
+      takeUntil(this._unsubscribeAll)
+    ).subscribe(result => {
       if (result) {
-        const index = this.slides.findIndex(s => s.id === slide.id);
-        if (index !== -1) {
-          this.slides[index] = { ...slide, ...result };
-          this.snackBar.open('Diapositiva actualizada exitosamente!', 'Cerrar', {
-            duration: 3000,
-            horizontalPosition: 'center',
-            verticalPosition: 'top'
-          });
-        }
+        const updatedSlide = { ...slide, ...result };
+        this._slidesService.updateSlide(updatedSlide).subscribe({
+          next: () => {
+            this._snackBar.open('Diapositiva actualizada exitosamente', 'Cerrar', {
+              duration: 3000,
+              horizontalPosition: 'center',
+              verticalPosition: 'top'
+            });
+            this._loadSlides();
+          },
+          error: (error) => {
+            this._snackBar.open(
+              error?.error?.message || 'Error al actualizar la diapositiva',
+              'Cerrar',
+              { duration: 5000 }
+            );
+          }
+        });
       }
     });
   }
 
+  /**
+   * On delete slide
+   */
   onDeleteSlide(slide: Slide): void {
-    if (confirm(`¿Estás seguro de que deseas eliminar la diapositiva "${slide.title}"?`)) {
-      this.slides = this.slides.filter(s => s.id !== slide.id);
-      this.snackBar.open('Diapositiva eliminada exitosamente!', 'Cerrar', {
-        duration: 3000,
-        horizontalPosition: 'center',
-        verticalPosition: 'top'
+    if (!slide.id) {
+      this._snackBar.open('Error: ID de diapositiva no válido', 'Cerrar', {
+        duration: 3000
       });
+      return;
     }
+
+    if (!confirm(`¿Está seguro de eliminar la diapositiva "${slide.title}"?`)) {
+      return;
+    }
+
+    this.isLoading = true;
+    this._slidesService.deleteSlide(slide.id).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this._snackBar.open('Diapositiva eliminada exitosamente', 'Cerrar', {
+          duration: 3000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top'
+        });
+        this._loadSlides();
+      },
+      error: (error) => {
+        this.isLoading = false;
+        this._snackBar.open(
+          error?.error?.message || 'Error al eliminar la diapositiva',
+          'Cerrar',
+          { duration: 5000 }
+        );
+      }
+    });
+  }
+
+  /**
+   * On toggle active
+   */
+  onToggleActive(slide: Slide): void {
+    const updatedSlide = { ...slide, active: !slide.active };
+    this._slidesService.updateSlide(updatedSlide).subscribe({
+      next: () => {
+        this._snackBar.open(
+          `Diapositiva ${updatedSlide.active ? 'activada' : 'desactivada'}`,
+          'Cerrar',
+          { duration: 3000 }
+        );
+      },
+      error: (error) => {
+        this._snackBar.open(
+          error?.error?.message || 'Error al actualizar la diapositiva',
+          'Cerrar',
+          { duration: 5000 }
+        );
+      }
+    });
+  }
+
+  /**
+   * Clear filters
+   */
+  clearFilters(): void {
+    this.searchControl.setValue('');
+    this.activeFilter.setValue('all');
+    this.pageIndex = 0;
+    this._loadSlides();
+  }
+
+  // -----------------------------------------------------------------------------------------------------
+  // @ Private methods
+  // -----------------------------------------------------------------------------------------------------
+
+  /**
+   * Load slides
+   */
+  private _loadSlides(): void {
+    this.isLoading = true;
+
+    const search = this.searchControl.value || '';
+    const sort = this.sort?.active || 'name';
+    const order = this.sort?.direction || 'asc';
+
+    this._slidesService.getSortsSlides(
+      this.pageIndex,
+      this.pageSize,
+      sort,
+      order as 'asc' | 'desc',
+      search
+    ).subscribe({
+      next: () => {
+        this.isLoading = false;
+      },
+      error: (error) => {
+        this.isLoading = false;
+        this._snackBar.open(
+          error?.error?.message || 'Error al cargar las diapositivas',
+          'Cerrar',
+          { duration: 5000 }
+        );
+      }
+    });
+  }
+
+  /**
+   * Apply filters
+   */
+  private _applyFilters(): void {
+    let filtered = [...this.slides];
+
+    // Filter by active
+    const activeFilter = this.activeFilter.value;
+    if (activeFilter !== 'all') {
+      filtered = filtered.filter(s => 
+        activeFilter === 'active' ? s.active : !s.active
+      );
+    }
+
+    // Update data source
+    this.dataSource.data = filtered;
   }
 }

@@ -1,218 +1,251 @@
 <div class="customers-container">
   <!-- Header -->
-  <div class="customers-header">
-    <div class="header-content">
-      <h1>Gestión de Clientes</h1>
-      <p>Administra la base de datos de clientes de tu tienda</p>
+  <div class="page-header admin-card animate-fade-in">
+    <div class="page-left">
+      <div class="breadcrumbs">
+        <span class="crumb">Tienda</span>
+        <mat-icon class="crumb-sep">chevron_right</mat-icon>
+        <span class="crumb current">Clientes</span>
+      </div>
+      <h1 class="page-title">Gestión de Clientes</h1>
     </div>
-    <button mat-raised-button color="primary" class="add-button">
-      <mat-icon>person_add</mat-icon>
-      Nuevo Cliente
-    </button>
+    <div class="page-right">
+      <div class="search-section">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input 
+          type="text" 
+          [formControl]="searchControl"
+          placeholder="Buscar clientes..." 
+          class="search-input">
+      </div>
+    </div>
   </div>
 
   <!-- Estadísticas Rápidas -->
   <div class="stats-grid">
-    <mat-card class="stat-card admin-card">
+    <mat-card class="stat-card admin-card animate-fade-in hover-raise">
       <mat-card-content>
         <div class="stat-content">
-          <mat-icon class="stat-icon">people</mat-icon>
+          <mat-icon class="stat-icon primary">people</mat-icon>
           <div class="stat-info">
             <h3>Total Clientes</h3>
-            <p class="stat-value">1,234</p>
-            <span class="stat-change positive">+8.5%</span>
+            <p class="stat-value">{{ stats.total }}</p>
           </div>
         </div>
       </mat-card-content>
     </mat-card>
 
-    <mat-card class="stat-card admin-card">
+    <mat-card class="stat-card admin-card animate-fade-in hover-raise">
       <mat-card-content>
         <div class="stat-content">
-          <mat-icon class="stat-icon">star</mat-icon>
+          <mat-icon class="stat-icon accent">person</mat-icon>
           <div class="stat-info">
-            <h3>Clientes VIP</h3>
-            <p class="stat-value">89</p>
-            <span class="stat-change positive">+12.3%</span>
+            <h3>Naturales</h3>
+            <p class="stat-value">{{ stats.natural }}</p>
           </div>
         </div>
       </mat-card-content>
     </mat-card>
 
-    <mat-card class="stat-card admin-card">
+    <mat-card class="stat-card admin-card animate-fade-in hover-raise">
       <mat-card-content>
         <div class="stat-content">
-          <mat-icon class="stat-icon">trending_up</mat-icon>
+          <mat-icon class="stat-icon primary">business</mat-icon>
           <div class="stat-info">
-            <h3>Nuevos Este Mes</h3>
-            <p class="stat-value">156</p>
-            <span class="stat-change positive">+15.7%</span>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="stat-card admin-card">
-      <mat-card-content>
-        <div class="stat-content">
-          <mat-icon class="stat-icon">person_off</mat-icon>
-          <div class="stat-info">
-            <h3>Inactivos</h3>
-            <p class="stat-value">45</p>
-            <span class="stat-change negative">-2.1%</span>
+            <h3>Jurídicos</h3>
+            <p class="stat-value">{{ stats.legal }}</p>
           </div>
         </div>
       </mat-card-content>
     </mat-card>
   </div>
 
-  <!-- Filtros y Búsqueda -->
-  <mat-card class="filters-card admin-card animate-fade-in hover-raise">
-    <mat-card-content>
-      <div class="filters-content">
-        <div class="search-section">
-          <mat-icon class="search-icon">search</mat-icon>
-          <input 
-            type="text" 
-            placeholder="Buscar clientes..." 
-            class="search-input">
-        </div>
-        <div class="filter-buttons">
-          <button mat-stroked-button>
-            <mat-icon>filter_list</mat-icon>
-            Filtros
-          </button>
-          <button mat-stroked-button>
-            <mat-icon>sort</mat-icon>
-            Ordenar
-          </button>
-          <button mat-stroked-button>
-            <mat-icon>download</mat-icon>
-            Exportar
-          </button>
-        </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
+  <!-- Tabs -->
+  <mat-card class="tabs-card admin-card animate-fade-in">
+    <mat-tab-group [(selectedIndex)]="selectedTab" (selectedIndexChange)="onTabChange($event)">
+      <mat-tab label="Clientes Naturales">
+        <!-- Filtros -->
+        <div class="filters-card">
+          <div class="filters-row">
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>Género</mat-label>
+              <mat-select [formControl]="genderFilter">
+                <mat-option value="all">Todos</mat-option>
+                <mat-option value="masculino">Masculino</mat-option>
+                <mat-option value="femenino">Femenino</mat-option>
+              </mat-select>
+            </mat-form-field>
 
-  <!-- Tabla de Clientes -->
-  <mat-card class="customers-table-card admin-card animate-fade-in hover-raise">
-    <mat-card-content>
-      <table mat-table [dataSource]="customers" class="customers-table admin-table">
-        
-        <!-- Avatar Column -->
-        <ng-container matColumnDef="avatar">
-          <th mat-header-cell *matHeaderCellDef></th>
-          <td mat-cell *matCellDef="let customer">
-            <div class="admin-avatar avatar-sm customer-avatar">
-              @if (customer.avatar) {
-                <img [src]="customer.avatar" [alt]="customer.name" (error)="customer.avatar = null">
-              } @else {
-                <span class="avatar-initials">{{getInitials(customer.name)}}</span>
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>Provincia</mat-label>
+              <mat-select [formControl]="stateFilter">
+                <mat-option value="all">Todas</mat-option>
+                <!-- Estados dinámicos se pueden agregar aquí -->
+              </mat-select>
+            </mat-form-field>
+
+            <button mat-stroked-button (click)="clearFilters()" class="clear-filters-btn">
+              <mat-icon>clear</mat-icon>
+              Limpiar Filtros
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabla de Clientes Naturales -->
+        <div class="customers-table-card admin-card hover-raise">
+          <div class="table-header">
+            <div class="table-left">
+              <h3 class="table-title">Listado de clientes naturales</h3>
+              @if (pagination) {
+                <span class="table-subtitle">
+                  Mostrando {{ pagination.startIndex || 0 }} - {{ pagination.endIndex || 0 }} de {{ pagination.length || 0 }} clientes
+                </span>
               }
             </div>
-          </td>
-        </ng-container>
-
-        <!-- Nombre Column -->
-        <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef>Cliente</th>
-          <td mat-cell *matCellDef="let customer">
-            <div class="customer-info">
-              <h4>{{customer.name}}</h4>
-              <p>ID: {{customer.id}}</p>
+            <div class="table-right">
+              <button mat-icon-button class="table-actions" [matMenuTriggerFor]="tableMenu">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #tableMenu="matMenu">
+                <button mat-menu-item>
+                  <mat-icon>download</mat-icon>
+                  <span>Exportar</span>
+                </button>
+                <button mat-menu-item>
+                  <mat-icon>print</mat-icon>
+                  <span>Imprimir</span>
+                </button>
+              </mat-menu>
             </div>
-          </td>
-        </ng-container>
+          </div>
 
-        <!-- Email Column -->
-        <ng-container matColumnDef="email">
-          <th mat-header-cell *matHeaderCellDef>Email</th>
-          <td mat-cell *matCellDef="let customer">
-            <span class="customer-email">{{customer.email}}</span>
-          </td>
-        </ng-container>
+          @if (isLoading) {
+            <div class="loading-container">
+              <mat-spinner diameter="50"></mat-spinner>
+              <p>Cargando clientes...</p>
+            </div>
+          } @else {
+            <div class="table-container">
+              <table mat-table [dataSource]="dataSource" matSort class="customers-table admin-table">
+                
+                <!-- Avatar Column -->
+                <ng-container matColumnDef="avatar">
+                  <th mat-header-cell *matHeaderCellDef></th>
+                  <td mat-cell *matCellDef="let customer">
+                    @if (customer.imageUrl) {
+                      <div class="customer-avatar">
+                        <img [src]="customer.imageUrl" [alt]="getCustomerDisplayName(customer)" class="avatar-img">
+                      </div>
+                    } @else {
+                      <div class="customer-avatar no-photo">
+                        <span class="avatar-initials">{{ getCustomerInitials(customer) }}</span>
+                      </div>
+                    }
+                  </td>
+                </ng-container>
 
-        <!-- Teléfono Column -->
-        <ng-container matColumnDef="phone">
-          <th mat-header-cell *matHeaderCellDef>Teléfono</th>
-          <td mat-cell *matCellDef="let customer">
-            <span class="customer-phone">{{customer.phone}}</span>
-          </td>
-        </ng-container>
+                <!-- Nombre Column -->
+                <ng-container matColumnDef="name">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header="name">Cliente</th>
+                  <td mat-cell *matCellDef="let customer">
+                    <div class="customer-info">
+                      <h4>{{ getCustomerDisplayName(customer) }}</h4>
+                      <p class="customer-id">CI: {{ customer.idNumber }}</p>
+                    </div>
+                  </td>
+                </ng-container>
 
-        <!-- Fecha de Registro Column -->
-        <ng-container matColumnDef="joinDate">
-          <th mat-header-cell *matHeaderCellDef>Fecha Registro</th>
-          <td mat-cell *matCellDef="let customer">
-            <span class="join-date">{{customer.joinDate | date:'dd/MM/yyyy'}}</span>
-          </td>
-        </ng-container>
+                <!-- Email Column -->
+                <ng-container matColumnDef="email">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header="email">Correo</th>
+                  <td mat-cell *matCellDef="let customer">
+                    <span class="customer-email">{{ customer.email }}</span>
+                  </td>
+                </ng-container>
 
-        <!-- Pedidos Column -->
-        <ng-container matColumnDef="orders">
-          <th mat-header-cell *matHeaderCellDef>Pedidos</th>
-          <td mat-cell *matCellDef="let customer">
-            <span class="orders-count">{{customer.orders}}</span>
-          </td>
-        </ng-container>
+                <!-- Phone Column -->
+                <ng-container matColumnDef="phone">
+                  <th mat-header-cell *matHeaderCellDef>Teléfono</th>
+                  <td mat-cell *matCellDef="let customer">
+                    <span class="customer-phone">{{ customer.phone || '-' }}</span>
+                  </td>
+                </ng-container>
 
-        <!-- Total Gastado Column -->
-        <ng-container matColumnDef="totalSpent">
-          <th mat-header-cell *matHeaderCellDef>Total Gastado</th>
-          <td mat-cell *matCellDef="let customer">
-            <span class="total-spent">${{customer.totalSpent}}</span>
-          </td>
-        </ng-container>
+                <!-- ID Number Column -->
+                <ng-container matColumnDef="idNumber">
+                  <th mat-header-cell *matHeaderCellDef>CI</th>
+                  <td mat-cell *matCellDef="let customer">
+                    <span>{{ customer.idNumber }}</span>
+                  </td>
+                </ng-container>
 
-        <!-- Estado Column -->
-        <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef>Estado</th>
-          <td mat-cell *matCellDef="let customer">
-            <mat-chip [color]="getStatusColor(customer.status)" selected>
-              {{customer.status}}
-            </mat-chip>
-          </td>
-        </ng-container>
+                <!-- City Column -->
+                <ng-container matColumnDef="city">
+                  <th mat-header-cell *matHeaderCellDef>Ciudad</th>
+                  <td mat-cell *matCellDef="let customer">
+                    <mat-chip>{{ customer.city || '-' }}</mat-chip>
+                    <small class="customer-state">{{ customer.state || '' }}</small>
+                  </td>
+                </ng-container>
 
-        <!-- Acciones Column -->
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>Acciones</th>
-          <td mat-cell *matCellDef="let customer">
-            <button mat-icon-button [matMenuTriggerFor]="menu">
-              <mat-icon>more_vert</mat-icon>
-            </button>
-            <mat-menu #menu="matMenu">
-              <button mat-menu-item (click)="onView(customer)">
-                <mat-icon>visibility</mat-icon>
-                <span>Ver Perfil</span>
-              </button>
-              <button mat-menu-item (click)="onEdit(customer)">
-                <mat-icon>edit</mat-icon>
-                <span>Editar</span>
-              </button>
-              <button mat-menu-item (click)="onContact(customer)">
-                <mat-icon>email</mat-icon>
-                <span>Contactar</span>
-              </button>
-              <button mat-menu-item (click)="onDelete(customer)">
-                <mat-icon>delete</mat-icon>
-                <span>Eliminar</span>
-              </button>
-            </mat-menu>
-          </td>
-        </ng-container>
+                <!-- Acciones Column -->
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                  <td mat-cell *matCellDef="let customer" class="actions-cell">
+                    <button 
+                      mat-icon-button 
+                      class="action-btn" 
+                      aria-label="Ver"
+                      (click)="onView(customer)"
+                      matTooltip="Ver detalles">
+                      <mat-icon>visibility</mat-icon>
+                    </button>
+                    <button 
+                      mat-icon-button 
+                      class="action-btn" 
+                      aria-label="Editar"
+                      (click)="onEdit(customer)"
+                      matTooltip="Editar">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                  </td>
+                </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-      </table>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 
-      <!-- Paginación -->
-      <mat-paginator 
-        [pageSizeOptions]="[5, 10, 25, 50]"
-        showFirstLastButtons
-        aria-label="Seleccionar página de clientes">
-      </mat-paginator>
-    </mat-card-content>
+                <!-- No data row -->
+                <tr class="mat-row" *matNoDataRow>
+                  <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+                    <div class="empty-state">
+                      <mat-icon>people</mat-icon>
+                      <p>No se encontraron clientes</p>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+
+            <!-- Paginación -->
+            <mat-paginator 
+              [length]="pagination?.length || 0"
+              [pageSize]="pageSize"
+              [pageIndex]="pageIndex"
+              [pageSizeOptions]="[5, 10, 25, 50, 100]"
+              [showFirstLastButtons]="true"
+              (page)="onPageChange($event)"
+              aria-label="Seleccionar página de clientes">
+            </mat-paginator>
+          }
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Clientes Jurídicos">
+        <div class="empty-state">
+          <mat-icon>business</mat-icon>
+          <p>Funcionalidad de clientes jurídicos próximamente</p>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
   </mat-card>
 </div>

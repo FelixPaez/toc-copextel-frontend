@@ -1,180 +1,348 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { Router } from '@angular/router';
+import { MatSelectModule } from '@angular/material/select';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
-export interface Vendor {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  telegramChannel: string;
-  whatsappGroup: string;
-  address: string;
-  province: string;
-  municipality: string;
-  description: string;
-  imageUrl?: string;
-  logoUrl?: string;
-  enzonaCredentials?: {
-    currency: string;
-    account: string;
-    merchantUuid: string;
-    consumerKey: string;
-    consumerSecret: string;
-  };
-  transfermovilCredentials?: {
-    currency: string;
-    account: string;
-    userName: string;
-    source: string;
-  };
-  active: boolean;
-}
+// Services
+import { VendorsService } from './vendors.service';
 
+// Types
+import { Vendor } from './vendors.types';
+import { TablePagination } from '../../core/models/shared.types';
+
+// Components
+import { VendorFormComponent } from './vendor-form/vendor-form.component';
+
+/**
+ * Vendors Component
+ * Componente para gestión de vendedores
+ */
 @Component({
   selector: 'app-vendors',
   standalone: true,
   imports: [
+    RouterModule,
     CommonModule,
+    ReactiveFormsModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
     MatTableModule,
     MatPaginatorModule,
-    ReactiveFormsModule,
+    MatSortModule,
+    MatChipsModule,
+    MatMenuModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    MatSelectModule,
+    MatProgressSpinnerModule,
+    MatTooltipModule,
+    MatDialogModule,
+    MatSnackBarModule
   ],
   templateUrl: './vendors.component.html',
   styleUrls: ['./vendors.component.scss']
 })
-export class VendorsComponent implements OnInit, AfterViewInit {
-  vendors: Vendor[] = [
-    { 
-      id: 1, 
-      name: 'Guantánamo', 
-      email: 'guantanamo@copextel.com.cu',
-      phone: '+53 21 1234567',
-      telegramChannel: 'https://t.me/Guantanamo_Copextel',
-      whatsappGroup: 'https://chat.whatsapp.com/Guantanamo123',
-      address: 'Calle 1ra #123, Guantánamo',
-      province: 'Guantánamo',
-      municipality: 'Guantánamo',
-      description: 'Vendedor de Guantánamo especializado en servicios locales',
-      active: true
-    },
-    { 
-      id: 2, 
-      name: 'Mundo Electrónico', 
-      email: 'mundo@copextel.com.cu',
-      phone: '+53 7 9876543',
-      telegramChannel: 'https://t.me/MundoElectronico',
-      whatsappGroup: 'https://chat.whatsapp.com/Mundo456',
-      address: 'Avenida 5ta #456, La Habana',
-      province: 'La Habana',
-      municipality: 'Plaza',
-      description: 'Vendedor especializado en electrónicos y tecnología',
-      active: true
-    },
-    { 
-      id: 3, 
-      name: 'TOC - Plaza', 
-      email: 'plaza@copextel.com.cu',
-      phone: '+53 7 5555555',
-      telegramChannel: 'https://t.me/TOCPlaza',
-      whatsappGroup: 'https://chat.whatsapp.com/TOCPlaza789',
-      address: 'Plaza de la Revolución, La Habana',
-      province: 'La Habana',
-      municipality: 'Plaza de la Revolución',
-      description: 'Tienda Online de Copextel - Plaza de la Revolución',
-      active: true
-    },
-    { 
-      id: 4, 
-      name: 'Tecnostar Informática y Comunicaciones', 
-      email: 'tecnostar@copextel.com.cu',
-      phone: '+53 7 4444444',
-      telegramChannel: 'https://t.me/TecnostarInfo',
-      whatsappGroup: 'https://chat.whatsapp.com/Tecnostar012',
-      address: 'Calle 17 #345, Vedado',
-      province: 'La Habana',
-      municipality: 'Plaza de la Revolución',
-      description: 'Especialistas en informática y comunicaciones',
-      active: true
-    },
-    { 
-      id: 5, 
-      name: 'Tienda Online de Copextel', 
-      email: 'online@copextel.com.cu',
-      phone: '+53 7 3333333',
-      telegramChannel: 'https://t.me/TiendaOnlineCopextel',
-      whatsappGroup: 'https://chat.whatsapp.com/TiendaOnline345',
-      address: 'Edificio Focsa, Calle 17 esquina M, Vedado',
-      province: 'La Habana',
-      municipality: 'Plaza de la Revolución',
-      description: 'Tienda Online principal de Copextel',
-      active: true
-    }
-  ];
+export class VendorsComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
 
-  dataSource = new MatTableDataSource<Vendor>(this.vendors);
-  displayedColumns: string[] = ['name', 'active', 'actions'];
+  // Table
+  displayedColumns: string[] = ['name', 'email', 'phone', 'province', 'active', 'actions'];
+  dataSource = new MatTableDataSource<Vendor>([]);
+  
+  // Search
   searchControl = new FormControl('');
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  // Filters
+  activeFilter = new FormControl('all');
+  provinceFilter = new FormControl('all');
 
+  // Data
+  vendors: Vendor[] = [];
+  
+  // Pagination
+  pagination: TablePagination | null = null;
+  pageSize = 10;
+  pageIndex = 0;
+
+  // Loading
+  isLoading = false;
+
+  // Private
+  private _unsubscribeAll: Subject<any> = new Subject<any>();
+
+  /**
+   * Constructor
+   */
   constructor(
-    private router: Router,
-    private snackBar: MatSnackBar
-  ) { }
+    private _vendorsService: VendorsService,
+    private _router: Router,
+    private _dialog: MatDialog,
+    private _snackBar: MatSnackBar
+  ) {}
 
+  // -----------------------------------------------------------------------------------------------------
+  // @ Lifecycle hooks
+  // -----------------------------------------------------------------------------------------------------
+
+  /**
+   * On init
+   */
   ngOnInit(): void {
-    this.searchControl.valueChanges.pipe(
-      debounceTime(300),
-      distinctUntilChanged()
-    ).subscribe(value => {
-      this.applyFilter(value || '');
+    // Load vendors
+    this._loadVendors();
+
+    // Setup search
+    this.searchControl.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntil(this._unsubscribeAll)
+      )
+      .subscribe(search => {
+        this.pageIndex = 0;
+        this._loadVendors();
+      });
+
+    // Setup filters
+    this.activeFilter.valueChanges
+      .pipe(takeUntil(this._unsubscribeAll))
+      .subscribe(() => {
+        this.pageIndex = 0;
+        this._applyFilters();
+      });
+
+    this.provinceFilter.valueChanges
+      .pipe(takeUntil(this._unsubscribeAll))
+      .subscribe(() => {
+        this.pageIndex = 0;
+        this._applyFilters();
+      });
+
+    // Subscribe to vendors
+    this._vendorsService.vendors$
+      .pipe(takeUntil(this._unsubscribeAll))
+      .subscribe(vendors => {
+        if (vendors) {
+          this.vendors = vendors;
+          this._applyFilters();
+        }
+      });
+
+    // Subscribe to pagination
+    this._vendorsService.pagination$
+      .pipe(takeUntil(this._unsubscribeAll))
+      .subscribe(pagination => {
+        this.pagination = pagination;
+      });
+  }
+
+  /**
+   * After view init
+   */
+  ngAfterViewInit(): void {
+    // Set paginator and sort
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  }
+
+  /**
+   * On destroy
+   */
+  ngOnDestroy(): void {
+    // Unsubscribe from all subscriptions
+    this._unsubscribeAll.next(null);
+    this._unsubscribeAll.complete();
+  }
+
+  // -----------------------------------------------------------------------------------------------------
+  // @ Public methods
+  // -----------------------------------------------------------------------------------------------------
+
+  /**
+   * Load vendors
+   */
+  public loadVendors(): void {
+    this._loadVendors();
+  }
+
+  /**
+   * On page change
+   */
+  onPageChange(event: PageEvent): void {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this._loadVendors();
+  }
+
+  /**
+   * On sort change
+   */
+  onSortChange(sort: Sort): void {
+    this._loadVendors();
+  }
+
+  /**
+   * On add vendor
+   */
+  onAddVendor(): void {
+    this._router.navigate(['/admin/vendors/new']);
+  }
+
+  /**
+   * On edit vendor
+   */
+  onEditVendor(vendor: Vendor): void {
+    if (vendor.id) {
+      this._router.navigate(['/admin/vendors', vendor.id, 'edit']);
+    }
+  }
+
+  /**
+   * On delete vendor
+   */
+  onDeleteVendor(vendor: Vendor): void {
+    if (!vendor.id) {
+      this._snackBar.open('Error: ID de vendedor no válido', 'Cerrar', {
+        duration: 3000
+      });
+      return;
+    }
+
+    if (!confirm(`¿Está seguro de eliminar el vendedor "${vendor.name}"?`)) {
+      return;
+    }
+
+    this.isLoading = true;
+    this._vendorsService.deleteVendor(vendor.id).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this._snackBar.open('Vendedor eliminado exitosamente', 'Cerrar', {
+          duration: 3000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top'
+        });
+        this._loadVendors();
+      },
+      error: (error) => {
+        this.isLoading = false;
+        this._snackBar.open(
+          error?.error?.message || 'Error al eliminar el vendedor',
+          'Cerrar',
+          { duration: 5000 }
+        );
+      }
     });
   }
 
-  ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
+  /**
+   * On toggle active
+   */
+  onToggleActive(vendor: Vendor): void {
+    const updatedVendor = { ...vendor, active: !vendor.active };
+    this._vendorsService.updateVendor(updatedVendor).subscribe({
+      next: () => {
+        this._snackBar.open(
+          `Vendedor ${updatedVendor.active ? 'activado' : 'desactivado'}`,
+          'Cerrar',
+          { duration: 3000 }
+        );
+      },
+      error: (error) => {
+        this._snackBar.open(
+          error?.error?.message || 'Error al actualizar el vendedor',
+          'Cerrar',
+          { duration: 5000 }
+        );
+      }
+    });
   }
 
-  applyFilter(filterValue: string): void {
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
+  /**
+   * Clear filters
+   */
+  clearFilters(): void {
+    this.searchControl.setValue('');
+    this.activeFilter.setValue('all');
+    this.provinceFilter.setValue('all');
+    this.pageIndex = 0;
+    this._loadVendors();
+  }
+
+  // -----------------------------------------------------------------------------------------------------
+  // @ Private methods
+  // -----------------------------------------------------------------------------------------------------
+
+  /**
+   * Load vendors
+   */
+  private _loadVendors(): void {
+    this.isLoading = true;
+
+    const search = this.searchControl.value || '';
+    const sort = this.sort?.active || 'name';
+    const order = this.sort?.direction || 'asc';
+
+    this._vendorsService.getSortsVendors(
+      this.pageIndex,
+      this.pageSize,
+      sort,
+      order as 'asc' | 'desc',
+      search
+    ).subscribe({
+      next: () => {
+        this.isLoading = false;
+      },
+      error: (error) => {
+        this.isLoading = false;
+        this._snackBar.open(
+          error?.error?.message || 'Error al cargar los vendedores',
+          'Cerrar',
+          { duration: 5000 }
+        );
+      }
+    });
+  }
+
+  /**
+   * Apply filters
+   */
+  private _applyFilters(): void {
+    let filtered = [...this.vendors];
+
+    // Filter by active
+    const activeFilter = this.activeFilter.value;
+    if (activeFilter !== 'all') {
+      filtered = filtered.filter(v => 
+        activeFilter === 'active' ? v.active : !v.active
+      );
     }
-  }
 
-  onAddVendor(): void {
-    this.router.navigate(['/vendors/new']);
-  }
-
-  onEditVendor(vendor: Vendor): void {
-    this.router.navigate(['/vendors/edit', vendor.id]);
-  }
-
-  onDeleteVendor(vendor: Vendor): void {
-    if (confirm(`¿Estás seguro de que deseas eliminar el vendedor "${vendor.name}"?`)) {
-      this.vendors = this.vendors.filter(v => v.id !== vendor.id);
-      this.dataSource.data = this.vendors;
-      this.snackBar.open('Vendedor eliminado exitosamente!', 'Cerrar', {
-        duration: 3000,
-        horizontalPosition: 'center',
-        verticalPosition: 'top'
-      });
+    // Filter by province (using state as province)
+    const provinceFilter = this.provinceFilter.value;
+    if (provinceFilter && provinceFilter !== 'all') {
+      filtered = filtered.filter(v => (v.province || v.state) === provinceFilter);
     }
+
+    // Update data source
+    this.dataSource.data = filtered;
   }
 }
