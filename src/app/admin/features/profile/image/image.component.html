@@ -1,0 +1,70 @@
+<div class="image-container">
+  <mat-card class="image-card admin-card animate-fade-in">
+    <mat-card-header>
+      <mat-card-title>Foto del Usuario</mat-card-title>
+      <mat-card-subtitle>Esta imagen será utilizada solo en esta aplicación</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="image-upload-section">
+        <div class="avatar-container">
+          <div class="avatar-wrapper">
+            @if (imagePreview) {
+              <img [src]="imagePreview" alt="Avatar" class="avatar-image">
+            } @else {
+              <div class="avatar-placeholder">
+                <span class="avatar-initials">{{ getUserInitials() }}</span>
+              </div>
+            }
+            
+            <div class="avatar-overlay">
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/jpg,image/webp"
+                (change)="onFileSelected($event)"
+                id="avatar-file-input"
+                class="file-input">
+              <label for="avatar-file-input" class="upload-button" matRipple>
+                <mat-icon>camera_alt</mat-icon>
+              </label>
+              @if (imagePreview || user?.imageUrl) {
+                <button
+                  mat-icon-button
+                  class="remove-button"
+                  (click)="onRemoveImage()"
+                  [disabled]="isLoading">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+
+        @if (selectedFile && !isLoading) {
+          <div class="upload-actions">
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="onUploadImage()">
+              <mat-icon>upload</mat-icon>
+              Subir Imagen
+            </button>
+            <button
+              mat-stroked-button
+              (click)="selectedFile = null; imagePreview = user?.imageUrl || null">
+              Cancelar
+            </button>
+          </div>
+        }
+
+        @if (isLoading) {
+          <div class="loading-overlay">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Procesando imagen...</p>
+          </div>
+        }
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
+

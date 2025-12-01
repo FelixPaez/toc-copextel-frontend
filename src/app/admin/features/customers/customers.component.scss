@@ -1,51 +1,76 @@
-@use "sass:color";
-
-// Tokens admin (CSS variables)
-$primary-color: var(--admin-primary);
-$red-color: var(--admin-danger);
-$gray-100: var(--admin-gray-100);
-$gray-200: var(--admin-gray-200);
-$gray-300: var(--admin-gray-300);
-$gray-500: var(--admin-gray-500);
-$gray-600: var(--admin-gray-600);
-$gray-700: var(--admin-gray-700);
-$gray-800: var(--admin-gray-800);
-$gray-900: var(--admin-gray-900);
-$white: var(--admin-white);
-
+// Usar directamente las variables CSS globales definidas en admin.scss
 .customers-container {
   padding: 24px;
-  background-color: $gray-100;
+  background-color: var(--admin-gray-100);
   min-height: 100vh;
-  font-family: 'Nunito', sans-serif;
+  font-family: var(--admin-font-family);
 }
 
-// Header
-.customers-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
+/* Header con breadcrumbs, buscador y CTA */
+.page-header { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  gap: var(--admin-gap); 
+  padding: var(--admin-gap) var(--admin-card-padding); 
+  margin-bottom: var(--admin-gap); 
+  background: linear-gradient(180deg, var(--admin-topbar-bg-start), var(--admin-topbar-bg-end)); 
+  border: 1px solid var(--admin-gray-200); 
+  border-radius: var(--admin-radius); 
+}
+.page-left { display: flex; flex-direction: column; }
+.breadcrumbs { 
+  display: flex; 
+  align-items: center; 
+  gap: 6px; 
+  color: var(--admin-gray-600); 
+  font-size: var(--admin-font-size-sm); 
+  margin-bottom: 6px; 
+}
+.crumb-sep { 
+  font-size: 18px; 
+  width: 18px; 
+  height: 18px; 
+  color: var(--admin-gray-500); 
+}
+.page-title { 
+  margin: 0; 
+  font-size: var(--admin-font-size-3xl); 
+  font-weight: var(--admin-font-weight-bold); 
+  letter-spacing: .2px; 
+  color: var(--admin-gray-800); 
+}
+.page-right { display: flex; align-items: center; gap: 12px; }
+.search-section {
+  position: relative;
+  flex: 1;
+  max-width: 400px;
   
-  .header-content {
-    h1 {
-      font-size: 32px;
-      font-weight: 700;
-      color: $gray-800;
-      margin: 0 0 8px 0;
-    }
-    
-    p {
-      font-size: 16px;
-      color: $gray-600;
-      margin: 0;
-    }
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--admin-gray-500);
+    z-index: 1;
   }
   
-  .add-button {
-    ::ng-deep .mat-mdc-raised-button {
-      background-color: $primary-color;
-      &:hover { background-color: var(--admin-primary-hover); }
+  .search-input {
+    width: 100%;
+    padding: 12px 12px 12px 44px;
+    border: 1px solid var(--admin-gray-300);
+    border-radius: var(--admin-radius);
+    font-size: var(--admin-font-size-base);
+    font-family: var(--admin-font-family);
+    
+    &:focus {
+      outline: none;
+      border-color: var(--admin-primary);
+      box-shadow: var(--admin-focus-ring);
+    }
+    
+    &::placeholder {
+      color: var(--admin-gray-500);
     }
   }
 }
@@ -61,7 +86,7 @@ $white: var(--admin-white);
 .stat-card {
   border-radius: var(--admin-radius);
   box-shadow: var(--admin-shadow);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: var(--admin-transition-base);
   
   &:hover {
     transform: translateY(-2px);
@@ -83,37 +108,40 @@ $white: var(--admin-white);
   font-size: 32px;
   width: 32px;
   height: 32px;
-  color: $primary-color;
+  color: var(--admin-primary);
 }
 
 .stat-info {
   flex: 1;
   
   h3 {
-    font-size: 14px;
-    font-weight: 500;
-    color: $gray-600;
+    font-size: var(--admin-font-size-base);
+    font-weight: var(--admin-font-weight-medium);
+    color: var(--admin-gray-600);
     margin: 0 0 4px 0;
   }
   
   .stat-value {
-    font-size: 24px;
-    font-weight: 700;
-    color: $gray-800;
+    font-size: var(--admin-font-size-2xl);
+    font-weight: var(--admin-font-weight-bold);
+    color: var(--admin-gray-800);
     margin: 0 0 4px 0;
   }
   
   .stat-change {
-    font-size: 12px;
-    font-weight: 600;
+    font-size: var(--admin-font-size-sm);
+    font-weight: var(--admin-font-weight-semibold);
     padding: 2px 8px;
-    border-radius: 12px;
+    border-radius: var(--admin-pill-radius);
     
-    &.positive { background-color: rgba(var(--admin-success-rgb), 0.1); color: var(--admin-success); }
+    &.positive { 
+      background-color: rgba(var(--admin-success-rgb), 0.1); 
+      color: var(--admin-success); 
+    }
     
     &.negative {
-      background-color: rgba($red-color, 0.1);
-      color: $red-color;
+      background-color: rgba(var(--admin-danger-rgb), 0.1);
+      color: var(--admin-danger);
     }
   }
 }
@@ -127,6 +155,26 @@ $white: var(--admin-white);
   ::ng-deep .mat-mdc-card-content {
     padding: var(--admin-card-padding);
   }
+}
+
+.filters-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-field {
+  width: 200px;
+  
+  ::ng-deep .mat-mdc-form-field {
+    width: 200px;
+  }
+}
+
+.clear-filters-btn {
+  margin-left: auto;
 }
 
 .filters-content {
@@ -151,22 +199,26 @@ $white: var(--admin-white);
     left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    color: $gray-500;
+    color: var(--admin-gray-500);
     z-index: 1;
   }
   
   .search-input {
     width: 100%;
     padding: 12px 12px 12px 44px;
-    border: 1px solid $gray-300;
-    border-radius: 8px;
-    font-size: 14px;
-    font-family: 'Nunito', sans-serif;
+    border: 1px solid var(--admin-gray-300);
+    border-radius: var(--admin-radius);
+    font-size: var(--admin-font-size-base);
+    font-family: var(--admin-font-family);
     
-    &:focus { outline: none; border-color: $primary-color; box-shadow: 0 0 0 2px rgba(var(--admin-primary-rgb), 0.1); }
+    &:focus { 
+      outline: none; 
+      border-color: var(--admin-primary); 
+      box-shadow: var(--admin-focus-ring); 
+    }
     
     &::placeholder {
-      color: $gray-500;
+      color: var(--admin-gray-500);
     }
   }
 }
@@ -176,12 +228,12 @@ $white: var(--admin-white);
   gap: 12px;
   
   ::ng-deep .mat-mdc-stroked-button {
-    border-color: $gray-300;
-    color: $gray-700;
+    border-color: var(--admin-gray-300);
+    color: var(--admin-gray-700);
     
     &:hover {
-      border-color: $primary-color;
-      color: $primary-color;
+      border-color: var(--admin-primary);
+      color: var(--admin-primary);
     }
   }
 }
@@ -192,6 +244,11 @@ $white: var(--admin-white);
   box-shadow: var(--admin-shadow);
   overflow: hidden;
   
+  // Remover cualquier animación de hover en la tabla
+  &:hover {
+    transform: none;
+  }
+  
   ::ng-deep .mat-mdc-card-content {
     padding: 0;
   }
@@ -201,21 +258,24 @@ $white: var(--admin-white);
   width: 100%;
   
   ::ng-deep .mat-mdc-header-row {
-    background-color: $gray-100;
+    background-color: var(--admin-gray-100);
     
     .mat-mdc-header-cell {
-      font-weight: 600;
-      color: $gray-800;
-      font-size: 14px;
-      padding: 16px 12px;
+      font-weight: var(--admin-font-weight-semibold);
+      color: var(--admin-gray-800);
+      font-size: var(--admin-font-size-base);
+      padding: var(--admin-table-cell-padding);
     }
   }
   
-  ::ng-deep .mat-mdc-row { &:hover { background-color: rgba(var(--admin-primary-rgb), 0.02); }
+  ::ng-deep .mat-mdc-row { 
+    &:hover { 
+      background-color: rgba(var(--admin-primary-rgb), 0.02); 
+    }
     
     .mat-mdc-cell {
-      padding: 16px 12px;
-      border-bottom: 1px solid $gray-200;
+      padding: var(--admin-table-cell-padding);
+      border-bottom: 1px solid var(--admin-gray-200);
     }
   }
 }
@@ -224,84 +284,131 @@ $white: var(--admin-white);
 .customer-avatar {
   width: 40px;
   height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--admin-gradient-primary);
   
-  ::ng-deep .mat-mdc-avatar {
-    background-color: $primary-color;
-    color: $white;
-    font-weight: 600;
-    font-size: 14px;
+  .avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  &.no-photo {
+    .avatar-initials {
+      color: var(--admin-white);
+      font-weight: var(--admin-font-weight-semibold);
+      font-size: var(--admin-font-size-base);
+    }
+  }
+}
+
+// Logo del cliente legal
+.legal-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--admin-radius);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--admin-gray-100);
+  border: 1px solid var(--admin-gray-300);
+  
+  .logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  &.no-logo {
+    mat-icon {
+      color: var(--admin-gray-500);
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
   }
 }
 
 // Información del cliente
 .customer-info {
   h4 {
-    font-size: 14px;
-    font-weight: 600;
-    color: $gray-800;
+    font-size: var(--admin-font-size-base);
+    font-weight: var(--admin-font-weight-semibold);
+    color: var(--admin-gray-800);
     margin: 0 0 4px 0;
   }
   
   p {
-    font-size: 12px;
-    color: $gray-600;
+    font-size: var(--admin-font-size-sm);
+    color: var(--admin-gray-600);
     margin: 0;
   }
 }
 
 .customer-email {
-  font-size: 14px;
-  color: $gray-700;
+  font-size: var(--admin-font-size-base);
+  color: var(--admin-gray-700);
 }
 
 .customer-phone {
-  font-size: 14px;
-  color: $gray-700;
+  font-size: var(--admin-font-size-base);
+  color: var(--admin-gray-700);
 }
 
 .join-date {
-  font-size: 14px;
-  color: $gray-700;
+  font-size: var(--admin-font-size-base);
+  color: var(--admin-gray-700);
 }
 
 .orders-count {
-  font-size: 14px;
-  color: $gray-700;
-  font-weight: 500;
+  font-size: var(--admin-font-size-base);
+  color: var(--admin-gray-700);
+  font-weight: var(--admin-font-weight-medium);
 }
 
 .total-spent {
-  font-weight: 600;
-  color: $gray-800;
-  font-size: 14px;
+  font-weight: var(--admin-font-weight-semibold);
+  color: var(--admin-gray-800);
+  font-size: var(--admin-font-size-base);
 }
 
 // Chips
 ::ng-deep .mat-mdc-chip {
-  font-size: 12px;
-  font-weight: 500;
+  font-size: var(--admin-font-size-sm);
+  font-weight: var(--admin-font-weight-medium);
   
   &.mat-mdc-chip-selected {
     &.mat-primary {
-      background-color: rgba($primary-color, 0.1);
-      color: $primary-color;
+      background-color: rgba(var(--admin-primary-rgb), 0.1);
+      color: var(--admin-primary);
     }
     
-    &.mat-accent { background-color: rgba(var(--admin-accent-rgb), 0.1); color: var(--admin-accent); }
+    &.mat-accent { 
+      background-color: rgba(var(--admin-accent-rgb), 0.1); 
+      color: var(--admin-accent); 
+    }
     
     &.mat-warn {
-      background-color: rgba($red-color, 0.1);
-      color: $red-color;
+      background-color: rgba(var(--admin-danger-rgb), 0.1);
+      color: var(--admin-danger);
     }
     
-    &.mat-success { background-color: rgba(var(--admin-success-rgb), 0.1); color: var(--admin-success); }
+    &.mat-success { 
+      background-color: rgba(var(--admin-success-rgb), 0.1); 
+      color: var(--admin-success); 
+    }
   }
 }
 
 // Paginación
 ::ng-deep .mat-mdc-paginator {
-  border-top: 1px solid $gray-200;
-  background-color: $white;
+  border-top: 1px solid var(--admin-gray-200);
+  background-color: var(--admin-white);
 }
 
 // Responsive

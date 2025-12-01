@@ -11,15 +11,15 @@
     </div>
     <div class="page-right">
       <div class="search-section">
-        <mat-icon class="search-icon">search</mat-icon>
+        <mat-icon class="search-icon">{{ Icons.ACTIONS.SEARCH }}</mat-icon>
         <input 
           type="text" 
           [formControl]="searchControl"
           placeholder="Buscar productos..." 
           class="search-input">
       </div>
-      <button mat-raised-button color="primary" [routerLink]="['/admin/products/new']">
-        <mat-icon>add</mat-icon>
+      <button mat-raised-button color="primary" [routerLink]="['./new']">
+        <mat-icon>{{ Icons.ACTIONS.ADD }}</mat-icon>
         Nuevo
       </button>
     </div>
@@ -58,7 +58,7 @@
         </mat-form-field>
 
         <button mat-stroked-button (click)="clearFilters()" class="clear-filters-btn">
-          <mat-icon>clear</mat-icon>
+          <mat-icon>{{ Icons.ACTIONS.CLEAR }}</mat-icon>
           Limpiar Filtros
         </button>
       </div>
@@ -79,15 +79,15 @@
         </div>
         <div class="table-right">
           <button mat-icon-button class="table-actions" [matMenuTriggerFor]="tableMenu">
-            <mat-icon>more_vert</mat-icon>
+            <mat-icon>{{ Icons.ACTIONS.MORE_VERT }}</mat-icon>
           </button>
           <mat-menu #tableMenu="matMenu">
             <button mat-menu-item>
-              <mat-icon>download</mat-icon>
+              <mat-icon>{{ Icons.ACTIONS.DOWNLOAD }}</mat-icon>
               <span>Exportar</span>
             </button>
             <button mat-menu-item>
-              <mat-icon>print</mat-icon>
+              <mat-icon>{{ Icons.ACTIONS.PRINT }}</mat-icon>
               <span>Imprimir</span>
             </button>
           </mat-menu>
@@ -227,9 +227,9 @@
                   (click)="onToggleActive(product)"
                   [matTooltip]="product.active ? 'Desactivar' : 'Activar'">
                   @if (product.active) {
-                    <mat-icon class="icon-ok">check_circle</mat-icon>
+                    <mat-icon class="icon-ok">{{ Icons.STATUS.SUCCESS }}</mat-icon>
                   } @else {
-                    <mat-icon class="icon-disabled">cancel</mat-icon>
+                    <mat-icon class="icon-disabled">{{ Icons.ACTIONS.CANCEL }}</mat-icon>
                   }
                 </button>
               </td>
@@ -241,28 +241,25 @@
               <td mat-cell *matCellDef="let product" class="actions-cell">
                 <button 
                   mat-icon-button 
-                  class="action-btn" 
-                  aria-label="Ver"
-                  (click)="onView(product)"
-                  matTooltip="Ver detalles">
-                  <mat-icon>visibility</mat-icon>
+                  [matMenuTriggerFor]="menu"
+                  matTooltip="Más opciones">
+                  <mat-icon>{{ Icons.ACTIONS.MORE_VERT }}</mat-icon>
                 </button>
-                <button 
-                  mat-icon-button 
-                  class="action-btn" 
-                  aria-label="Editar"
-                  (click)="onEdit(product)"
-                  matTooltip="Editar">
-                  <mat-icon>edit</mat-icon>
-                </button>
-                <button 
-                  mat-icon-button 
-                  class="action-btn warn" 
-                  aria-label="Eliminar"
-                  (click)="onDelete(product)"
-                  matTooltip="Eliminar">
-                  <mat-icon>delete</mat-icon>
-                </button>
+                <mat-menu #menu="matMenu">
+                  <button mat-menu-item (click)="onView(product)">
+                    <mat-icon>{{ Icons.ACTIONS.VIEW }}</mat-icon>
+                    <span>Ver Detalles</span>
+                  </button>
+                  <button mat-menu-item (click)="onEdit(product)">
+                    <mat-icon>{{ Icons.ACTIONS.EDIT }}</mat-icon>
+                    <span>Editar</span>
+                  </button>
+                  <mat-divider></mat-divider>
+                  <button mat-menu-item (click)="onDelete(product)" class="warn">
+                    <mat-icon>{{ Icons.ACTIONS.DELETE }}</mat-icon>
+                    <span>Eliminar</span>
+                  </button>
+                </mat-menu>
               </td>
             </ng-container>
 
@@ -273,7 +270,7 @@
             <tr class="mat-row" *matNoDataRow>
               <td class="mat-cell" [attr.colspan]="displayedColumns.length">
                 <div class="empty-state">
-                  <mat-icon>inventory_2</mat-icon>
+                  <mat-icon>{{ Icons.PRODUCTS.INVENTORY_2 }}</mat-icon>
                   <p>No se encontraron productos</p>
                 </div>
               </td>

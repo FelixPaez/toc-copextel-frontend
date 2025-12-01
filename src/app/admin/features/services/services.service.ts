@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { map, switchMap, take, tap } from 'rxjs/operators';
+import { catchError, map, switchMap, take, tap } from 'rxjs/operators';
 
 // Types
 import { IResponse, TablePagination } from '../../core/models/shared.types';
@@ -9,6 +9,11 @@ import { CopextelService } from './services.types';
 
 // Variables
 import { environment } from '../../../../environments/environment';
+
+// Mock Data & Services
+import { MOCK_SERVICES } from '../../mocks/data/services.mock';
+import { MockService } from '../../core/services/mock.service';
+import { applyMockPagination } from '../../mocks/mock-helpers';
 
 // API URL
 const API_URL_GATEWAY = environment.API_URL_GATEWAY;
@@ -31,7 +36,10 @@ export class CopextelServicesService {
   /**
    * Constructor
    */
-  constructor(private _httpClient: HttpClient) {
+  constructor(
+    private _httpClient: HttpClient,
+    private _mockService: MockService
+  ) {
   }
 
   // -----------------------------------------------------------------------------------------------------
@@ -76,6 +84,35 @@ export class CopextelServicesService {
    * @param service - Datos del servicio a crear
    */
   public createService(service: CopextelService): Observable<IResponse> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const newService: CopextelService = {
+        ...service,
+        id: Math.max(...MOCK_SERVICES.map(s => s.id), 0) + 1,
+        createdAt: new Date()
+      };
+      MOCK_SERVICES.unshift(newService);
+      
+      return this.services$.pipe(
+        take(1),
+        switchMap(services => {
+          if (!services) {
+            services = [];
+          }
+          return this._mockService.simulateDelay({
+            ok: true,
+            message: 'Servicio creado exitosamente',
+            service: newService
+          }).pipe(
+            tap(() => {
+              this._services.next([newService, ...services]);
+            })
+          );
+        })
+      );
+    }
+    
+    // Real API call
     return this.services$.pipe(
       take(1),
       switchMap(services => {
@@ -90,6 +127,10 @@ export class CopextelServicesService {
             }
             // Return the response
             return response;
+          }),
+          catchError((error) => {
+            console.error('Error creating service:', error);
+            return throwError(() => error);
           })
         );
       })
@@ -112,6 +153,36 @@ export class CopextelServicesService {
     order: 'asc' | 'desc' | '' = 'asc',
     search: string = ''
   ): Observable<IResponse> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const result = applyMockPagination(
+        MOCK_SERVICES,
+        page,
+        size,
+        sort || 'id',
+        order,
+        search,
+        ['name', 'code', 'description'] as (keyof CopextelService)[]
+      );
+      
+      return this._mockService.simulateDelay({
+        ok: true,
+        services: result.data,
+        pagination: result.pagination
+      }).pipe(
+        tap((response) => {
+          if (response.pagination) {
+            this._pagination.next(response.pagination);
+          }
+          if (response.services) {
+            this._services.next(response.services);
+            this._servicesArr.next(response.services);
+          }
+        })
+      );
+    }
+    
+    // Real API call
     return this._httpClient.get<IResponse>(`${API_URL_GATEWAY}/product/services/`, {
       params: {
         page: '' + page,
@@ -131,6 +202,10 @@ export class CopextelServicesService {
           this._services.next(response.services);
           this._servicesArr.next(response.services);
         }
+      }),
+      catchError((error) => {
+        console.error('Error getting services:', error);
+        return throwError(() => error);
       })
     );
   }
@@ -174,6 +249,40 @@ export class CopextelServicesService {
       return throwError(() => new Error('Service ID is required'));
     }
 
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const index = MOCK_SERVICES.findIndex(s => s.id === service.id);
+      if (index === -1) {
+        return this._mockService.simulateError('Servicio no encontrado', 404);
+      }
+      
+      const updatedService = { ...MOCK_SERVICES[index], ...service };
+      MOCK_SERVICES[index] = updatedService;
+      
+      return this.services$.pipe(
+        take(1),
+        switchMap(services => {
+          if (!services) {
+            return throwError(() => new Error('No services available'));
+          }
+          return this._mockService.simulateDelay({
+            ok: true,
+            message: 'Servicio actualizado exitosamente',
+            service: updatedService
+          }).pipe(
+            tap(() => {
+              const serviceIndex = services.findIndex(item => item.id === service.id);
+              if (serviceIndex !== -1) {
+                services[serviceIndex] = updatedService;
+                this._services.next(services);
+              }
+            })
+          );
+        })
+      );
+    }
+
+    // Real API call
     return this.services$.pipe(
       take(1),
       switchMap(services => {
@@ -199,6 +308,10 @@ export class CopextelServicesService {
 
             // Return the response
             return response;
+          }),
+          catchError((error) => {
+            console.error('Error updating service:', error);
+            return throwError(() => error);
           })
         );
       })
@@ -211,6 +324,38 @@ export class CopextelServicesService {
    * @param id - ID del servicio a eliminar
    */
   public deleteService(id: number): Observable<IResponse> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const index = MOCK_SERVICES.findIndex(s => s.id === id);
+      if (index === -1) {
+        return this._mockService.simulateError('Servicio no encontrado', 404);
+      }
+      
+      MOCK_SERVICES.splice(index, 1);
+      
+      return this.services$.pipe(
+        take(1),
+        switchMap(services => {
+          if (!services) {
+            return throwError(() => new Error('No services available'));
+          }
+          return this._mockService.simulateDelay({
+            ok: true,
+            message: 'Servicio eliminado exitosamente'
+          }).pipe(
+            tap(() => {
+              const serviceIndex = services.findIndex(item => item.id === id);
+              if (serviceIndex !== -1) {
+                services.splice(serviceIndex, 1);
+                this._services.next(services);
+              }
+            })
+          );
+        })
+      );
+    }
+
+    // Real API call
     return this.services$.pipe(
       take(1),
       switchMap(services => {
@@ -232,6 +377,10 @@ export class CopextelServicesService {
 
             // Return the response
             return response;
+          }),
+          catchError((error) => {
+            console.error('Error deleting service:', error);
+            return throwError(() => error);
           })
         );
       })

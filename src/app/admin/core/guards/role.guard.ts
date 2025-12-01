@@ -6,12 +6,9 @@ import { map, take } from 'rxjs/operators';
 // Services
 import { AuthService } from '../services/auth.service';
 
-// Models
-import { UserRole } from '../models/user.model';
-
 // Interfaces
 export interface RoleGuardData {
-  roles?: UserRole[];
+  roles?: string[]; // Usa roles como strings (Roles enum o strings)
   permissions?: string[];
   redirectTo?: string;
 }

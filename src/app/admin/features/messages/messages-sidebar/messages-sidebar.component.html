@@ -1,0 +1,33 @@
+<div class="messages-sidebar-content">
+  <h2 class="sidebar-title">Mensajes</h2>
+
+  <button mat-raised-button color="primary" class="compose-button" [routerLink]="['./compose']" matTooltip="Redactar nuevo mensaje" disabled>
+    <mat-icon>edit</mat-icon>
+    <span>Redactar</span>
+  </button>
+
+  <div class="folder-list">
+    @for (folder of folders; track folder.id) {
+      <a
+        mat-button
+        class="folder-item"
+        [routerLink]="['./', folder.slug, '0']"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{exact: false}">
+        <mat-icon>{{ folder.icon }}</mat-icon>
+        <span>{{ folder.title }}</span>
+        @if (folder.count) {
+          <span class="folder-count">{{ folder.count }}</span>
+        }
+      </a>
+    }
+  </div>
+
+  <div class="sidebar-actions">
+    <button mat-stroked-button (click)="markAllAsRead()">
+      <mat-icon>done_all</mat-icon>
+      Marcar todo como leído
+    </button>
+  </div>
+</div>
+

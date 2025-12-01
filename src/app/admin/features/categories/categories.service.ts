@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { map, switchMap, take, tap } from 'rxjs/operators';
+import { catchError, map, switchMap, take, tap } from 'rxjs/operators';
 
 // Types
 import { IResponse, TablePagination } from '../../core/models/shared.types';
@@ -9,6 +9,10 @@ import { Category } from './categories.types';
 
 // Variables
 import { environment } from '../../../../environments/environment';
+
+// Mock Data & Services
+import { MOCK_CATEGORIES } from '../../mocks/data/categories.mock';
+import { MockService } from '../../core/services/mock.service';
 
 // API URL
 const API_URL_GATEWAY = environment.API_URL_GATEWAY;
@@ -30,7 +34,10 @@ export class CategoriesService {
   /**
    * Constructor
    */
-  constructor(private _httpClient: HttpClient) {
+  constructor(
+    private _httpClient: HttpClient,
+    private _mockService: MockService
+  ) {
   }
 
   // -----------------------------------------------------------------------------------------------------
@@ -68,6 +75,35 @@ export class CategoriesService {
    * @param category - Datos de la categoría a crear
    */
   public createCategory(category: Category): Observable<IResponse> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const newCategory: Category = {
+        ...category,
+        id: Math.max(...MOCK_CATEGORIES.map(c => c.id), 0) + 1,
+        createdAt: new Date()
+      };
+      MOCK_CATEGORIES.unshift(newCategory);
+      
+      return this.categories$.pipe(
+        take(1),
+        switchMap(categories => {
+          if (!categories) {
+            categories = [];
+          }
+          return this._mockService.simulateDelay({
+            ok: true,
+            message: 'Categoría creada exitosamente',
+            category: newCategory
+          }).pipe(
+            tap(() => {
+              this._categories.next([newCategory, ...categories]);
+            })
+          );
+        })
+      );
+    }
+    
+    // Real API call
     return this.categories$.pipe(
       take(1),
       switchMap(categories => {
@@ -82,6 +118,10 @@ export class CategoriesService {
             }
             // Return the response
             return response;
+          }),
+          catchError((error) => {
+            console.error('Error creating category:', error);
+            return throwError(() => error);
           })
         );
       })
@@ -92,11 +132,30 @@ export class CategoriesService {
    * Get categories
    */
   public getCategories(): Observable<IResponse> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      return this._mockService.simulateDelay({
+        ok: true,
+        categories: MOCK_CATEGORIES
+      }).pipe(
+        tap((response) => {
+          if (response.categories) {
+            this._categories.next(response.categories);
+          }
+        })
+      );
+    }
+    
+    // Real API call
     return this._httpClient.get<IResponse>(`${API_URL_GATEWAY}/product/categories/`).pipe(
       tap((response) => {
         if (response.categories) {
           this._categories.next(response.categories);
         }
+      }),
+      catchError((error) => {
+        console.error('Error getting categories:', error);
+        return throwError(() => error);
       })
     );
   }
@@ -238,6 +297,40 @@ export class CategoriesService {
       return throwError(() => new Error('Category ID is required'));
     }
 
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const index = MOCK_CATEGORIES.findIndex(c => c.id === category.id);
+      if (index === -1) {
+        return this._mockService.simulateError('Categoría no encontrada', 404);
+      }
+      
+      const updatedCategory = { ...MOCK_CATEGORIES[index], ...category };
+      MOCK_CATEGORIES[index] = updatedCategory;
+      
+      return this.categories$.pipe(
+        take(1),
+        switchMap(categories => {
+          if (!categories) {
+            return throwError(() => new Error('No categories available'));
+          }
+          return this._mockService.simulateDelay({
+            ok: true,
+            message: 'Categoría actualizada exitosamente',
+            updatedCategory: updatedCategory
+          }).pipe(
+            tap(() => {
+              const categoryIndex = categories.findIndex(item => item.id === category.id);
+              if (categoryIndex !== -1) {
+                categories[categoryIndex] = updatedCategory;
+                this._categories.next(categories);
+              }
+            })
+          );
+        })
+      );
+    }
+
+    // Real API call
     return this.categories$.pipe(
       take(1),
       switchMap(categories => {
@@ -263,6 +356,10 @@ export class CategoriesService {
 
             // Return the response
             return response;
+          }),
+          catchError((error) => {
+            console.error('Error updating category:', error);
+            return throwError(() => error);
           })
         );
       })
@@ -275,6 +372,38 @@ export class CategoriesService {
    * @param id - ID de la categoría a eliminar
    */
   public deleteCategory(id: number): Observable<IResponse> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const index = MOCK_CATEGORIES.findIndex(c => c.id === id);
+      if (index === -1) {
+        return this._mockService.simulateError('Categoría no encontrada', 404);
+      }
+      
+      MOCK_CATEGORIES.splice(index, 1);
+      
+      return this.categories$.pipe(
+        take(1),
+        switchMap(categories => {
+          if (!categories) {
+            return throwError(() => new Error('No categories available'));
+          }
+          return this._mockService.simulateDelay({
+            ok: true,
+            message: 'Categoría eliminada exitosamente'
+          }).pipe(
+            tap(() => {
+              const categoryIndex = categories.findIndex(item => item.id === id);
+              if (categoryIndex !== -1) {
+                categories.splice(categoryIndex, 1);
+                this._categories.next(categories);
+              }
+            })
+          );
+        })
+      );
+    }
+
+    // Real API call
     return this.categories$.pipe(
       take(1),
       switchMap(categories => {
@@ -296,6 +425,10 @@ export class CategoriesService {
 
             // Return the response
             return response;
+          }),
+          catchError((error) => {
+            console.error('Error deleting category:', error);
+            return throwError(() => error);
           })
         );
       })

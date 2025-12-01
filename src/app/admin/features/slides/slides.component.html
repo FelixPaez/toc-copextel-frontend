@@ -4,14 +4,14 @@
     <div class="page-left">
       <div class="breadcrumbs">
         <span class="crumb">Nomencladores</span>
-        <mat-icon class="crumb-sep">chevron_right</mat-icon>
+        <mat-icon class="crumb-sep">{{ Icons.NAVIGATION.CHEVRON_RIGHT }}</mat-icon>
         <span class="crumb current">Diapositivas</span>
       </div>
       <h1 class="page-title">Listado de Diapositivas</h1>
     </div>
     <div class="page-right">
       <div class="search-section">
-        <mat-icon class="search-icon">search</mat-icon>
+        <mat-icon class="search-icon">{{ Icons.ACTIONS.SEARCH }}</mat-icon>
         <input 
           type="text" 
           [formControl]="searchControl"
@@ -19,7 +19,7 @@
           class="search-input">
       </div>
       <button mat-raised-button color="primary" (click)="onAddSlide()">
-        <mat-icon>add</mat-icon>
+        <mat-icon>{{ Icons.ACTIONS.ADD }}</mat-icon>
         Nueva
       </button>
     </div>
@@ -39,7 +39,7 @@
         </mat-form-field>
 
         <button mat-stroked-button (click)="clearFilters()" class="clear-filters-btn">
-          <mat-icon>clear</mat-icon>
+          <mat-icon>{{ Icons.ACTIONS.CLEAR }}</mat-icon>
           Limpiar Filtros
         </button>
       </div>
@@ -60,15 +60,15 @@
         </div>
         <div class="table-right">
           <button mat-icon-button class="table-actions" [matMenuTriggerFor]="tableMenu">
-            <mat-icon>more_vert</mat-icon>
+            <mat-icon>{{ Icons.ACTIONS.MORE_VERT }}</mat-icon>
           </button>
           <mat-menu #tableMenu="matMenu">
             <button mat-menu-item>
-              <mat-icon>download</mat-icon>
+              <mat-icon>{{ Icons.ACTIONS.DOWNLOAD }}</mat-icon>
               <span>Exportar</span>
             </button>
             <button mat-menu-item>
-              <mat-icon>print</mat-icon>
+              <mat-icon>{{ Icons.ACTIONS.PRINT }}</mat-icon>
               <span>Imprimir</span>
             </button>
           </mat-menu>
@@ -120,9 +120,9 @@
                   (click)="onToggleActive(slide)"
                   [matTooltip]="slide.active ? 'Desactivar' : 'Activar'">
                   @if (slide.active) {
-                    <mat-icon class="icon-ok">check_circle</mat-icon>
+                    <mat-icon class="icon-ok">{{ Icons.STATUS.SUCCESS }}</mat-icon>
                   } @else {
-                    <mat-icon class="icon-disabled">cancel</mat-icon>
+                    <mat-icon class="icon-disabled">{{ Icons.ACTIONS.CANCEL }}</mat-icon>
                   }
                 </button>
               </td>
@@ -134,20 +134,21 @@
               <td mat-cell *matCellDef="let slide" class="actions-cell">
                 <button 
                   mat-icon-button 
-                  class="action-btn" 
-                  aria-label="Editar"
-                  (click)="onEditSlide(slide)"
-                  matTooltip="Editar">
-                  <mat-icon>edit</mat-icon>
+                  [matMenuTriggerFor]="menu"
+                  matTooltip="Más opciones">
+                  <mat-icon>{{ Icons.ACTIONS.MORE_VERT }}</mat-icon>
                 </button>
-                <button 
-                  mat-icon-button 
-                  class="action-btn warn" 
-                  aria-label="Eliminar"
-                  (click)="onDeleteSlide(slide)"
-                  matTooltip="Eliminar">
-                  <mat-icon>delete</mat-icon>
-                </button>
+                <mat-menu #menu="matMenu">
+                  <button mat-menu-item (click)="onEditSlide(slide)">
+                    <mat-icon>{{ Icons.ACTIONS.EDIT }}</mat-icon>
+                    <span>Editar</span>
+                  </button>
+                  <mat-divider></mat-divider>
+                  <button mat-menu-item (click)="onDeleteSlide(slide)" class="warn">
+                    <mat-icon>{{ Icons.ACTIONS.DELETE }}</mat-icon>
+                    <span>Eliminar</span>
+                  </button>
+                </mat-menu>
               </td>
             </ng-container>
 

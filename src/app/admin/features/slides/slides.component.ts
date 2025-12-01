@@ -10,6 +10,7 @@ import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/p
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -26,6 +27,9 @@ import { SlidesService } from './slides.service';
 // Types
 import { Slide } from './slides.types';
 import { TablePagination } from '../../core/models/shared.types';
+
+// Constants
+import { Icons } from '../../core/constants';
 
 // Components
 import { SlideFormComponent } from './slide-form/slide-form.component';
@@ -49,6 +53,7 @@ import { SlideFormComponent } from './slide-form/slide-form.component';
     MatSortModule,
     MatChipsModule,
     MatMenuModule,
+    MatDividerModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -63,6 +68,9 @@ import { SlideFormComponent } from './slide-form/slide-form.component';
 export class SlidesComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+
+  // Expose Icons for template
+  Icons = Icons;
 
   // Table
   displayedColumns: string[] = ['image', 'title', 'subtitle', 'active', 'actions'];

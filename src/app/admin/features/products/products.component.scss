@@ -1,36 +1,85 @@
-@use "sass:color";
-
-/* Variables mapeadas a tokens globales */
-$primary-color: var(--admin-primary);
-$red-color: var(--admin-danger);
-$gray-100: var(--admin-gray-100);
-$gray-200: var(--admin-gray-200);
-$gray-300: var(--admin-gray-300);
-$gray-500: var(--admin-gray-500);
-$gray-600: var(--admin-gray-600);
-$gray-700: var(--admin-gray-700);
-$gray-800: var(--admin-gray-800);
-$gray-900: var(--admin-gray-900);
-$white: var(--admin-white);
-
+// Usar directamente las variables CSS globales definidas en admin.scss
 .products-container {
   padding: 24px;
-  background-color: $gray-100;
+  background-color: var(--admin-gray-100);
   min-height: 100vh;
-  font-family: 'Nunito', sans-serif;
+  font-family: var(--admin-font-family);
 }
 
 /* Header con breadcrumbs, buscador y CTA */
-.page-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 16px 20px; margin-bottom: 16px; background: linear-gradient(180deg, var(--admin-topbar-bg-start), var(--admin-topbar-bg-end)); border: 1px solid $gray-200; border-radius: var(--admin-radius); }
+.page-header { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  gap: var(--admin-gap); 
+  padding: var(--admin-gap) var(--admin-card-padding); 
+  margin-bottom: var(--admin-gap); 
+  background: linear-gradient(180deg, var(--admin-topbar-bg-start), var(--admin-topbar-bg-end)); 
+  border: 1px solid var(--admin-gray-200); 
+  border-radius: var(--admin-radius); 
+}
 .page-left { display: flex; flex-direction: column; }
-.breadcrumbs { display: flex; align-items: center; gap: 6px; color: $gray-600; font-size: 12px; margin-bottom: 6px; }
-.crumb-sep { font-size: 18px; width: 18px; height: 18px; color: $gray-500; }
-.page-title { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: .2px; color: $gray-800; }
+.breadcrumbs { 
+  display: flex; 
+  align-items: center; 
+  gap: 6px; 
+  color: var(--admin-gray-600); 
+  font-size: var(--admin-font-size-sm); 
+  margin-bottom: 6px; 
+}
+.crumb-sep { 
+  font-size: 18px; 
+  width: 18px; 
+  height: 18px; 
+  color: var(--admin-gray-500); 
+}
+.page-title { 
+  margin: 0; 
+  font-size: var(--admin-font-size-3xl); 
+  font-weight: var(--admin-font-weight-bold); 
+  letter-spacing: .2px; 
+  color: var(--admin-gray-800); 
+}
 .page-right { display: flex; align-items: center; gap: 12px; }
-.btn-danger.mat-mdc-raised-button { background-color: var(--admin-danger); color: $white; box-shadow: var(--admin-shadow); }
-.btn-danger.mat-mdc-raised-button:hover { background-color: color.adjust(#df0029, $lightness: -6%); }
+.btn-danger.mat-mdc-raised-button { 
+  background-color: var(--admin-danger); 
+  color: var(--admin-white); 
+  box-shadow: var(--admin-shadow); 
+}
+.btn-danger.mat-mdc-raised-button:hover { 
+  background-color: var(--admin-danger-hover); 
+}
 
 /* Filtros */
+.filters-card {
+  margin-bottom: var(--admin-gap);
+  border-radius: var(--admin-radius);
+  box-shadow: var(--admin-shadow);
+  
+  ::ng-deep .mat-mdc-card-content {
+    padding: var(--admin-card-padding);
+  }
+}
+
+.filters-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-field {
+  width: 200px;
+  
+  ::ng-deep .mat-mdc-form-field {
+    width: 200px;
+  }
+}
+
+.clear-filters-btn {
+  margin-left: auto;
+}
 
 .filters-content {
   display: flex;
@@ -54,26 +103,26 @@ $white: var(--admin-white);
     left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    color: $gray-500;
+    color: var(--admin-gray-500);
     z-index: 1;
   }
   
   .search-input {
     width: 100%;
     padding: 12px 12px 12px 44px;
-    border: 1px solid $gray-300;
-    border-radius: 8px;
-    font-size: 14px;
-    font-family: 'Nunito', sans-serif;
+    border: 1px solid var(--admin-gray-300);
+    border-radius: var(--admin-radius);
+    font-size: var(--admin-font-size-base);
+    font-family: var(--admin-font-family);
     
     &:focus {
       outline: none;
-      border-color: $primary-color;
-      box-shadow: 0 0 0 2px rgba(var(--admin-primary-rgb), 0.1);
+      border-color: var(--admin-primary);
+      box-shadow: var(--admin-focus-ring);
     }
     
     &::placeholder {
-      color: $gray-500;
+      color: var(--admin-gray-500);
     }
   }
 }
@@ -90,85 +139,103 @@ $white: var(--admin-white);
   }
 }
 
+// Usar estilos globales de admin.scss - solo estilos específicos aquí
 .products-table {
-  width: 100%;
-  
-  ::ng-deep .mat-mdc-header-row {
-    background-color: $gray-100;
-    border-bottom: 1px solid $gray-200;
-    
-    .mat-mdc-header-cell {
-      font-weight: 600;
-      color: $gray-800;
-      font-size: 14px;
-      padding: 16px 12px;
-    }
-  }
-  
-  ::ng-deep .mat-mdc-row {
-    &:hover {
-      background-color: rgba(var(--admin-primary-rgb), 0.02);
-    }
-    
-    .mat-mdc-cell {
-      padding: 16px 12px;
-      border-bottom: 1px solid $gray-200;
-    }
-    &:last-child .mat-mdc-cell { border-bottom: none; }
-  }
+  // Los estilos base están en admin.scss .admin-table
 }
 
 /* Header de la tabla fuera del nodo .products-table */
-.table-header { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding: 12px 16px 8px 16px; margin-bottom: 0; }
+.table-header { 
+  display: flex; 
+  align-items: center; 
+  justify-content: flex-end; 
+  gap: 8px; 
+  padding: 12px var(--admin-gap) 8px var(--admin-gap); 
+  margin-bottom: 0; 
+}
 .table-right { display: flex; align-items: center; gap: 8px; }
-.table-title { margin: 0; font-size: 16px; font-weight: 700; color: $gray-800; white-space: nowrap; }
+.table-title { 
+  margin: 0; 
+  font-size: var(--admin-font-size-lg); 
+  font-weight: var(--admin-font-weight-bold); 
+  color: var(--admin-gray-800); 
+  white-space: nowrap; 
+}
 .table-actions { flex: 0 0 auto; }
 
 // Información del producto
-.product-name { font-size: 14px; font-weight: 600; color: $gray-800; }
+.product-name { 
+  font-size: var(--admin-font-size-base); 
+  font-weight: var(--admin-font-weight-semibold); 
+  color: var(--admin-gray-800); 
+}
 
 /* (eliminado) .price ya no se usa */
 
 // Stock
 .stock-cell { display: flex; align-items: center; gap: 10px; }
-.stock-value { font-size: 14px; color: $gray-700; }
-.stock-value.low-stock { color: $red-color; font-weight: 600; }
-.stock-bar { flex: 1; height: 6px; background: $gray-200; border-radius: 4px; overflow: hidden; min-width: 60px; }
-.stock-bar .bar { display: block; height: 100%; background: linear-gradient(90deg, $primary-color, var(--admin-primary-light)); }
-.icon-ok { color: var(--admin-success); }
-
-.actions-cell { display: flex; align-items: center; gap: 6px; }
-.action-btn { border: 1px solid $gray-300; border-radius: 18px; width: 28px; height: 28px; }
-.action-btn .mat-icon { font-size: 16px; width: 16px; height: 16px; line-height: 16px; }
-.action-btn.warn { border-color: var(--admin-warn); color: var(--admin-warn); }
+.stock-value { 
+  font-size: var(--admin-font-size-base); 
+  color: var(--admin-gray-700); 
+}
+.stock-value.low-stock { 
+  color: var(--admin-danger); 
+  font-weight: var(--admin-font-weight-semibold); 
+}
+.stock-bar { 
+  flex: 1; 
+  height: 6px; 
+  background: var(--admin-gray-200); 
+  border-radius: 4px; 
+  overflow: hidden; 
+  min-width: 60px; 
+}
+.stock-bar .bar { 
+  display: block; 
+  height: 100%; 
+  background: var(--admin-gradient-primary); 
+}
+// Estilos globales en admin.scss - solo estilos específicos aquí
+.action-btn { 
+}
+.action-btn .mat-icon { 
+  font-size: 16px; 
+  width: 16px; 
+  height: 16px; 
+  line-height: 16px; 
+}
+.action-btn.warn { 
+  border-color: var(--admin-warn); 
+  color: var(--admin-warn); 
+}
 
 // Chips
 ::ng-deep .mat-mdc-chip {
-  font-size: 12px;
-  font-weight: 500;
+  font-size: var(--admin-font-size-sm);
+  font-weight: var(--admin-font-weight-medium);
   
   &.mat-mdc-chip-selected {
     &.mat-primary {
-      background-color: rgba($primary-color, 0.1);
-      color: $primary-color;
+      background-color: rgba(var(--admin-primary-rgb), 0.1);
+      color: var(--admin-primary);
     }
     
     &.mat-accent {
-      background-color: rgba(#ff6b35, 0.1);
-      color: #ff6b35;
+      background-color: rgba(var(--admin-accent-rgb), 0.1);
+      color: var(--admin-accent);
     }
     
     &.mat-warn {
-      background-color: rgba($red-color, 0.1);
-      color: $red-color;
+      background-color: rgba(var(--admin-danger-rgb), 0.1);
+      color: var(--admin-danger);
     }
   }
 }
 
 // Paginación
 ::ng-deep .mat-mdc-paginator {
-  border-top: 1px solid $gray-200;
-  background-color: $white;
+  border-top: 1px solid var(--admin-gray-200);
+  background-color: var(--admin-white);
 }
 
 // Responsive

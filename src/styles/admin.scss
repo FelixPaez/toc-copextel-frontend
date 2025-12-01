@@ -1,36 +1,134 @@
 // Variables globales del tema Admin (CSS variables)
 :root {
+  // ============================================
+  // TIPOGRAFÍA
+  // ============================================
   --admin-font-family: 'Nunito', sans-serif;
+  --admin-font-size-base: 14px;
+  --admin-font-size-sm: 12px;
+  --admin-font-size-lg: 16px;
+  --admin-font-size-xl: 18px;
+  --admin-font-size-2xl: 24px;
+  --admin-font-size-3xl: 30px;
+  --admin-font-weight-normal: 400;
+  --admin-font-weight-medium: 500;
+  --admin-font-weight-semibold: 600;
+  --admin-font-weight-bold: 700;
+  --admin-line-height-base: 1.5;
+  --admin-line-height-tight: 1.25;
+  --admin-line-height-relaxed: 1.75;
 
-  --admin-primary: #2f47c2;
-  --admin-primary-rgb: 47, 71, 194;
-  --admin-primary-hover: #263aa9;
-  --admin-primary-light: #3a59d8;
+  // ============================================
+  // PALETA DE COLORES - AZUL (Gradiente suave)
+  // ============================================
+  --admin-blue-50: #EFF6FF;
+  --admin-blue-100: #DBEAFE;
+  --admin-blue-200: #BFDBFE;
+  --admin-blue-300: #93C5FD;
+  --admin-blue-400: #60A5FA;
+  --admin-blue-500: #3B82F6;  // Azul base
+  --admin-blue-600: #2563EB;  // Azul principal
+  --admin-blue-700: #1D4ED8;  // Azul hover
+  --admin-blue-800: #1E40AF;  // Azul oscuro
+  --admin-blue-900: #1E3A8A;  // Azul más oscuro
+  
+  --admin-primary: var(--admin-blue-600);
+  --admin-primary-rgb: 37, 99, 235;
+  --admin-primary-hover: var(--admin-blue-700);
+  --admin-primary-light: var(--admin-blue-500);
+  --admin-primary-dark: var(--admin-blue-800);
+  --admin-primary-lightest: var(--admin-blue-50);
 
-  --admin-accent: #ff6b35;
-  --admin-accent-rgb: 255, 107, 53;
-  --admin-accent-light: #f7931e;
+  // ============================================
+  // PALETA DE COLORES - ROJO (Gradiente suave)
+  // ============================================
+  --admin-red-50: #FEF2F2;
+  --admin-red-100: #FEE2E2;
+  --admin-red-200: #FECACA;
+  --admin-red-300: #FCA5A5;
+  --admin-red-400: #F87171;
+  --admin-red-500: #EF4444;  // Rojo base
+  --admin-red-600: #DC2626;  // Rojo principal
+  --admin-red-700: #B91C1C;  // Rojo hover
+  --admin-red-800: #991B1B;  // Rojo oscuro
+  --admin-red-900: #7F1D1D;  // Rojo más oscuro
+  
+  --admin-danger: var(--admin-red-600);
+  --admin-danger-rgb: 220, 38, 38;
+  --admin-danger-hover: var(--admin-red-700);
+  --admin-danger-light: var(--admin-red-500);
+  --admin-danger-dark: var(--admin-red-800);
+  --admin-danger-lightest: var(--admin-red-50);
 
-  --admin-warn: #ff9800;
-  --admin-warn-rgb: 255, 152, 0;
-  --admin-warn-light: #ffb74d;
+  // ============================================
+  // PALETA DE COLORES - VIOLETA (Complementario)
+  // ============================================
+  --admin-violet-50: #F5F3FF;
+  --admin-violet-100: #EDE9FE;
+  --admin-violet-200: #DDD6FE;
+  --admin-violet-300: #C4B5FD;
+  --admin-violet-400: #A78BFA;
+  --admin-violet-500: #8B5CF6;  // Violeta base
+  --admin-violet-600: #7C3AED;  // Violeta principal
+  --admin-violet-700: #6D28D9;  // Violeta hover
+  --admin-violet-800: #5B21B6;  // Violeta oscuro
+  --admin-violet-900: #4C1D95;  // Violeta más oscuro
+  
+  --admin-accent: var(--admin-violet-600);
+  --admin-accent-rgb: 124, 58, 237;
+  --admin-accent-hover: var(--admin-violet-700);
+  --admin-accent-light: var(--admin-violet-500);
+  --admin-accent-dark: var(--admin-violet-800);
+  --admin-accent-lightest: var(--admin-violet-50);
 
-  --admin-success: #4caf50;
-  --admin-success-rgb: 76, 175, 80;
+  // ============================================
+  // PALETA DE COLORES - GRIS (Deshabilitados)
+  // ============================================
+  --admin-gray-50: #F9FAFB;
+  --admin-gray-100: #F3F4F6;
+  --admin-gray-200: #E5E7EB;
+  --admin-gray-300: #D1D5DB;
+  --admin-gray-400: #9CA3AF;  // Gris para deshabilitados
+  --admin-gray-500: #6B7280;
+  --admin-gray-600: #4B5563;
+  --admin-gray-700: #374151;
+  --admin-gray-800: #1F2937;
+  --admin-gray-900: #111827;
+  
+  --admin-disabled: var(--admin-gray-400);
+  --admin-disabled-rgb: 156, 163, 175;
+  --admin-disabled-bg: var(--admin-gray-100);
+  --admin-disabled-text: var(--admin-gray-500);
 
-  --admin-danger: #df0029;
-  --admin-danger-rgb: 223, 0, 41;
+  // ============================================
+  // COLORES SEMÁNTICOS
+  // ============================================
+  --admin-warn: #F59E0B;
+  --admin-warn-rgb: 245, 158, 11;
+  --admin-warn-hover: #D97706;
+  --admin-warn-light: #FBBF24;
+  --admin-warn-dark: #D97706;
+  --admin-warn-lightest: #FEF3C7;
 
-  --admin-gray-100: #f8f9fa;
-  --admin-gray-200: #eee;
-  --admin-gray-300: #dee2e6;
-  --admin-gray-500: #bbb;
-  --admin-gray-600: #6c757d;
-  --admin-gray-700: #495057;
-  --admin-gray-800: #343a40;
-  --admin-gray-900: #212529;
+  --admin-success: #10B981;
+  --admin-success-rgb: 16, 185, 129;
+  --admin-success-hover: #059669;
+  --admin-success-light: #34D399;
+  --admin-success-dark: #059669;
+  --admin-success-lightest: #D1FAE5;
 
-  --admin-white: #fff;
+  --admin-info: var(--admin-blue-600);
+  --admin-info-rgb: var(--admin-primary-rgb);
+  --admin-info-hover: var(--admin-blue-700);
+  --admin-info-light: var(--admin-blue-500);
+  --admin-info-dark: var(--admin-blue-800);
+  --admin-info-lightest: var(--admin-blue-50);
+
+  // ============================================
+  // COLORES BASE
+  // ============================================
+  --admin-white: #FFFFFF;
+  --admin-black: #000000;
 
   /* Dimensiones y espaciados */
   --admin-radius: 12px;
@@ -42,18 +140,37 @@
   --admin-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   --admin-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.15);
 
-  /* Layout */
+  // ============================================
+  // GRADIENTES
+  // ============================================
+  --admin-gradient-blue: linear-gradient(135deg, var(--admin-blue-500) 0%, var(--admin-blue-700) 100%);
+  --admin-gradient-red: linear-gradient(135deg, var(--admin-red-500) 0%, var(--admin-red-700) 100%);
+  --admin-gradient-violet: linear-gradient(135deg, var(--admin-violet-500) 0%, var(--admin-violet-700) 100%);
+  --admin-gradient-primary: var(--admin-gradient-blue);
+  --admin-gradient-accent: var(--admin-gradient-violet);
+  --admin-gradient-danger: var(--admin-gradient-red);
+
+  // ============================================
+  // LAYOUT
+  // ============================================
   --admin-sidenav-width: 300px;
   --admin-topbar-height: 76px;
-  --admin-hero-bg: linear-gradient(180deg, #4e6cf3 0%, #1e3a8a 100%);
-  --admin-sidenav-bg-start: #ffffff;
-  --admin-sidenav-bg-end: #f3f5ff;
-  --admin-topbar-bg-start: #ffffff;
-  --admin-topbar-bg-end: #f7f9ff;
+  --admin-hero-bg: var(--admin-gradient-blue);
+  --admin-sidenav-bg-start: var(--admin-white);
+  --admin-sidenav-bg-end: var(--admin-blue-50);
+  --admin-topbar-bg-start: var(--admin-white);
+  --admin-topbar-bg-end: var(--admin-blue-50);
 
-  /* Focus ring */
-  --admin-focus-ring: 0 0 0 2px rgba(var(--admin-primary-rgb), 0.1);
+  // ============================================
+  // INTERACTIVIDAD
+  // ============================================
+  --admin-focus-ring: 0 0 0 3px rgba(var(--admin-primary-rgb), 0.1);
+  --admin-focus-ring-danger: 0 0 0 3px rgba(var(--admin-danger-rgb), 0.1);
+  --admin-focus-ring-accent: 0 0 0 3px rgba(var(--admin-accent-rgb), 0.1);
   --admin-pill-radius: 9999px;
+  --admin-transition-base: all 0.2s ease-in-out;
+  --admin-transition-fast: all 0.15s ease-in-out;
+  --admin-transition-slow: all 0.3s ease-in-out;
 }
 
 // Estilos globales reutilizables para el área Admin
@@ -73,29 +190,214 @@
   }
 }
 
-// Tablas estándar
+// ============================================
+// ESTILOS GLOBALES DE TABLAS
+// ============================================
 .admin-table {
   width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
 
+  // Header row
   .mat-mdc-header-row {
     background-color: var(--admin-gray-100);
-  }
-
-  .mat-mdc-header-cell {
-    font-weight: 600;
-    color: var(--admin-gray-800);
-    font-size: 14px;
-    padding: var(--admin-table-cell-padding);
-  }
-
-  .mat-mdc-row {
-    .mat-mdc-cell {
-      padding: var(--admin-table-cell-padding);
-      border-bottom: 1px solid var(--admin-gray-200);
+    border-bottom: 2px solid var(--admin-gray-200);
+    
+    .mat-mdc-header-cell {
+      font-weight: 600;
+      color: var(--admin-gray-800);
+      font-size: 14px;
+      padding: 16px 12px;
+      text-align: left;
+      vertical-align: middle;
+      white-space: nowrap;
+      
+      // Sort header
+      &.mat-sort-header {
+        cursor: pointer;
+        user-select: none;
+        
+        &:hover {
+          color: var(--admin-primary);
+        }
+      }
     }
+  }
 
+  // Data rows
+  .mat-mdc-row {
+    transition: background-color var(--admin-transition-fast);
+    
+    .mat-mdc-cell {
+      padding: 16px 12px;
+      border-bottom: 1px solid var(--admin-gray-200);
+      vertical-align: middle;
+      font-size: 14px;
+      color: var(--admin-gray-700);
+      
+      // Asegurar alineación vertical consistente
+      display: table-cell;
+      align-items: center;
+    }
+    
+    &:last-child .mat-mdc-cell {
+      border-bottom: none;
+    }
+    
     &:hover {
-      background-color: rgba(0, 0, 0, 0.02);
+      background-color: rgba(var(--admin-primary-rgb), 0.02);
+    }
+  }
+
+  // Empty state
+  .mat-row.mat-no-data-row {
+    .mat-cell {
+      padding: 40px 20px;
+      text-align: center;
+      border-bottom: none;
+    }
+  }
+}
+
+// Celdas de acciones - estilo consistente
+.actions-cell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  vertical-align: middle;
+  min-height: 48px;
+  padding: 8px 12px !important;
+}
+
+// Botones de acción en tablas
+.action-btn {
+  border: 1px solid var(--admin-gray-300);
+  border-radius: 18px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--admin-transition-fast);
+  background-color: var(--admin-white);
+  
+  .mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+  }
+  
+  &:hover {
+    background-color: var(--admin-gray-100);
+    border-color: var(--admin-primary);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  &.warn {
+    border-color: var(--admin-warn);
+    color: var(--admin-warn);
+    
+    &:hover {
+      background-color: rgba(var(--admin-warn-rgb), 0.1);
+      border-color: var(--admin-warn);
+    }
+  }
+  
+  &[color="primary"] {
+    border-color: var(--admin-primary);
+    color: var(--admin-primary);
+    
+    &:hover {
+      background-color: rgba(var(--admin-primary-rgb), 0.1);
+    }
+  }
+}
+
+// Iconos de estado
+.icon-active,
+.icon-ok {
+  color: var(--admin-success);
+}
+
+.icon-inactive,
+.icon-disabled {
+  color: var(--admin-gray-500);
+}
+
+// Container de tabla
+.table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+// Header de tabla
+.table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--admin-gray-200);
+  background-color: var(--admin-white);
+  
+  .table-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .table-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .table-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--admin-gray-800);
+    white-space: nowrap;
+  }
+  
+  .table-subtitle {
+    font-size: 12px;
+    color: var(--admin-gray-600);
+  }
+}
+
+// Paginador consistente
+::ng-deep .mat-mdc-paginator {
+  .mat-mdc-paginator-container {
+    padding: 12px 20px;
+    background-color: var(--admin-gray-100);
+    border-top: 1px solid var(--admin-gray-200);
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .mat-mdc-paginator-page-size-label,
+  .mat-mdc-paginator-range-label {
+    color: var(--admin-gray-600);
+    font-size: 12px;
+  }
+  
+  .mat-mdc-paginator-navigation-previous,
+  .mat-mdc-paginator-navigation-next,
+  .mat-mdc-paginator-navigation-first,
+  .mat-mdc-paginator-navigation-last {
+    width: 32px;
+    height: 32px;
+    
+    .mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
     }
   }
 }
@@ -176,15 +478,115 @@
 .hover-raise { transition: transform .2s ease, box-shadow .2s ease; }
 .hover-raise:hover { transform: translateY(-2px); box-shadow: var(--admin-shadow-hover); }
 
-/* Tipografía utilidades */
-.text-muted { color: var(--admin-gray-600); }
-.text-strong { font-weight: 700; }
+// ============================================
+// UTILIDADES DE TIPOGRAFÍA
+// ============================================
+.text-muted { 
+  color: var(--admin-gray-600); 
+  font-size: var(--admin-font-size-sm);
+}
+.text-strong { 
+  font-weight: var(--admin-font-weight-bold); 
+}
+.text-semibold { 
+  font-weight: var(--admin-font-weight-semibold); 
+}
+.text-medium { 
+  font-weight: var(--admin-font-weight-medium); 
+}
+.text-disabled { 
+  color: var(--admin-disabled-text); 
+  cursor: not-allowed;
+}
+
+// Tamaños de texto
+.text-xs { font-size: var(--admin-font-size-sm); }
+.text-sm { font-size: var(--admin-font-size-sm); }
+.text-base { font-size: var(--admin-font-size-base); }
+.text-lg { font-size: var(--admin-font-size-lg); }
+.text-xl { font-size: var(--admin-font-size-xl); }
+.text-2xl { font-size: var(--admin-font-size-2xl); }
+.text-3xl { font-size: var(--admin-font-size-3xl); }
+
+// Colores de texto
+.text-primary { color: var(--admin-primary); }
+.text-danger { color: var(--admin-danger); }
+.text-accent { color: var(--admin-accent); }
+.text-success { color: var(--admin-success); }
+.text-warn { color: var(--admin-warn); }
+.text-gray-600 { color: var(--admin-gray-600); }
+.text-gray-700 { color: var(--admin-gray-700); }
+.text-gray-800 { color: var(--admin-gray-800); }
+.text-white { color: var(--admin-white); }
 
 .mat-mdc-snack-bar-container.success-notification .mdc-button__label,
 .mat-mdc-snack-bar-container.error-notification .mdc-button__label,
 .mat-mdc-snack-bar-container.warning-notification .mdc-button__label,
 .mat-mdc-snack-bar-container.info-notification .mdc-button__label {
   color: inherit;
+}
+
+// ============================================
+// UTILIDADES DE COLORES DE FONDO
+// ============================================
+.bg-primary { background-color: var(--admin-primary); }
+.bg-primary-light { background-color: var(--admin-primary-light); }
+.bg-primary-lightest { background-color: var(--admin-primary-lightest); }
+.bg-danger { background-color: var(--admin-danger); }
+.bg-danger-light { background-color: var(--admin-danger-light); }
+.bg-danger-lightest { background-color: var(--admin-danger-lightest); }
+.bg-accent { background-color: var(--admin-accent); }
+.bg-accent-light { background-color: var(--admin-accent-light); }
+.bg-accent-lightest { background-color: var(--admin-accent-lightest); }
+.bg-success { background-color: var(--admin-success); }
+.bg-success-lightest { background-color: var(--admin-success-lightest); }
+.bg-warn { background-color: var(--admin-warn); }
+.bg-warn-lightest { background-color: var(--admin-warn-lightest); }
+.bg-gray-100 { background-color: var(--admin-gray-100); }
+.bg-gray-200 { background-color: var(--admin-gray-200); }
+.bg-white { background-color: var(--admin-white); }
+
+// ============================================
+// UTILIDADES DE BORDES
+// ============================================
+.border-primary { border-color: var(--admin-primary); }
+.border-danger { border-color: var(--admin-danger); }
+.border-accent { border-color: var(--admin-accent); }
+.border-gray-200 { border-color: var(--admin-gray-200); }
+.border-gray-300 { border-color: var(--admin-gray-300); }
+
+// ============================================
+// ESTADOS DESHABILITADOS
+// ============================================
+.disabled,
+[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+  color: var(--admin-disabled-text);
+  background-color: var(--admin-disabled-bg);
+  
+  * {
+    color: var(--admin-disabled-text);
+  }
+}
+
+// ============================================
+// GRADIENTES UTILITARIOS
+// ============================================
+.gradient-primary {
+  background: var(--admin-gradient-primary);
+  color: var(--admin-white);
+}
+
+.gradient-danger {
+  background: var(--admin-gradient-danger);
+  color: var(--admin-white);
+}
+
+.gradient-accent {
+  background: var(--admin-gradient-accent);
+  color: var(--admin-white);
 }
 
 

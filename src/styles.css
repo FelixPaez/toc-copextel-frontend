@@ -1,20 +1,79 @@
 /* You can add global styles to this file, and also import other style files */
 
-/* Base */
-html, body { height: 100%; margin: 0; }
+/* ============================================
+   BASE - Configuración global
+   ============================================ */
+html, body { 
+  height: 100%; 
+  margin: 0; 
+  padding: 0;
+  overflow: hidden; /* Evitar scroll en body/html */
+}
+
+html {
+  font-size: 16px; /* Base para rem */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
 body { 
   margin: 0; 
+  padding: 0;
+  font-family: var(--admin-font-family);
+  font-size: var(--admin-font-size-base);
+  font-weight: var(--admin-font-weight-normal);
+  line-height: var(--admin-line-height-base);
+  color: var(--admin-gray-800);
+  background-color: var(--admin-gray-50);
+}
+
+/* ============================================
+   MAPEO DE VARIABLES CSS A MATERIAL DESIGN
+   ============================================ */
+.mat-primary { 
+  --mdc-theme-primary: var(--admin-primary);
+  --mdc-theme-on-primary: var(--admin-white);
+}
+.mat-accent { 
+  --mdc-theme-secondary: var(--admin-accent);
+  --mdc-theme-on-secondary: var(--admin-white);
+}
+.mat-warn { 
+  --mdc-theme-error: var(--admin-danger);
+  --mdc-theme-on-error: var(--admin-white);
+}
+
+/* ============================================
+   MATERIAL DESIGN - Configuración global
+   ============================================ */
+.mat-mdc-form-field { 
+  width: 100%; 
   font-family: var(--admin-font-family);
 }
 
-/* Mapear variables CSS admin a Material por clases utilitarias */
-.mat-primary { --mdc-theme-primary: var(--admin-primary); }
-.mat-accent { --mdc-theme-secondary: var(--admin-accent); }
-.mat-warn { --mdc-theme-error: var(--admin-warn); }
+/* Botones con transiciones suaves */
+.mat-mdc-button,
+.mat-mdc-raised-button,
+.mat-mdc-stroked-button,
+.mat-mdc-icon-button {
+  transition: var(--admin-transition-base);
+  font-family: var(--admin-font-family);
+  font-weight: var(--admin-font-weight-medium);
+}
 
-/* Configuración global mínima */
-.mat-mdc-form-field { width: 100%; }
+/* Estados hover y focus mejorados */
+.mat-mdc-button:hover,
+.mat-mdc-raised-button:hover,
+.mat-mdc-stroked-button:hover {
+  transform: translateY(-1px);
+}
+
+.mat-mdc-button:focus-visible,
+.mat-mdc-raised-button:focus-visible,
+.mat-mdc-stroked-button:focus-visible {
+  outline: var(--admin-focus-ring);
+  outline-offset: 2px;
+}
 
 /* Iconos Material */
 .mat-icon { font-family: 'Material Icons'; font-weight: normal; font-style: normal; font-size: 24px; line-height: 1; letter-spacing: normal; text-transform: none; display: inline-block; white-space: nowrap; word-wrap: normal; direction: ltr; -webkit-font-smoothing: antialiased; }
@@ -22,10 +81,42 @@ body {
 /* Iconos en botones */
 .mat-mdc-button .mat-icon, .mat-mdc-raised-button .mat-icon, .mat-mdc-stroked-button .mat-icon { margin-right: 8px; }
 
-/* Loading pantalla inicial (si se usa) */
-.loadscreen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: var(--admin-gray-100); }
-.loader-bubble { width: 40px; height: 40px; border-radius: 50%; background-color: var(--admin-primary); animation: pulse 1.5s ease-in-out infinite; }
-@keyframes pulse { 0% { transform: scale(0.8); opacity: 0.5; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(0.8); opacity: 0.5; } }
+/* ============================================
+   LOADING - Pantalla de carga
+   ============================================ */
+.loadscreen { 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  justify-content: center; 
+  height: 100vh; 
+  background: var(--admin-gradient-primary);
+  color: var(--admin-white);
+}
+
+.loader-bubble { 
+  width: 40px; 
+  height: 40px; 
+  border-radius: 50%; 
+  background-color: var(--admin-white); 
+  animation: pulse 1.5s ease-in-out infinite; 
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes pulse { 
+  0% { 
+    transform: scale(0.8); 
+    opacity: 0.5; 
+  } 
+  50% { 
+    transform: scale(1.2); 
+    opacity: 1; 
+  } 
+  100% { 
+    transform: scale(0.8); 
+    opacity: 0.5; 
+  } 
+}
 
 /* Iconos tamaños */
 .mat-mdc-form-field .mat-icon { font-size: 20px; }

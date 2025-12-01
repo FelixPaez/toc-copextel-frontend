@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { map, switchMap, take, tap } from 'rxjs/operators';
+import { map, switchMap, take, tap, catchError } from 'rxjs/operators';
 
 // Types
 import { IResponse, TablePagination } from '../../core/models/shared.types';
@@ -9,6 +9,10 @@ import { Vendor } from './vendors.types';
 
 // Variables
 import { environment } from '../../../../environments/environment';
+
+// Mock Data & Services
+import { MOCK_VENDORS } from '../../mocks/data/vendors.mock';
+import { MockService } from '../../core/services/mock.service';
 
 // API URL
 const API_URL_GATEWAY = environment.API_URL_GATEWAY;
@@ -31,7 +35,10 @@ export class VendorsService {
   /**
    * Constructor
    */
-  constructor(private _httpClient: HttpClient) {
+  constructor(
+    private _httpClient: HttpClient,
+    private _mockService: MockService
+  ) {
   }
 
   // -----------------------------------------------------------------------------------------------------
@@ -76,6 +83,35 @@ export class VendorsService {
    * @param vendor - Datos del vendedor a crear
    */
   public createVendor(vendor: Vendor): Observable<IResponse> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const newVendor: Vendor = {
+        ...vendor,
+        id: `vendor-${Date.now()}`,
+        createAt: new Date()
+      };
+      MOCK_VENDORS.unshift(newVendor);
+      
+      return this.vendors$.pipe(
+        take(1),
+        switchMap(vendors => {
+          if (!vendors) {
+            vendors = [];
+          }
+          return this._mockService.simulateDelay({
+            ok: true,
+            message: 'Vendedor creado exitosamente',
+            vendor: newVendor
+          }).pipe(
+            tap(() => {
+              this._vendors.next([newVendor, ...vendors]);
+            })
+          );
+        })
+      );
+    }
+    
+    // Real API call
     return this.vendors$.pipe(
       take(1),
       switchMap(vendors => {
@@ -83,13 +119,17 @@ export class VendorsService {
           vendors = [];
         }
         return this._httpClient.post<IResponse>(`${API_URL_GATEWAY}/helper/vendors/`, vendor).pipe(
-          map((response) => {
+          map((response: IResponse) => {
             // Update the vendors with the new vendor
             if (response.vendor) {
               this._vendors.next([response.vendor, ...vendors]);
             }
             // Return the response
             return response;
+          }),
+          catchError((error) => {
+            console.error('Error creating vendor:', error);
+            return throwError(() => error);
           })
         );
       })
@@ -100,6 +140,55 @@ export class VendorsService {
    * Get vendors
    */
   public getVendors(): Observable<IResponse> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      return this._mockService.simulateDelay({
+        ok: true,
+        vendors: MOCK_VENDORS
+      }).pipe(
+        tap((response) => {
+          if (response.vendors) {
+            // Paginate - Start
+            const vendorsLength = response.vendors.length;
+
+            // Get available queries
+            const page = 0;
+            const size = 10;
+
+            // Calculate pagination details
+            const begin = page * size;
+            const end = Math.min((size * (page + 1)), vendorsLength);
+            const lastPage = Math.max(Math.ceil(vendorsLength / size), 1);
+
+            // Prepare the pagination object
+            let pagination: TablePagination;
+
+            if (page >= lastPage) {
+              pagination = {
+                lastPage
+              };
+            } else {
+              // Prepare the pagination
+              pagination = {
+                length: vendorsLength,
+                size: size,
+                page: page,
+                lastPage: lastPage,
+                startIndex: begin,
+                endIndex: end - 1
+              };
+            }
+
+            // Set pagination
+            this._pagination.next(pagination);
+            this._vendors.next(response.vendors);
+            this._vendorsArr.next(response.vendors);
+          }
+        })
+      );
+    }
+    
+    // Real API call
     return this._httpClient.get<IResponse>(`${API_URL_GATEWAY}/helper/vendors/`).pipe(
       tap((response) => {
         if (response.vendors) {
@@ -139,6 +228,10 @@ export class VendorsService {
           this._vendors.next(response.vendors);
           this._vendorsArr.next(response.vendors);
         }
+      }),
+      catchError((error) => {
+        console.error('Error getting vendors:', error);
+        return throwError(() => error);
       })
     );
   }
@@ -280,6 +373,40 @@ export class VendorsService {
       return throwError(() => new Error('Vendor ID is required'));
     }
 
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const index = MOCK_VENDORS.findIndex(v => v.id === vendor.id);
+      if (index === -1) {
+        return this._mockService.simulateError('Vendedor no encontrado', 404);
+      }
+      
+      const updatedVendor = { ...MOCK_VENDORS[index], ...vendor };
+      MOCK_VENDORS[index] = updatedVendor;
+      
+      return this.vendors$.pipe(
+        take(1),
+        switchMap(vendors => {
+          if (!vendors) {
+            return throwError(() => new Error('No vendors available'));
+          }
+          return this._mockService.simulateDelay({
+            ok: true,
+            message: 'Vendedor actualizado exitosamente',
+            updatedVendor: updatedVendor
+          }).pipe(
+            tap(() => {
+              const vendorIndex = vendors.findIndex(item => item.id === vendor.id);
+              if (vendorIndex !== -1) {
+                vendors[vendorIndex] = updatedVendor;
+                this._vendors.next(vendors);
+              }
+            })
+          );
+        })
+      );
+    }
+
+    // Real API call
     return this.vendors$.pipe(
       take(1),
       switchMap(vendors => {
@@ -287,7 +414,7 @@ export class VendorsService {
           return throwError(() => new Error('No vendors available'));
         }
         return this._httpClient.put<IResponse>(`${API_URL_GATEWAY}/helper/vendors/${vendor.id}`, vendor).pipe(
-          map((response) => {
+          map((response: IResponse) => {
             if (!response.updatedVendor) {
               throw new Error('Update failed');
             }
@@ -305,6 +432,10 @@ export class VendorsService {
 
             // Return the response
             return response;
+          }),
+          catchError((error) => {
+            console.error('Error updating vendor:', error);
+            return throwError(() => error);
           })
         );
       })
@@ -317,6 +448,38 @@ export class VendorsService {
    * @param id - ID del vendedor a eliminar
    */
   public deleteVendor(id: string): Observable<IResponse> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const index = MOCK_VENDORS.findIndex(v => v.id === id);
+      if (index === -1) {
+        return this._mockService.simulateError('Vendedor no encontrado', 404);
+      }
+      
+      MOCK_VENDORS.splice(index, 1);
+      
+      return this.vendors$.pipe(
+        take(1),
+        switchMap(vendors => {
+          if (!vendors) {
+            return throwError(() => new Error('No vendors available'));
+          }
+          return this._mockService.simulateDelay({
+            ok: true,
+            message: 'Vendedor eliminado exitosamente'
+          }).pipe(
+            tap(() => {
+              const vendorIndex = vendors.findIndex(item => item.id === id);
+              if (vendorIndex !== -1) {
+                vendors.splice(vendorIndex, 1);
+                this._vendors.next(vendors);
+              }
+            })
+          );
+        })
+      );
+    }
+
+    // Real API call
     return this.vendors$.pipe(
       take(1),
       switchMap(vendors => {
@@ -338,6 +501,10 @@ export class VendorsService {
 
             // Return the response
             return response;
+          }),
+          catchError((error) => {
+            console.error('Error deleting vendor:', error);
+            return throwError(() => error);
           })
         );
       })

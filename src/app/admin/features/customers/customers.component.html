@@ -4,18 +4,18 @@
     <div class="page-left">
       <div class="breadcrumbs">
         <span class="crumb">Tienda</span>
-        <mat-icon class="crumb-sep">chevron_right</mat-icon>
+        <mat-icon class="crumb-sep">{{ Icons.NAVIGATION.CHEVRON_RIGHT }}</mat-icon>
         <span class="crumb current">Clientes</span>
       </div>
-      <h1 class="page-title">Gestión de Clientes</h1>
+      <h1 class="page-title">Clientes</h1>
     </div>
     <div class="page-right">
       <div class="search-section">
-        <mat-icon class="search-icon">search</mat-icon>
+        <mat-icon class="search-icon">{{ Icons.ACTIONS.SEARCH }}</mat-icon>
         <input 
           type="text" 
-          [formControl]="searchControl"
-          placeholder="Buscar clientes..." 
+          [formControl]="selectedTab === 0 ? searchControl : searchControlLegal"
+          [placeholder]="selectedTab === 0 ? 'Buscar clientes naturales...' : 'Buscar clientes jurídicos...'" 
           class="search-input">
       </div>
     </div>
@@ -65,34 +65,36 @@
     <mat-tab-group [(selectedIndex)]="selectedTab" (selectedIndexChange)="onTabChange($event)">
       <mat-tab label="Clientes Naturales">
         <!-- Filtros -->
-        <div class="filters-card">
-          <div class="filters-row">
-            <mat-form-field appearance="outline" class="filter-field">
-              <mat-label>Género</mat-label>
-              <mat-select [formControl]="genderFilter">
-                <mat-option value="all">Todos</mat-option>
-                <mat-option value="masculino">Masculino</mat-option>
-                <mat-option value="femenino">Femenino</mat-option>
-              </mat-select>
-            </mat-form-field>
+        <mat-card class="filters-card admin-card animate-fade-in">
+          <mat-card-content>
+            <div class="filters-row">
+              <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Género</mat-label>
+                <mat-select [formControl]="genderFilter">
+                  <mat-option value="all">Todos</mat-option>
+                  <mat-option value="masculino">Masculino</mat-option>
+                  <mat-option value="femenino">Femenino</mat-option>
+                </mat-select>
+              </mat-form-field>
 
-            <mat-form-field appearance="outline" class="filter-field">
-              <mat-label>Provincia</mat-label>
-              <mat-select [formControl]="stateFilter">
-                <mat-option value="all">Todas</mat-option>
-                <!-- Estados dinámicos se pueden agregar aquí -->
-              </mat-select>
-            </mat-form-field>
+              <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Provincia</mat-label>
+                <mat-select [formControl]="stateFilter">
+                  <mat-option value="all">Todas</mat-option>
+                  <!-- Estados dinámicos se pueden agregar aquí -->
+                </mat-select>
+              </mat-form-field>
 
-            <button mat-stroked-button (click)="clearFilters()" class="clear-filters-btn">
-              <mat-icon>clear</mat-icon>
-              Limpiar Filtros
-            </button>
-          </div>
-        </div>
+              <button mat-stroked-button (click)="clearFilters()" class="clear-filters-btn">
+                <mat-icon>{{ Icons.ACTIONS.CLEAR }}</mat-icon>
+                Limpiar Filtros
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
 
         <!-- Tabla de Clientes Naturales -->
-        <div class="customers-table-card admin-card hover-raise">
+        <mat-card class="customers-table-card admin-card animate-fade-in">
           <div class="table-header">
             <div class="table-left">
               <h3 class="table-title">Listado de clientes naturales</h3>
@@ -108,11 +110,11 @@
               </button>
               <mat-menu #tableMenu="matMenu">
                 <button mat-menu-item>
-                  <mat-icon>download</mat-icon>
+                  <mat-icon>{{ Icons.ACTIONS.DOWNLOAD }}</mat-icon>
                   <span>Exportar</span>
                 </button>
                 <button mat-menu-item>
-                  <mat-icon>print</mat-icon>
+                  <mat-icon>{{ Icons.ACTIONS.PRINT }}</mat-icon>
                   <span>Imprimir</span>
                 </button>
               </mat-menu>
@@ -194,20 +196,20 @@
                   <td mat-cell *matCellDef="let customer" class="actions-cell">
                     <button 
                       mat-icon-button 
-                      class="action-btn" 
-                      aria-label="Ver"
-                      (click)="onView(customer)"
-                      matTooltip="Ver detalles">
-                      <mat-icon>visibility</mat-icon>
+                      [matMenuTriggerFor]="menu"
+                      matTooltip="Más opciones">
+                      <mat-icon>{{ Icons.ACTIONS.MORE_VERT }}</mat-icon>
                     </button>
-                    <button 
-                      mat-icon-button 
-                      class="action-btn" 
-                      aria-label="Editar"
-                      (click)="onEdit(customer)"
-                      matTooltip="Editar">
-                      <mat-icon>edit</mat-icon>
-                    </button>
+                    <mat-menu #menu="matMenu">
+                      <button mat-menu-item (click)="onView(customer)">
+                        <mat-icon>{{ Icons.ACTIONS.VIEW }}</mat-icon>
+                        <span>Ver Detalles</span>
+                      </button>
+                      <button mat-menu-item (click)="onEdit(customer)">
+                        <mat-icon>{{ Icons.ACTIONS.EDIT }}</mat-icon>
+                        <span>Editar</span>
+                      </button>
+                    </mat-menu>
                   </td>
                 </ng-container>
 
@@ -237,14 +239,150 @@
               aria-label="Seleccionar página de clientes">
             </mat-paginator>
           }
-        </div>
+        </mat-card>
       </mat-tab>
 
       <mat-tab label="Clientes Jurídicos">
-        <div class="empty-state">
-          <mat-icon>business</mat-icon>
-          <p>Funcionalidad de clientes jurídicos próximamente</p>
-        </div>
+        <!-- Filtros -->
+        <mat-card class="filters-card admin-card animate-fade-in">
+          <mat-card-content>
+            <div class="filters-row">
+              <mat-form-field appearance="outline" class="filter-field">
+                <mat-label>Provincia</mat-label>
+                <mat-select [formControl]="stateFilterLegal">
+                  <mat-option value="all">Todas</mat-option>
+                  <!-- Estados dinámicos se pueden agregar aquí -->
+                </mat-select>
+              </mat-form-field>
+
+              <button mat-stroked-button (click)="clearLegalFilters()" class="clear-filters-btn">
+                <mat-icon>{{ Icons.ACTIONS.CLEAR }}</mat-icon>
+                Limpiar Filtros
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Tabla de Clientes Legales -->
+        <mat-card class="customers-table-card admin-card animate-fade-in">
+          <div class="table-header">
+            <div class="table-left">
+              <h3 class="table-title">Listado de clientes jurídicos</h3>
+              <span class="table-subtitle">
+                Mostrando {{ legalCustomers.length }} clientes
+              </span>
+            </div>
+            <div class="table-right">
+              <button mat-icon-button class="table-actions" [matMenuTriggerFor]="tableMenuLegal">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #tableMenuLegal="matMenu">
+                <button mat-menu-item>
+                  <mat-icon>{{ Icons.ACTIONS.DOWNLOAD }}</mat-icon>
+                  <span>Exportar</span>
+                </button>
+                <button mat-menu-item>
+                  <mat-icon>{{ Icons.ACTIONS.PRINT }}</mat-icon>
+                  <span>Imprimir</span>
+                </button>
+              </mat-menu>
+            </div>
+          </div>
+
+          @if (isLoading) {
+            <div class="loading-container">
+              <mat-spinner diameter="50"></mat-spinner>
+              <p>Cargando clientes legales...</p>
+            </div>
+          } @else {
+            <div class="table-container">
+              <table mat-table [dataSource]="dataSourceLegal" class="customers-table admin-table">
+                
+                <!-- Logo Column -->
+                <ng-container matColumnDef="logo">
+                  <th mat-header-cell *matHeaderCellDef></th>
+                  <td mat-cell *matCellDef="let legal">
+                    @if (legal.logoUrl) {
+                      <div class="legal-logo">
+                        <img [src]="legal.logoUrl" [alt]="legal.name" class="logo-img">
+                      </div>
+                    } @else {
+                      <div class="legal-logo no-logo">
+                        <mat-icon>business</mat-icon>
+                      </div>
+                    }
+                  </td>
+                </ng-container>
+
+                <!-- Code Column -->
+                <ng-container matColumnDef="code">
+                  <th mat-header-cell *matHeaderCellDef>Código</th>
+                  <td mat-cell *matCellDef="let legal">{{ legal.code }}</td>
+                </ng-container>
+
+                <!-- Name Column -->
+                <ng-container matColumnDef="name">
+                  <th mat-header-cell *matHeaderCellDef>Nombre</th>
+                  <td mat-cell *matCellDef="let legal">
+                    <div class="customer-name">{{ legal.name }}</div>
+                  </td>
+                </ng-container>
+
+                <!-- Email Column -->
+                <ng-container matColumnDef="email">
+                  <th mat-header-cell *matHeaderCellDef>Correo Electrónico</th>
+                  <td mat-cell *matCellDef="let legal">
+                    <div class="customer-email">{{ legal.email }}</div>
+                  </td>
+                </ng-container>
+
+                <!-- Organism Column -->
+                <ng-container matColumnDef="organism">
+                  <th mat-header-cell *matHeaderCellDef>Organismo</th>
+                  <td mat-cell *matCellDef="let legal">{{ legal.organism }}</td>
+                </ng-container>
+
+                <!-- State Column -->
+                <ng-container matColumnDef="state">
+                  <th mat-header-cell *matHeaderCellDef>Provincia</th>
+                  <td mat-cell *matCellDef="let legal">{{ legal.state }}</td>
+                </ng-container>
+
+                <!-- Actions Column -->
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                  <td mat-cell *matCellDef="let legal" class="actions-cell">
+                    <button 
+                      mat-icon-button 
+                      [matMenuTriggerFor]="menuLegal"
+                      matTooltip="Más opciones">
+                      <mat-icon>{{ Icons.ACTIONS.MORE_VERT }}</mat-icon>
+                    </button>
+                    <mat-menu #menuLegal="matMenu">
+                      <button mat-menu-item (click)="onViewLegal(legal)">
+                        <mat-icon>{{ Icons.ACTIONS.VIEW }}</mat-icon>
+                        <span>Ver Detalles</span>
+                      </button>
+                    </mat-menu>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumnsLegal"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumnsLegal;"></tr>
+
+                <!-- No data row -->
+                <tr class="mat-row" *matNoDataRow>
+                  <td class="mat-cell" [attr.colspan]="displayedColumnsLegal.length">
+                    <div class="empty-state">
+                      <mat-icon>business</mat-icon>
+                      <p>No se encontraron clientes jurídicos</p>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          }
+        </mat-card>
       </mat-tab>
     </mat-tab-group>
   </mat-card>

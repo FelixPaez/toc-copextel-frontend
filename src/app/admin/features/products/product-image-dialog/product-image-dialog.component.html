@@ -1,0 +1,53 @@
+<div class="product-image-dialog">
+  <h2 mat-dialog-title>Gestionar Imágenes del Producto</h2>
+
+  <mat-dialog-content>
+    <div class="images-container">
+      @if (images.length > 0) {
+        <div class="image-grid">
+          @for (image of images; track $index) {
+            <div class="image-card">
+              <img [src]="image" alt="Imagen del producto" />
+              <button 
+                mat-mini-fab 
+                color="warn" 
+                class="delete-btn"
+                (click)="removeImage($index)"
+                matTooltip="Eliminar imagen">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="no-images">No hay imágenes cargadas</p>
+      }
+
+      <div class="upload-section">
+        <input 
+          type="file" 
+          #fileInput 
+          hidden 
+          accept="image/*" 
+          multiple 
+          (change)="onFileSelected($event)" />
+        <button 
+          mat-stroked-button 
+          color="primary" 
+          (click)="fileInput.click()">
+          <mat-icon>add_photo_alternate</mat-icon>
+          Agregar Imágenes
+        </button>
+      </div>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()">Cancelar</button>
+    <button mat-raised-button color="primary" (click)="onSave()">
+      <mat-icon>save</mat-icon>
+      Guardar
+    </button>
+  </mat-dialog-actions>
+</div>
+

@@ -1,0 +1,259 @@
+<div class="order-detail-container">
+  @if (isLoading) {
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Cargando orden...</p>
+    </div>
+  } @else if (order) {
+    <!-- Header -->
+    <div class="page-header admin-card animate-fade-in">
+      <div class="page-left">
+        <button mat-icon-button (click)="onBack()" class="back-button">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div class="breadcrumbs">
+          <span class="crumb" (click)="onBack()">Pedidos</span>
+          <mat-icon class="crumb-sep">chevron_right</mat-icon>
+          <span class="crumb current">Orden #{{ order.orderNo }}</span>
+        </div>
+        <h1 class="page-title">Detalle de Orden #{{ order.orderNo }}</h1>
+      </div>
+      <div class="page-right">
+        <button mat-stroked-button (click)="onViewInvoice()">
+          <mat-icon>receipt</mat-icon>
+          Ver Factura
+        </button>
+        <button mat-raised-button color="primary" (click)="onPrint()">
+          <mat-icon>print</mat-icon>
+          Imprimir
+        </button>
+      </div>
+    </div>
+
+    <div class="detail-grid">
+      <!-- Order Info Card -->
+      <mat-card class="info-card admin-card animate-fade-in">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>info</mat-icon>
+            Información de la Orden
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Número de Orden:</span>
+              <span class="info-value">#{{ order.orderNo }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Fecha de Creación:</span>
+              <span class="info-value">{{ order.createdAt | date:'medium' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Estado:</span>
+              <mat-chip [color]="getStatusColor(order.status)">{{ order.status }}</mat-chip>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Moneda:</span>
+              <span class="info-value">{{ order.currency }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Total:</span>
+              <span class="info-value total">{{ order.total | number:'1.2-2' }} {{ order.currency }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Payment Info Card -->
+      <mat-card class="info-card admin-card animate-fade-in">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>payment</mat-icon>
+            Información de Pago
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Método de Pago:</span>
+              <span class="info-value">{{ order.paymentWay }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Estado de Pago:</span>
+              <mat-chip [color]="getPaymentStatusColor(order.paymentStatus)">{{ order.paymentStatus }}</mat-chip>
+            </div>
+            @if (order.payedAt) {
+              <div class="info-item">
+                <span class="info-label">Fecha de Pago:</span>
+                <span class="info-value">{{ order.payedAt | date:'medium' }}</span>
+              </div>
+            }
+            @if (order.payed) {
+              <div class="info-item">
+                <span class="info-label">Pagada:</span>
+                <mat-icon class="success-icon">check_circle</mat-icon>
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Shipping Info Card -->
+      <mat-card class="info-card admin-card animate-fade-in">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>local_shipping</mat-icon>
+            Información de Envío
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Método de Envío:</span>
+              <span class="info-value">{{ order.shippingWay }}</span>
+            </div>
+            @if (order.shippingMethod) {
+              <div class="info-item">
+                <span class="info-label">Transportista:</span>
+                <span class="info-value">{{ order.shippingMethod }}</span>
+              </div>
+            }
+            @if (order.shippedAt) {
+              <div class="info-item">
+                <span class="info-label">Fecha de Envío:</span>
+                <span class="info-value">{{ order.shippedAt | date:'medium' }}</span>
+              </div>
+            }
+            @if (order.deliveredAt) {
+              <div class="info-item">
+                <span class="info-label">Fecha de Entrega:</span>
+                <span class="info-value">{{ order.deliveredAt | date:'medium' }}</span>
+              </div>
+            }
+            <div class="info-item">
+              <span class="info-label">Costo de Envío:</span>
+              <span class="info-value">{{ order.shippingCost | number:'1.2-2' }} {{ order.currency }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Beneficiary Info Card -->
+      <mat-card class="info-card admin-card animate-fade-in">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>person</mat-icon>
+            Información del Beneficiario
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Nombre:</span>
+              <span class="info-value">{{ order.beneficiaryName }} {{ order.beneficiaryLastname1 }} {{ order.beneficiaryLastname2 }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Número de Identidad:</span>
+              <span class="info-value">{{ order.beneficiaryIdNumber }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Celular:</span>
+              <span class="info-value">{{ order.beneficiaryCell }}</span>
+            </div>
+            @if (order.beneficiaryPhone) {
+              <div class="info-item">
+                <span class="info-label">Teléfono:</span>
+                <span class="info-value">{{ order.beneficiaryPhone }}</span>
+              </div>
+            }
+            <div class="info-item full-width">
+              <span class="info-label">Dirección:</span>
+              <span class="info-value">{{ order.address }}, {{ order.city }}, {{ order.state }}</span>
+            </div>
+            @if (order.obs) {
+              <div class="info-item full-width">
+                <span class="info-label">Observaciones:</span>
+                <span class="info-value">{{ order.obs }}</span>
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Products Card -->
+      <mat-card class="products-card admin-card animate-fade-in">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>shopping_cart</mat-icon>
+            Productos
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <table mat-table [dataSource]="order.products || []" class="products-table">
+            <ng-container matColumnDef="product">
+              <th mat-header-cell *matHeaderCellDef>Producto</th>
+              <td mat-cell *matCellDef="let product">
+                <div class="product-info">
+                  <span class="product-name">Producto #{{ product.productId }}</span>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="quantity">
+              <th mat-header-cell *matHeaderCellDef class="text-right">Cantidad</th>
+              <td mat-cell *matCellDef="let product" class="text-right">{{ product.quantity }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="price">
+              <th mat-header-cell *matHeaderCellDef class="text-right">Precio Unitario</th>
+              <td mat-cell *matCellDef="let product" class="text-right">
+                {{ product.productPrice | number:'1.2-2' }} {{ order.currency }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="total">
+              <th mat-header-cell *matHeaderCellDef class="text-right">Total</th>
+              <td mat-cell *matCellDef="let product" class="text-right">
+                {{ getProductTotal(product) | number:'1.2-2' }} {{ order.currency }}
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+
+          <mat-divider class="divider"></mat-divider>
+
+          <div class="totals-section">
+            <div class="total-row">
+              <span class="total-label">Subtotal:</span>
+              <span class="total-value">{{ order.subtotal | number:'1.2-2' }} {{ order.currency }}</span>
+            </div>
+            <div class="total-row">
+              <span class="total-label">Costo de Envío:</span>
+              <span class="total-value">{{ order.shippingCost | number:'1.2-2' }} {{ order.currency }}</span>
+            </div>
+            @if (order.discount && order.discount > 0) {
+              <div class="total-row">
+                <span class="total-label">Descuento:</span>
+                <span class="total-value">-{{ order.discount | number:'1.2-2' }} {{ order.currency }}</span>
+              </div>
+            }
+            <div class="total-row final">
+              <span class="total-label">Total:</span>
+              <span class="total-value">{{ order.total | number:'1.2-2' }} {{ order.currency }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  } @else {
+    <div class="error-container">
+      <mat-icon>error_outline</mat-icon>
+      <p>No se pudo cargar la orden</p>
+      <button mat-raised-button color="primary" (click)="onBack()">Volver a Pedidos</button>
+    </div>
+  }
+</div>
+

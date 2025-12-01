@@ -4,14 +4,14 @@
     <div class="page-left">
       <div class="breadcrumbs">
         <span class="crumb">Nomencladores</span>
-        <mat-icon class="crumb-sep">chevron_right</mat-icon>
+        <mat-icon class="crumb-sep">{{ Icons.NAVIGATION.CHEVRON_RIGHT }}</mat-icon>
         <span class="crumb current">Usuarios</span>
       </div>
       <h1 class="page-title">Usuarios</h1>
     </div>
     <div class="page-right">
       <div class="search-section">
-        <mat-icon class="search-icon">search</mat-icon>
+        <mat-icon class="search-icon">{{ Icons.ACTIONS.SEARCH }}</mat-icon>
         <input 
           type="text" 
           [formControl]="searchControl"
@@ -19,7 +19,7 @@
           class="search-input">
       </div>
       <button mat-raised-button color="primary" (click)="onAddUser()">
-        <mat-icon>add</mat-icon>
+        <mat-icon>{{ Icons.ACTIONS.ADD }}</mat-icon>
         Nuevo
       </button>
     </div>
@@ -49,7 +49,7 @@
         </mat-form-field>
 
         <button mat-stroked-button (click)="clearFilters()" class="clear-filters-btn">
-          <mat-icon>clear</mat-icon>
+          <mat-icon>{{ Icons.ACTIONS.CLEAR }}</mat-icon>
           Limpiar Filtros
         </button>
       </div>
@@ -70,15 +70,15 @@
         </div>
         <div class="table-right">
           <button mat-icon-button class="table-actions" [matMenuTriggerFor]="tableMenu">
-            <mat-icon>more_vert</mat-icon>
+            <mat-icon>{{ Icons.ACTIONS.MORE_VERT }}</mat-icon>
           </button>
           <mat-menu #tableMenu="matMenu">
             <button mat-menu-item>
-              <mat-icon>download</mat-icon>
+              <mat-icon>{{ Icons.ACTIONS.DOWNLOAD }}</mat-icon>
               <span>Exportar</span>
             </button>
             <button mat-menu-item>
-              <mat-icon>print</mat-icon>
+              <mat-icon>{{ Icons.ACTIONS.PRINT }}</mat-icon>
               <span>Imprimir</span>
             </button>
           </mat-menu>
@@ -164,9 +164,9 @@
                   (click)="onToggleActive(user)"
                   [matTooltip]="user.active ? 'Desactivar' : 'Activar'">
                   @if (user.active) {
-                    <mat-icon class="icon-ok">check_circle</mat-icon>
+                    <mat-icon class="icon-ok">{{ Icons.STATUS.SUCCESS }}</mat-icon>
                   } @else {
-                    <mat-icon class="icon-disabled">cancel</mat-icon>
+                    <mat-icon class="icon-disabled">{{ Icons.ACTIONS.CANCEL }}</mat-icon>
                   }
                 </button>
               </td>
@@ -178,36 +178,29 @@
               <td mat-cell *matCellDef="let user" class="actions-cell">
                 <button 
                   mat-icon-button 
-                  class="action-btn" 
-                  aria-label="Ver"
-                  (click)="onViewUser(user)"
-                  matTooltip="Ver detalles">
-                  <mat-icon>visibility</mat-icon>
+                  [matMenuTriggerFor]="menu"
+                  matTooltip="Más opciones">
+                  <mat-icon>{{ Icons.ACTIONS.MORE_VERT }}</mat-icon>
                 </button>
-                <button 
-                  mat-icon-button 
-                  class="action-btn" 
-                  aria-label="Editar"
-                  (click)="onEditUser(user)"
-                  matTooltip="Editar">
-                  <mat-icon>edit</mat-icon>
-                </button>
-                <button 
-                  mat-icon-button 
-                  class="action-btn" 
-                  aria-label="Contraseña"
-                  (click)="onUpdatePassword(user)"
-                  matTooltip="Cambiar contraseña">
-                  <mat-icon>vpn_key</mat-icon>
-                </button>
-                <button 
-                  mat-icon-button 
-                  class="action-btn warn" 
-                  aria-label="Eliminar"
-                  (click)="onDeleteUser(user)"
-                  matTooltip="Eliminar">
-                  <mat-icon>delete</mat-icon>
-                </button>
+                <mat-menu #menu="matMenu">
+                  <button mat-menu-item (click)="onViewUser(user)">
+                    <mat-icon>{{ Icons.ACTIONS.VIEW }}</mat-icon>
+                    <span>Ver Detalles</span>
+                  </button>
+                  <button mat-menu-item (click)="onEditUser(user)">
+                    <mat-icon>{{ Icons.ACTIONS.EDIT }}</mat-icon>
+                    <span>Editar</span>
+                  </button>
+                  <button mat-menu-item (click)="onUpdatePassword(user)">
+                    <mat-icon>{{ Icons.SETTINGS.KEY }}</mat-icon>
+                    <span>Cambiar Contraseña</span>
+                  </button>
+                  <mat-divider></mat-divider>
+                  <button mat-menu-item (click)="onDeleteUser(user)" class="warn">
+                    <mat-icon>{{ Icons.ACTIONS.DELETE }}</mat-icon>
+                    <span>Eliminar</span>
+                  </button>
+                </mat-menu>
               </td>
             </ng-container>
 
@@ -218,7 +211,7 @@
             <tr class="mat-row" *matNoDataRow>
               <td class="mat-cell" [attr.colspan]="displayedColumns.length">
                 <div class="empty-state">
-                  <mat-icon>people</mat-icon>
+                  <mat-icon>{{ Icons.USERS.PEOPLE }}</mat-icon>
                   <p>No se encontraron usuarios</p>
                 </div>
               </td>

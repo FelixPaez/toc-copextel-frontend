@@ -10,6 +10,7 @@ import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/p
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -27,6 +28,9 @@ import { CategoriesService } from './categories.service';
 // Types
 import { Category } from './categories.types';
 import { TablePagination } from '../../core/models/shared.types';
+
+// Constants
+import { Icons } from '../../core/constants';
 
 // Components
 import { CategoryFormComponent } from './category-form/category-form.component';
@@ -51,6 +55,7 @@ import { SubcategoryFormComponent } from './subcategory-form/subcategory-form.co
     MatSortModule,
     MatChipsModule,
     MatMenuModule,
+    MatDividerModule,
     MatExpansionModule,
     MatFormFieldModule,
     MatInputModule,
@@ -66,6 +71,9 @@ import { SubcategoryFormComponent } from './subcategory-form/subcategory-form.co
 export class CategoriesComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+
+  // Expose Icons for template
+  Icons = Icons;
 
   // Table
   displayedColumns: string[] = ['name', 'active', 'actions'];

@@ -10,6 +10,7 @@ import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/p
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -26,6 +27,9 @@ import { CopextelServicesService } from './services.service';
 // Types
 import { CopextelService } from './services.types';
 import { TablePagination } from '../../core/models/shared.types';
+
+// Constants
+import { Icons } from '../../core/constants';
 
 // Components
 import { ServiceFormComponent } from './service-form/service-form.component';
@@ -50,6 +54,7 @@ import { ServiceDetailModal } from './service-detail-modal/service-detail-modal.
     MatSortModule,
     MatChipsModule,
     MatMenuModule,
+    MatDividerModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -64,6 +69,9 @@ import { ServiceDetailModal } from './service-detail-modal/service-detail-modal.
 export class ServicesComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+
+  // Expose Icons for template
+  Icons = Icons;
 
   // Table
   displayedColumns: string[] = ['name', 'priceCUP', 'priceMLC', 'active', 'actions'];

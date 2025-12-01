@@ -3,6 +3,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
+import { Icons } from '../../constants/icons.constants';
 
 export type ConfirmDialogType = 'primary' | 'warn' | 'danger' | 'success';
 export interface ConfirmDialogData {
@@ -23,6 +24,9 @@ export interface ConfirmDialogData {
   styleUrls: ['./confirm-dialog.component.scss']
 })
 export class ConfirmDialogComponent {
+  // Exponer Icons para uso en templates
+  Icons = Icons;
+
   constructor(
     public dialogRef: MatDialogRef<ConfirmDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: ConfirmDialogData
@@ -37,10 +41,10 @@ export class ConfirmDialogComponent {
     if (this.data.icon) return this.data.icon;
     const t = this.data.type || 'primary';
     switch (t) {
-      case 'warn': return 'warning_amber';
-      case 'danger': return 'report';
-      case 'success': return 'task_alt';
-      default: return 'help_outline';
+      case 'warn': return Icons.STATUS.WARNING_AMBER;
+      case 'danger': return Icons.STATUS.REPORT;
+      case 'success': return Icons.STATUS.TASK_ALT;
+      default: return Icons.INFO.HELP_OUTLINE;
     }
   }
 }

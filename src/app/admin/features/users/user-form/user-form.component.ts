@@ -150,14 +150,14 @@ export class UserFormComponent implements OnInit {
       );
       
       // Navegar de vuelta al listado
-      this.router.navigate(['/users']);
+      this.router.navigate(['../'], { relativeTo: this.route });
     } else {
       this.markFormGroupTouched();
     }
   }
 
   onCancel(): void {
-    this.router.navigate(['/users']);
+    this.router.navigate(['../'], { relativeTo: this.route });
   }
 
   private markFormGroupTouched(): void {

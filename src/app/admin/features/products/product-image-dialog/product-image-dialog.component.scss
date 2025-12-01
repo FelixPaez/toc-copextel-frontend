@@ -1,0 +1,90 @@
+@use "sass:color";
+
+.product-image-dialog {
+  min-width: 600px;
+  max-width: 90vw;
+}
+
+h2[mat-dialog-title] {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--admin-gray-800);
+  margin-bottom: 16px;
+}
+
+mat-dialog-content {
+  padding: 16px 0;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.images-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 180px));
+  gap: 16px;
+  justify-content: start;
+}
+
+.image-card {
+  position: relative;
+  border-radius: var(--admin-radius);
+  overflow: hidden;
+  box-shadow: var(--admin-shadow);
+  background: var(--admin-white);
+  
+  img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    display: block;
+  }
+  
+  .delete-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 10;
+  }
+}
+
+.no-images {
+  text-align: center;
+  color: var(--admin-gray-600);
+  font-style: italic;
+  padding: 32px;
+}
+
+.upload-section {
+  display: flex;
+  justify-content: center;
+  padding-top: 16px;
+  border-top: 1px solid var(--admin-gray-200);
+}
+
+mat-dialog-actions {
+  padding: 16px 0 0 0;
+  margin: 0;
+  gap: 8px;
+}
+
+@media (max-width: 768px) {
+  .product-image-dialog {
+    min-width: 90vw;
+  }
+
+  .image-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 140px));
+    gap: 12px;
+  }
+
+  .image-card img {
+    height: 140px;
+  }
+}
+

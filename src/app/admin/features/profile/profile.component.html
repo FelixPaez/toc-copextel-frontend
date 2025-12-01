@@ -1,0 +1,56 @@
+<div class="profile-container">
+  <mat-sidenav-container class="profile-sidenav-container">
+    <mat-sidenav
+      #drawer
+      [mode]="(isHandset$ | async) ? 'over' : 'side'"
+      [opened]="(isHandset$ | async) ? false : true"
+      class="profile-sidenav">
+      
+      <div class="sidenav-header">
+        <h2 class="sidenav-title">Ajustes</h2>
+        <p class="sidenav-subtitle">Gestiona tu perfil y configuración</p>
+      </div>
+
+      <mat-nav-list class="nav-list">
+        @for (panel of panels; track panel.id) {
+          <a
+            mat-list-item
+            [class.active]="selectedPanel === panel.id"
+            (click)="goToPanel(panel.id); closeIfHandset()">
+            <mat-icon matListItemIcon>{{ panel.icon }}</mat-icon>
+            <div matListItemTitle>{{ panel.title }}</div>
+            <div matListItemLine class="panel-description">{{ panel.description }}</div>
+          </a>
+        }
+      </mat-nav-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content class="profile-content">
+      <div class="content-header">
+        <button
+          mat-icon-button
+          class="menu-button"
+          (click)="drawer.toggle()"
+          *ngIf="isHandset$ | async">
+          <mat-icon>menu</mat-icon>
+        </button>
+        <h1 class="page-title">{{ getPanelInfo(selectedPanel)?.title || 'Perfil' }}</h1>
+      </div>
+
+      <div class="content-body">
+        @switch (selectedPanel) {
+          @case ('account') {
+            <app-profile-account [user]="user"></app-profile-account>
+          }
+          @case ('security') {
+            <app-profile-security></app-profile-security>
+          }
+          @case ('image') {
+            <app-profile-image [user]="user"></app-profile-image>
+          }
+        }
+      </div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>
+

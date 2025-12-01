@@ -1,0 +1,262 @@
+.order-detail-container {
+  width: 100%;
+  padding: 16px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 16px 24px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+  .page-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .back-button {
+    margin-right: 8px;
+  }
+
+  .breadcrumbs {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    color: var(--admin-gray-600);
+
+    .crumb {
+      cursor: pointer;
+      transition: color 0.2s;
+
+      &:hover {
+        color: var(--admin-primary);
+      }
+
+      &.current {
+        color: var(--admin-gray-900);
+        font-weight: 600;
+      }
+    }
+
+    .crumb-sep {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  .page-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--admin-gray-900);
+  }
+
+  .page-right {
+    display: flex;
+    gap: 12px;
+  }
+}
+
+.loading-container,
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 16px;
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: var(--admin-gray-400);
+  }
+
+  p {
+    font-size: 18px;
+    color: var(--admin-gray-600);
+  }
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 24px;
+}
+
+.info-card {
+  mat-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 18px;
+      font-weight: 600;
+
+      mat-icon {
+        color: var(--admin-primary);
+      }
+    }
+  }
+}
+
+.info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+
+  &.full-width {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .info-label {
+    font-weight: 500;
+    color: var(--admin-gray-600);
+    font-size: 14px;
+  }
+
+  .info-value {
+    font-weight: 600;
+    color: var(--admin-gray-900);
+    font-size: 14px;
+    text-align: right;
+
+    &.total {
+      font-size: 18px;
+      color: var(--admin-primary);
+    }
+  }
+
+  .success-icon {
+    color: var(--admin-success);
+  }
+}
+
+.products-card {
+  grid-column: 1 / -1;
+
+  mat-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 18px;
+      font-weight: 600;
+
+      mat-icon {
+        color: var(--admin-primary);
+      }
+    }
+  }
+}
+
+.products-table {
+  width: 100%;
+  margin-bottom: 16px;
+
+  th {
+    font-weight: 600;
+    color: var(--admin-gray-700);
+  }
+
+  .text-right {
+    text-align: right;
+  }
+
+  .product-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .product-name {
+    font-weight: 500;
+    color: var(--admin-gray-900);
+  }
+}
+
+.divider {
+  margin: 24px 0;
+}
+
+.totals-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 16px;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+
+  &.final {
+    border-top: 2px solid var(--admin-gray-300);
+    padding-top: 16px;
+    margin-top: 8px;
+
+    .total-label,
+    .total-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--admin-primary);
+    }
+  }
+
+  .total-label {
+    font-weight: 500;
+    color: var(--admin-gray-600);
+  }
+
+  .total-value {
+    font-weight: 600;
+    color: var(--admin-gray-900);
+  }
+}
+
+@media (max-width: 768px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+
+    .page-right {
+      width: 100%;
+      flex-direction: column;
+    }
+  }
+}
+

@@ -10,6 +10,11 @@ import { InventoryProduct, InventoryCategory } from './products.types';
 // Variables
 import { environment } from '../../../../environments/environment';
 
+// Mock Data & Services
+import { MOCK_PRODUCTS, MOCK_CATEGORIES } from '../../mocks/data/products.mock';
+import { MockService } from '../../core/services/mock.service';
+import { applyMockPagination } from '../../mocks/mock-helpers';
+
 // API Url
 const API_URL_GATEWAY = environment.API_URL_GATEWAY;
 
@@ -32,7 +37,10 @@ export class ProductsService {
   /**
    * Constructor
    */
-  constructor(private _httpClient: HttpClient) {
+  constructor(
+    private _httpClient: HttpClient,
+    private _mockService: MockService
+  ) {
   }
 
   // -----------------------------------------------------------------------------------------------------
@@ -94,6 +102,36 @@ export class ProductsService {
     order: 'asc' | 'desc' | '' = 'asc',
     search: string = ''
   ): Observable<IResponse> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const result = applyMockPagination(
+        MOCK_PRODUCTS,
+        page,
+        size,
+        sort || 'id',
+        order,
+        search,
+        ['name', 'code', 'description'] as (keyof InventoryProduct)[]
+      );
+      
+      return this._mockService.simulateDelay({
+        ok: true,
+        products: result.data,
+        pagination: result.pagination
+      }).pipe(
+        tap((response) => {
+          if (response.pagination) {
+            this._pagination.next(response.pagination);
+          }
+          if (response.products) {
+            this._products.next(response.products);
+            this._productsArr.next(response.products);
+          }
+        })
+      );
+    }
+    
+    // Real API call
     return this._httpClient.get<IResponse>(`${API_URL_GATEWAY}/product/`, {
       params: {
         page: '' + page,
@@ -113,6 +151,10 @@ export class ProductsService {
           this._products.next(response.products);
           this._productsArr.next(response.products);
         }
+      }),
+      catchError((error) => {
+        console.error('Error getting products:', error);
+        return throwError(() => error);
       })
     );
   }
@@ -139,6 +181,39 @@ export class ProductsService {
       return throwError(() => new Error('userUo is required'));
     }
 
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      // Filter products by vendor UO
+      let filteredProducts = MOCK_PRODUCTS.filter(p => p.uo === userUo);
+      
+      const result = applyMockPagination(
+        filteredProducts,
+        page,
+        size,
+        sort || 'id',
+        order,
+        search,
+        ['name', 'code', 'description'] as (keyof InventoryProduct)[]
+      );
+      
+      return this._mockService.simulateDelay({
+        ok: true,
+        products: result.data,
+        pagination: result.pagination
+      }).pipe(
+        tap((response) => {
+          if (response.pagination) {
+            this._pagination.next(response.pagination);
+          }
+          if (response.products) {
+            this._products.next(response.products);
+            this._productsArr.next(response.products);
+          }
+        })
+      );
+    }
+
+    // Real API call
     return this._httpClient.get<IResponse>(`${API_URL_GATEWAY}/product/by-vendor/${userUo}`, {
       params: {
         page: '' + page,
@@ -168,6 +243,20 @@ export class ProductsService {
    * @param productId - ID del producto
    */
   public getProductById(productId: number): Observable<InventoryProduct> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const product = MOCK_PRODUCTS.find(p => p.id === productId);
+      if (!product) {
+        return this._mockService.simulateError('Producto no encontrado', 404);
+      }
+      return this._mockService.simulateDelay(product).pipe(
+        tap((product) => {
+          this._product.next(product);
+        })
+      );
+    }
+    
+    // Real API call
     return this._httpClient.get<IResponse>(`${API_URL_GATEWAY}/product/${productId}`).pipe(
       map((response) => {
         if (response.product) {
@@ -189,6 +278,35 @@ export class ProductsService {
    * @param formData - Datos del producto a crear
    */
   public createProduct(formData: InventoryProduct): Observable<IResponse> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const newProduct: InventoryProduct = {
+        ...formData,
+        id: Math.max(...MOCK_PRODUCTS.map(p => p.id), 0) + 1,
+        createdAt: new Date()
+      };
+      MOCK_PRODUCTS.unshift(newProduct);
+      
+      return this.products$.pipe(
+        take(1),
+        switchMap(products => {
+          if (!products) {
+            products = [];
+          }
+          return this._mockService.simulateDelay({
+            ok: true,
+            message: 'Producto creado exitosamente',
+            product: newProduct
+          }).pipe(
+            tap(() => {
+              this._products.next([newProduct, ...products]);
+            })
+          );
+        })
+      );
+    }
+    
+    // Real API call
     return this.products$.pipe(
       take(1),
       switchMap(products => {
@@ -203,6 +321,10 @@ export class ProductsService {
             }
             // Return the response
             return response;
+          }),
+          catchError((error) => {
+            console.error('Error creating product:', error);
+            return throwError(() => error);
           })
         );
       })
@@ -219,6 +341,40 @@ export class ProductsService {
       return throwError(() => new Error('Product ID is required'));
     }
 
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const index = MOCK_PRODUCTS.findIndex(p => p.id === product.id);
+      if (index === -1) {
+        return this._mockService.simulateError('Producto no encontrado', 404);
+      }
+      
+      const updatedProduct = { ...MOCK_PRODUCTS[index], ...product };
+      MOCK_PRODUCTS[index] = updatedProduct;
+      
+      return this.products$.pipe(
+        take(1),
+        switchMap(products => {
+          if (!products) {
+            return throwError(() => new Error('No products available'));
+          }
+          return this._mockService.simulateDelay({
+            ok: true,
+            message: 'Producto actualizado exitosamente',
+            updatedProduct: updatedProduct
+          }).pipe(
+            tap(() => {
+              const productIndex = products.findIndex(item => item.id === product.id);
+              if (productIndex !== -1) {
+                products[productIndex] = updatedProduct;
+                this._products.next(products);
+              }
+            })
+          );
+        })
+      );
+    }
+
+    // Real API call
     return this.products$.pipe(
       take(1),
       switchMap(products => {
@@ -244,6 +400,10 @@ export class ProductsService {
 
             // Return the response
             return response;
+          }),
+          catchError((error) => {
+            console.error('Error updating product:', error);
+            return throwError(() => error);
           })
         );
       })
@@ -256,6 +416,38 @@ export class ProductsService {
    * @param id - ID del producto a eliminar
    */
   public deleteProduct(id: number): Observable<IResponse> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const index = MOCK_PRODUCTS.findIndex(p => p.id === id);
+      if (index === -1) {
+        return this._mockService.simulateError('Producto no encontrado', 404);
+      }
+      
+      MOCK_PRODUCTS.splice(index, 1);
+      
+      return this.products$.pipe(
+        take(1),
+        switchMap(products => {
+          if (!products) {
+            return throwError(() => new Error('No products available'));
+          }
+          return this._mockService.simulateDelay({
+            ok: true,
+            message: 'Producto eliminado exitosamente'
+          }).pipe(
+            tap(() => {
+              const productIndex = products.findIndex(item => item.id === id);
+              if (productIndex !== -1) {
+                products.splice(productIndex, 1);
+                this._products.next(products);
+              }
+            })
+          );
+        })
+      );
+    }
+
+    // Real API call
     return this.products$.pipe(
       take(1),
       switchMap(products => {
@@ -277,6 +469,10 @@ export class ProductsService {
 
             // Return the response
             return response;
+          }),
+          catchError((error) => {
+            console.error('Error deleting product:', error);
+            return throwError(() => error);
           })
         );
       })
@@ -287,6 +483,16 @@ export class ProductsService {
    * Get categories
    */
   public getCategories(): Observable<InventoryCategory[]> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      return this._mockService.simulateDelay(MOCK_CATEGORIES).pipe(
+        tap((categories) => {
+          this._categories.next(categories);
+        })
+      );
+    }
+    
+    // Real API call
     return this._httpClient.get<InventoryCategory[]>(`${API_URL_GATEWAY}/categories`).pipe(
       tap((categories) => {
         this._categories.next(categories);

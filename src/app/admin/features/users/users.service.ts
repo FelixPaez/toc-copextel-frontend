@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { catchError, filter, map, switchMap, take, tap } from 'rxjs/operators';
+import { catchError, delay, filter, map, switchMap, take, tap } from 'rxjs/operators';
 
 // Types
 import { IResponse, TablePagination } from '../../core/models/shared.types';
@@ -9,6 +9,10 @@ import { User } from './users.types';
 
 // Variables
 import { environment } from '../../../../environments/environment';
+
+// Mock Data
+import { MOCK_USERS } from '../../mocks/data/users.mock';
+import { MockService } from '../../core/services/mock.service';
 
 // API Url
 const API_URL_GATEWAY = environment.API_URL_GATEWAY;
@@ -33,7 +37,10 @@ export class UsersService {
   /**
    * Constructor
    */
-  constructor(private _httpClient: HttpClient) {
+  constructor(
+    private _httpClient: HttpClient,
+    private _mockService: MockService
+  ) {
   }
 
   // -----------------------------------------------------------------------------------------------------
@@ -112,6 +119,68 @@ export class UsersService {
     order: 'asc' | 'desc' | '' = 'asc',
     search: string = ''
   ): Observable<IResponse> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      let filteredUsers = [...MOCK_USERS];
+      
+      // Apply search filter
+      if (search) {
+        const searchLower = search.toLowerCase();
+        filteredUsers = filteredUsers.filter(u => 
+          u.name.toLowerCase().includes(searchLower) ||
+          u.lastname1.toLowerCase().includes(searchLower) ||
+          u.email.toLowerCase().includes(searchLower) ||
+          u.username.toLowerCase().includes(searchLower)
+        );
+      }
+      
+      // Apply sorting
+      filteredUsers.sort((a, b) => {
+        let aVal: any = a[sort as keyof User] || '';
+        let bVal: any = b[sort as keyof User] || '';
+        
+        if (typeof aVal === 'string') {
+          aVal = aVal.toLowerCase();
+          bVal = bVal.toLowerCase();
+        }
+        
+        if (order === 'desc') {
+          return aVal > bVal ? -1 : aVal < bVal ? 1 : 0;
+        }
+        return aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
+      });
+      
+      // Apply pagination
+      const startIndex = page * size;
+      const endIndex = startIndex + size;
+      const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+      
+      const pagination: TablePagination = {
+        length: filteredUsers.length,
+        size,
+        page,
+        lastPage: Math.ceil(filteredUsers.length / size) - 1,
+        startIndex,
+        endIndex: Math.min(endIndex, filteredUsers.length)
+      };
+      
+      return this._mockService.simulateDelay({
+        ok: true,
+        users: paginatedUsers,
+        pagination
+      }).pipe(
+        tap((response) => {
+          if (response.pagination) {
+            this._pagination.next(response.pagination);
+          }
+          if (response.users) {
+            this._users.next(response.users);
+          }
+        })
+      );
+    }
+    
+    // Real API call
     return this._httpClient.get<IResponse>(`${API_URL_GATEWAY}/auth/admin/users`, {
       params: {
         page: '' + page,
@@ -131,6 +200,10 @@ export class UsersService {
           if (response.users) {
             this._users.next(response.users);
           }
+        }),
+        catchError((error) => {
+          console.error('Error getting users:', error);
+          return throwError(() => error);
         })
       );
   }
@@ -141,6 +214,20 @@ export class UsersService {
    * @param id - ID del usuario
    */
   public getUserById(id: number): Observable<User> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const user = MOCK_USERS.find(u => u.id === id);
+      if (!user) {
+        return this._mockService.simulateError('Usuario no encontrado', 404);
+      }
+      return this._mockService.simulateDelay(user).pipe(
+        tap((user) => {
+          this._selectedUser.next(user);
+        })
+      );
+    }
+    
+    // Real API call
     return this._httpClient.get<User>(`${API_URL_GATEWAY}/auth/admin/users/${id}`).pipe(
       map((user) => {
         this._selectedUser.next(user);
@@ -159,6 +246,31 @@ export class UsersService {
    * @param user - Datos del usuario a crear
    */
   public createUser(user: User): Observable<User> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const newUser: User = {
+        ...user,
+        id: Math.max(...MOCK_USERS.map(u => u.id || 0)) + 1,
+        createdAt: new Date().toISOString()
+      };
+      MOCK_USERS.unshift(newUser);
+      
+      return this.users$.pipe(
+        take(1),
+        switchMap(users => {
+          if (!users) {
+            users = [];
+          }
+          return this._mockService.simulateDelay(newUser).pipe(
+            tap(() => {
+              this._users.next([newUser, ...users]);
+            })
+          );
+        })
+      );
+    }
+    
+    // Real API call
     return this.users$.pipe(
       take(1),
       switchMap(users => {
@@ -174,6 +286,10 @@ export class UsersService {
               return response.user;
             }
             throw new Error('No user returned from server');
+          }),
+          catchError((error) => {
+            console.error('Error creating user:', error);
+            return throwError(() => error);
           })
         );
       })
@@ -186,6 +302,37 @@ export class UsersService {
    * @param user - Datos del usuario a actualizar
    */
   public updateUser(user: User): Observable<User> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const index = MOCK_USERS.findIndex(u => u.id === user.id);
+      if (index === -1) {
+        return this._mockService.simulateError('Usuario no encontrado', 404);
+      }
+      
+      const updatedUser = { ...MOCK_USERS[index], ...user };
+      MOCK_USERS[index] = updatedUser;
+      
+      return this.users$.pipe(
+        take(1),
+        switchMap(users => {
+          if (!users) {
+            return throwError(() => new Error('No users available'));
+          }
+          return this._mockService.simulateDelay(updatedUser).pipe(
+            tap(() => {
+              const userIndex = users.findIndex(item => item.id === user.id);
+              if (userIndex !== -1) {
+                users[userIndex] = updatedUser;
+                this._users.next(users);
+              }
+              this._user.next(updatedUser);
+            })
+          );
+        })
+      );
+    }
+    
+    // Real API call
     return this.users$.pipe(
       take(1),
       switchMap(users => {
@@ -219,7 +366,11 @@ export class UsersService {
                 this._user.next(updatedUser);
               }),
               map(() => updatedUser)
-            ))
+            )),
+            catchError((error) => {
+              console.error('Error updating user:', error);
+              return throwError(() => error);
+            })
           );
       })
     );
@@ -231,6 +382,32 @@ export class UsersService {
    * @param user - Datos del perfil del usuario a actualizar
    */
   public updateUserProfile(user: User): Observable<User> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const index = MOCK_USERS.findIndex(u => u.id === user.id);
+      if (index === -1) {
+        return this._mockService.simulateError('Usuario no encontrado', 404);
+      }
+      
+      const updatedUser = { ...MOCK_USERS[index], ...user };
+      MOCK_USERS[index] = updatedUser;
+      
+      return this.users$.pipe(
+        take(1),
+        switchMap(users => {
+          if (!users) {
+            return throwError(() => new Error('No users available'));
+          }
+          return this._mockService.simulateDelay(updatedUser).pipe(
+            tap(() => {
+              this._user.next(updatedUser);
+            })
+          );
+        })
+      );
+    }
+    
+    // Real API call
     return this.users$.pipe(
       take(1),
       switchMap(users => {
@@ -254,7 +431,11 @@ export class UsersService {
                 this._user.next(updatedUser);
               }),
               map(() => updatedUser)
-            ))
+            )),
+            catchError((error) => {
+              console.error('Error updating user profile:', error);
+              return throwError(() => error);
+            })
           );
       })
     );
@@ -266,6 +447,35 @@ export class UsersService {
    * @param id - ID del usuario a eliminar
    */
   public deleteUser(id: number): Observable<boolean> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const index = MOCK_USERS.findIndex(u => u.id === id);
+      if (index === -1) {
+        return this._mockService.simulateError('Usuario no encontrado', 404);
+      }
+      
+      MOCK_USERS.splice(index, 1);
+      
+      return this.users$.pipe(
+        take(1),
+        switchMap(users => {
+          if (!users) {
+            return throwError(() => new Error('No users available'));
+          }
+          return this._mockService.simulateDelay(true).pipe(
+            tap(() => {
+              const userIndex = users.findIndex(item => item.id === id);
+              if (userIndex !== -1) {
+                users.splice(userIndex, 1);
+                this._users.next(users);
+              }
+            })
+          );
+        })
+      );
+    }
+    
+    // Real API call
     return this.users$.pipe(
       take(1),
       switchMap(users => {
@@ -286,9 +496,11 @@ export class UsersService {
                 this._users.next(users);
               }
             }
-
-            // Return the deleted status
             return isDeleted;
+          }),
+          catchError((error) => {
+            console.error('Error deleting user:', error);
+            return throwError(() => error);
           })
         );
       })
@@ -347,6 +559,15 @@ export class UsersService {
    * @param passwords - Contraseñas (antigua y nueva)
    */
   public resetPassword(passwords: { oldPassword: string; newPassword: string }): Observable<IResponse> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      return this._mockService.simulateDelay({
+        ok: true,
+        message: 'Contraseña actualizada exitosamente'
+      });
+    }
+    
+    // Real API call
     return this._httpClient.post<IResponse>(`${API_URL_GATEWAY}/auth/admin/reset-password`, passwords);
   }
 
@@ -356,6 +577,20 @@ export class UsersService {
    * @param data - Datos para actualizar contraseña del usuario
    */
   public updateUserPassword(data: { userId: number; password: string }): Observable<IResponse> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const user = MOCK_USERS.find(u => u.id === data.userId);
+      if (!user) {
+        return this._mockService.simulateError('Usuario no encontrado', 404);
+      }
+      
+      return this._mockService.simulateDelay({
+        ok: true,
+        message: 'Contraseña del usuario actualizada exitosamente'
+      });
+    }
+    
+    // Real API call
     return this._httpClient.post<IResponse>(`${API_URL_GATEWAY}/auth/admin/users/reset-password`, data);
   }
 }

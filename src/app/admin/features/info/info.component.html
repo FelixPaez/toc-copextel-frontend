@@ -4,9 +4,9 @@
     <div class="page-left">
       <div class="breadcrumbs">
         <span class="crumb">Nomencladores</span>
-        <mat-icon class="crumb-sep">chevron_right</mat-icon>
+        <mat-icon class="crumb-sep">{{ Icons.NAVIGATION.CHEVRON_RIGHT }}</mat-icon>
         <span class="crumb">Información</span>
-        <mat-icon class="crumb-sep">chevron_right</mat-icon>
+        <mat-icon class="crumb-sep">{{ Icons.NAVIGATION.CHEVRON_RIGHT }}</mat-icon>
         <span class="crumb">Actualizar Información</span>
       </div>
       <h1 class="page-title">Actualizar Información</h1>
@@ -14,12 +14,12 @@
     <div class="page-right">
       @if (isEditMode) {
         <button mat-stroked-button (click)="onCancelEdit()" class="cancel-btn">
-          <mat-icon>close</mat-icon>
+          <mat-icon>{{ Icons.ACTIONS.CLOSE }}</mat-icon>
           Cancelar
         </button>
       }
       <button mat-raised-button class="btn-danger" (click)="onUpdateAll()">
-        <mat-icon>{{ isEditMode ? 'save' : 'edit' }}</mat-icon>
+        <mat-icon>{{ isEditMode ? Icons.ACTIONS.SAVE : Icons.ACTIONS.EDIT }}</mat-icon>
         {{ isEditMode ? 'Guardar' : 'Actualizar' }}
       </button>
     </div>
@@ -164,12 +164,23 @@
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>Acciones</th>
             <td mat-cell *matCellDef="let socialNetwork" class="actions-cell">
-              <button mat-icon-button class="action-btn" aria-label="Editar" (click)="onEditSocialNetwork(socialNetwork)">
-                <mat-icon>edit</mat-icon>
+              <button 
+                mat-icon-button 
+                [matMenuTriggerFor]="menu"
+                matTooltip="Más opciones">
+                <mat-icon>{{ Icons.ACTIONS.MORE_VERT }}</mat-icon>
               </button>
-              <button mat-icon-button class="action-btn warn" aria-label="Eliminar" (click)="onDeleteSocialNetwork(socialNetwork)">
-                <mat-icon>delete</mat-icon>
-              </button>
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="onEditSocialNetwork(socialNetwork)">
+                  <mat-icon>{{ Icons.ACTIONS.EDIT }}</mat-icon>
+                  <span>Editar</span>
+                </button>
+                <mat-divider></mat-divider>
+                <button mat-menu-item (click)="onDeleteSocialNetwork(socialNetwork)" class="warn">
+                  <mat-icon>{{ Icons.ACTIONS.DELETE }}</mat-icon>
+                  <span>Eliminar</span>
+                </button>
+              </mat-menu>
             </td>
           </ng-container>
 
@@ -179,7 +190,7 @@
 
         <div class="section-actions">
           <button mat-raised-button class="btn-danger" (click)="onAddSocialNetwork()">
-            <mat-icon>add</mat-icon>
+            <mat-icon>{{ Icons.ACTIONS.ADD }}</mat-icon>
             Nueva
           </button>
         </div>

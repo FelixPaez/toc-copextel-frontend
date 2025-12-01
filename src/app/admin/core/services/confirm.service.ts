@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../ui/confirm-dialog/confirm-dialog.component';
+import { Icons } from '../constants/icons.constants';
 
 @Injectable({ providedIn: 'root' })
 export class ConfirmService {
@@ -24,7 +25,7 @@ export class ConfirmService {
         message: '¿Seguro que deseas continuar?',
         confirmText: 'Confirmar',
         cancelText: 'Cancelar',
-        icon: 'help_outline',
+        icon: Icons.INFO.HELP_OUTLINE,
         type: 'primary',
         ...data
       } as ConfirmDialogData

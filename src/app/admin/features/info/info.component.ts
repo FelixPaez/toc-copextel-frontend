@@ -10,6 +10,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
+
+// Constants
+import { Icons } from '../../core/constants';
 
 // Components
 import { SocialNetworkFormComponent } from './social-network-form/social-network-form.component';
@@ -34,12 +39,17 @@ export interface SocialNetwork {
     MatFormFieldModule,
     MatInputModule,
     MatDialogModule,
+    MatMenuModule,
+    MatDividerModule,
     ReactiveFormsModule
   ],
   templateUrl: './info.component.html',
   styleUrls: ['./info.component.scss']
 })
 export class InfoComponent implements OnInit {
+  // Expose Icons for template
+  Icons = Icons;
+
   // Form data
   footerInfoForm: FormGroup;
   consumerProtectionForm: FormGroup;

@@ -4,21 +4,10 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/materia
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
+import { User } from '../users.types';
+
 export interface UserDetailData {
-  user: {
-    id: number;
-    name: string;
-    lastName: string;
-    secondLastName?: string;
-    email: string;
-    identityNumber: string;
-    store: string;
-    roles: string[];
-    gender: string;
-    active: boolean;
-    organizationalUnit: string;
-    hasPhoto: boolean;
-  };
+  user: User;
 }
 
 @Component({
@@ -45,13 +34,20 @@ export class UserDetailModalComponent {
 
   getUserDisplayName(): string {
     const user = this.data.user;
-    return `${user.name} ${user.lastName} ${user.secondLastName || ''}`.trim();
+    return `${user.name || ''} ${user.lastname1 || ''} ${user.lastname2 || ''}`.trim();
   }
 
   getUserInitials(): string {
     const user = this.data.user;
-    const firstInitial = user.name.charAt(0).toUpperCase();
-    const lastInitial = user.lastName.charAt(0).toUpperCase();
-    return firstInitial + lastInitial;
+    const name = user.name || '';
+    const lastname1 = user.lastname1 || '';
+    
+    if (!name && !lastname1) {
+      return '??';
+    }
+    
+    const firstInitial = name ? name.charAt(0).toUpperCase() : '';
+    const lastInitial = lastname1 ? lastname1.charAt(0).toUpperCase() : '';
+    return (firstInitial + lastInitial) || '??';
   }
 }

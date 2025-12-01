@@ -28,7 +28,8 @@ export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   hidePassword = true;
   isLoading = false;
-  returnUrl: string = '/dashboard';
+  returnUrl: string = '/admin/dashboard';
+  private loginSuccessful = false;
 
   constructor(
     private fb: FormBuilder,
@@ -44,15 +45,17 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Get return URL from route parameters or default to admin dashboard
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/admin/dashboard';
     
-    // If user is already authenticated, redirect to return URL
-    this.authService.check().subscribe(isAuthenticated => {
-      if (isAuthenticated) {
-        this.router.navigate([this.returnUrl]);
-      }
-    });
+    if (!this.isLoading && !this.loginSuccessful) {
+      this.authService.check().subscribe(isAuthenticated => {
+        if (isAuthenticated && !this.loginSuccessful) {
+          this.router.navigateByUrl(this.returnUrl).catch(() => {
+            window.location.href = this.returnUrl;
+          });
+        }
+      });
+    }
   }
 
   onSubmit(): void {
@@ -66,19 +69,60 @@ export class LoginComponent implements OnInit {
 
       this.authService.signIn(credentials).subscribe({
         next: (response) => {
-          this.isLoading = false;
-          const user = response.user || this.authService.getCurrentUser();
-          const userName = user?.name || user?.email || 'Usuario';
-          
-          this.snackBar.open(`Bienvenido, ${userName}!`, 'Cerrar', {
-            duration: 3000,
-            horizontalPosition: 'center',
-            verticalPosition: 'top',
-            panelClass: ['success-snackbar']
-          });
-          
-          // Redirigir al dashboard del admin
-          this.router.navigate(['/admin/dashboard']);
+          if (response && response.ok) {
+            this.loginSuccessful = true;
+            
+            const user = response.user || this.authService.getCurrentUser();
+            const userName = user?.name || user?.email || 'Usuario';
+            
+            this.snackBar.open(`Bienvenido, ${userName}!`, 'Cerrar', {
+              duration: 2000,
+              horizontalPosition: 'center',
+              verticalPosition: 'top',
+              panelClass: ['success-snackbar']
+            });
+            
+            setTimeout(() => {
+              this.authService.check().subscribe({
+                next: (isAuthenticated) => {
+                  this.isLoading = false;
+                  
+                  if (isAuthenticated) {
+                    window.location.href = '/admin/dashboard';
+                  } else {
+                    setTimeout(() => {
+                      this.authService.check().subscribe(auth => {
+                        if (auth) {
+                          window.location.href = '/admin/dashboard';
+                        } else {
+                          this.snackBar.open('Error de autenticación. Intente nuevamente.', 'Cerrar', {
+                            duration: 3000,
+                            horizontalPosition: 'center',
+                            verticalPosition: 'top',
+                            panelClass: ['error-snackbar']
+                          });
+                        }
+                      });
+                    }, 300);
+                  }
+                },
+                error: () => {
+                  this.isLoading = false;
+                  setTimeout(() => {
+                    window.location.href = '/admin/dashboard';
+                  }, 200);
+                }
+              });
+            }, 150);
+          } else {
+            this.isLoading = false;
+            this.snackBar.open('Error en el login. Intente nuevamente.', 'Cerrar', {
+              duration: 3000,
+              horizontalPosition: 'center',
+              verticalPosition: 'top',
+              panelClass: ['error-snackbar']
+            });
+          }
         },
         error: (error) => {
           this.isLoading = false;

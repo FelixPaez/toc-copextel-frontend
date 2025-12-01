@@ -4,14 +4,14 @@
     <div class="page-left">
       <div class="breadcrumbs">
         <span class="crumb">Tienda</span>
-        <mat-icon class="crumb-sep">chevron_right</mat-icon>
+        <mat-icon class="crumb-sep">{{ Icons.NAVIGATION.CHEVRON_RIGHT }}</mat-icon>
         <span class="crumb current">Pedidos</span>
       </div>
-      <h1 class="page-title">Gestión de Pedidos</h1>
+      <h1 class="page-title">Órdenes</h1>
     </div>
     <div class="page-right">
       <div class="search-section">
-        <mat-icon class="search-icon">search</mat-icon>
+        <mat-icon class="search-icon">{{ Icons.ACTIONS.SEARCH }}</mat-icon>
         <input 
           type="text" 
           [formControl]="searchControl"
@@ -106,7 +106,7 @@
         </mat-form-field>
 
         <button mat-stroked-button (click)="clearFilters()" class="clear-filters-btn">
-          <mat-icon>clear</mat-icon>
+          <mat-icon>{{ Icons.ACTIONS.CLEAR }}</mat-icon>
           Limpiar Filtros
         </button>
       </div>
@@ -131,11 +131,11 @@
           </button>
           <mat-menu #tableMenu="matMenu">
             <button mat-menu-item>
-              <mat-icon>download</mat-icon>
+              <mat-icon>{{ Icons.ACTIONS.DOWNLOAD }}</mat-icon>
               <span>Exportar</span>
             </button>
             <button mat-menu-item>
-              <mat-icon>print</mat-icon>
+              <mat-icon>{{ Icons.ACTIONS.PRINT }}</mat-icon>
               <span>Imprimir</span>
             </button>
           </mat-menu>
@@ -232,45 +232,45 @@
                   mat-icon-button 
                   [matMenuTriggerFor]="menu"
                   matTooltip="Más opciones">
-                  <mat-icon>more_vert</mat-icon>
+                  <mat-icon>{{ Icons.ACTIONS.MORE_VERT }}</mat-icon>
                 </button>
                 <mat-menu #menu="matMenu">
                   <button mat-menu-item (click)="onView(order)">
-                    <mat-icon>visibility</mat-icon>
+                    <mat-icon>{{ Icons.ACTIONS.VIEW }}</mat-icon>
                     <span>Ver Detalles</span>
                   </button>
                   <button mat-menu-item (click)="onEdit(order)">
-                    <mat-icon>edit</mat-icon>
+                    <mat-icon>{{ Icons.ACTIONS.EDIT }}</mat-icon>
                     <span>Editar</span>
                   </button>
                   @if (order.status === 'Pendiente de pago') {
                     <button mat-menu-item (click)="onUpdateStatus(order, 'Pagada')">
-                      <mat-icon>payment</mat-icon>
+                      <mat-icon>{{ Icons.PRODUCTS.PAYMENT }}</mat-icon>
                       <span>Marcar como Pagada</span>
                     </button>
                   }
                   @if (order.status === 'Pagada') {
                     <button mat-menu-item (click)="onUpdateStatus(order, 'Lista')">
-                      <mat-icon>inventory</mat-icon>
+                      <mat-icon>{{ Icons.PRODUCTS.INVENTORY }}</mat-icon>
                       <span>Marcar como Lista</span>
                     </button>
                   }
                   @if (order.status === 'Lista') {
                     <button mat-menu-item (click)="onUpdateStatus(order, 'Transportando')">
-                      <mat-icon>local_shipping</mat-icon>
+                      <mat-icon>{{ Icons.PRODUCTS.LOCAL_SHIPPING }}</mat-icon>
                       <span>Marcar como En Tránsito</span>
                     </button>
                   }
                   @if (order.status === 'Transportando') {
                     <button mat-menu-item (click)="onUpdateStatus(order, 'Entregada')">
-                      <mat-icon>check_circle</mat-icon>
+                      <mat-icon>{{ Icons.STATUS.SUCCESS }}</mat-icon>
                       <span>Marcar como Entregada</span>
                     </button>
                   }
                   @if (order.status !== 'Cancelada' && order.status !== 'Entregada') {
                     <mat-divider></mat-divider>
                     <button mat-menu-item (click)="onUpdateStatus(order, 'Cancelada')" class="warn">
-                      <mat-icon>cancel</mat-icon>
+                      <mat-icon>{{ Icons.ACTIONS.CANCEL }}</mat-icon>
                       <span>Cancelar Pedido</span>
                     </button>
                   }
@@ -285,7 +285,7 @@
             <tr class="mat-row" *matNoDataRow>
               <td class="mat-cell" [attr.colspan]="displayedColumns.length">
                 <div class="empty-state">
-                  <mat-icon>shopping_cart</mat-icon>
+                  <mat-icon>{{ Icons.PRODUCTS.SHOPPING_CART }}</mat-icon>
                   <p>No se encontraron pedidos</p>
                 </div>
               </td>

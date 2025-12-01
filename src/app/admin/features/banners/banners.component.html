@@ -4,14 +4,27 @@
     <div class="page-left">
       <div class="breadcrumbs">
         <span class="crumb">Nomencladores</span>
-        <mat-icon class="crumb-sep">chevron_right</mat-icon>
+        <mat-icon class="crumb-sep">{{ Icons.NAVIGATION.CHEVRON_RIGHT }}</mat-icon>
         <span class="crumb">Banners</span>
       </div>
       <h1 class="page-title">Banners</h1>
     </div>
     <div class="page-right">
-      <button mat-raised-button class="btn-danger" routerLink="./new">
-        <mat-icon>add</mat-icon>
+      <div class="search-section">
+        <mat-icon class="search-icon">{{ Icons.ACTIONS.SEARCH }}</mat-icon>
+        <input 
+          type="text" 
+          [formControl]="searchControl"
+          placeholder="Buscar banners..." 
+          class="search-input">
+        @if (searchControl.value) {
+          <button mat-icon-button (click)="clearFilters()" matTooltip="Limpiar búsqueda">
+            <mat-icon>{{ Icons.ACTIONS.CLEAR }}</mat-icon>
+          </button>
+        }
+      </div>
+      <button mat-raised-button class="btn-danger" (click)="onAddBanner()">
+        <mat-icon>{{ Icons.ACTIONS.ADD }}</mat-icon>
         Nuevo
       </button>
     </div>
@@ -26,7 +39,7 @@
         </div>
       </div>
       
-      <table mat-table [dataSource]="banners" class="banners-table admin-table">
+      <table mat-table [dataSource]="dataSource" class="banners-table admin-table">
         
         <!-- Título Column -->
         <ng-container matColumnDef="title">
@@ -48,11 +61,17 @@
         <ng-container matColumnDef="isActive">
           <th mat-header-cell *matHeaderCellDef>Activo</th>
           <td mat-cell *matCellDef="let banner">
-            @if (banner.isActive) {
-              <mat-icon class="icon-active">check_circle</mat-icon>
-            } @else {
-              <mat-icon class="icon-inactive">cancel</mat-icon>
-            }
+            <button 
+              mat-icon-button 
+              [color]="banner.isActive ? 'primary' : ''"
+              (click)="onToggleStatus(banner)"
+              [matTooltip]="banner.isActive ? 'Desactivar' : 'Activar'">
+              @if (banner.isActive) {
+                <mat-icon class="icon-ok">{{ Icons.STATUS.SUCCESS }}</mat-icon>
+              } @else {
+                <mat-icon class="icon-disabled">{{ Icons.ACTIONS.CANCEL }}</mat-icon>
+              }
+            </button>
           </td>
         </ng-container>
 
@@ -60,19 +79,63 @@
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef>Acciones</th>
           <td mat-cell *matCellDef="let banner" class="actions-cell">
-            <button mat-icon-button class="action-btn" aria-label="Editar" (click)="onEdit(banner)">
-              <mat-icon>edit</mat-icon>
+            <button 
+              mat-icon-button 
+              [matMenuTriggerFor]="menu"
+              matTooltip="Más opciones">
+              <mat-icon>{{ Icons.ACTIONS.MORE_VERT }}</mat-icon>
             </button>
-            <button mat-icon-button class="action-btn warn" aria-label="Eliminar" (click)="onDelete(banner)">
-              <mat-icon>delete</mat-icon>
-            </button>
+            <mat-menu #menu="matMenu">
+              <button mat-menu-item (click)="onEdit(banner)">
+                <mat-icon>{{ Icons.ACTIONS.EDIT }}</mat-icon>
+                <span>Editar</span>
+              </button>
+              <mat-divider></mat-divider>
+              <button mat-menu-item (click)="onDelete(banner)" class="warn">
+                <mat-icon>{{ Icons.ACTIONS.DELETE }}</mat-icon>
+                <span>Eliminar</span>
+              </button>
+            </mat-menu>
           </td>
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+        <!-- No data row -->
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+            <div class="empty-state">
+              <mat-icon>{{ Icons.MEDIA.CAMPAIGN }}</mat-icon>
+              <p>No se encontraron banners</p>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Loading row -->
+        @if (isLoading) {
+          <tr class="mat-row">
+            <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+              <div class="loading-state">
+                <mat-spinner diameter="40"></mat-spinner>
+                <p>Cargando banners...</p>
+              </div>
+            </td>
+          </tr>
+        }
       </table>
 
+      <!-- Paginator -->
+      @if (pagination && !isLoading) {
+        <mat-paginator
+          [length]="pagination.length"
+          [pageSize]="pageSize"
+          [pageIndex]="pageIndex"
+          [pageSizeOptions]="[5, 10, 25, 50]"
+          (page)="onPageChange($event)"
+          showFirstLastButtons>
+        </mat-paginator>
+      }
     </mat-card-content>
   </mat-card>
 </div>

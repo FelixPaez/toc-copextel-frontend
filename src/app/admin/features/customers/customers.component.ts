@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit, ViewChild, AfterViewInit } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -17,15 +17,23 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
 // Services
 import { CustomersService } from './customers.service';
 
+// Components
+import { NaturalCustomerDetailComponent } from './natural-customer-detail/natural-customer-detail.component';
+import { LegalCustomerDetailComponent } from './legal-customer-detail/legal-customer-detail.component';
+
 // Types
-import { NaturalCustomer } from './customers.types';
+import { NaturalCustomer, LegalCustomer } from './customers.types';
 import { CustomersPagination } from './customers.types';
+
+// Constants
+import { Icons } from '../../core/constants';
 
 /**
  * Customers Component
@@ -61,10 +69,13 @@ export class CustomersComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
+  // Expose Icons for template
+  Icons = Icons;
+
   // Tabs
   selectedTab = 0;
 
-  // Table
+  // Table - Natural
   displayedColumns: string[] = [
     'avatar',
     'name',
@@ -75,17 +86,32 @@ export class CustomersComponent implements OnInit, AfterViewInit, OnDestroy {
     'actions'
   ];
 
+  // Table - Legal
+  displayedColumnsLegal: string[] = [
+    'logo',
+    'code',
+    'name',
+    'email',
+    'organism',
+    'state',
+    'actions'
+  ];
+
   dataSource = new MatTableDataSource<NaturalCustomer>([]);
+  dataSourceLegal = new MatTableDataSource<LegalCustomer>([]);
   
   // Search
   searchControl = new FormControl('');
+  searchControlLegal = new FormControl('');
 
   // Filters
   genderFilter = new FormControl('all');
   stateFilter = new FormControl('all');
+  stateFilterLegal = new FormControl('all');
 
   // Data
   customers: NaturalCustomer[] = [];
+  legalCustomers: LegalCustomer[] = [];
   
   // Statistics
   stats = {
@@ -111,7 +137,9 @@ export class CustomersComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private _customersService: CustomersService,
     private _router: Router,
-    private _snackBar: MatSnackBar
+    private _snackBar: MatSnackBar,
+    private _dialog: MatDialog,
+    private _activatedRoute: ActivatedRoute
   ) {}
 
   // -----------------------------------------------------------------------------------------------------
@@ -122,6 +150,16 @@ export class CustomersComponent implements OnInit, AfterViewInit, OnDestroy {
    * On init
    */
   ngOnInit(): void {
+    // Check query params for tab selection
+    this._activatedRoute.queryParams.pipe(takeUntil(this._unsubscribeAll)).subscribe(params => {
+      if (params['tab']) {
+        const tabIndex = parseInt(params['tab'], 10);
+        if (tabIndex === 0 || tabIndex === 1) {
+          this.selectedTab = tabIndex;
+        }
+      }
+    });
+
     // Load customers
     this._loadCustomers();
 
@@ -179,6 +217,35 @@ export class CustomersComponent implements OnInit, AfterViewInit, OnDestroy {
           };
         }
       });
+
+    // Setup legal search
+    this.searchControlLegal.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntil(this._unsubscribeAll)
+      )
+      .subscribe(() => {
+        this._applyLegalFilters();
+      });
+
+    // Setup legal filters
+    this.stateFilterLegal.valueChanges
+      .pipe(takeUntil(this._unsubscribeAll))
+      .subscribe(() => {
+        this._applyLegalFilters();
+      });
+
+    // Subscribe to legal customers
+    this._customersService.legals$
+      .pipe(takeUntil(this._unsubscribeAll))
+      .subscribe(legals => {
+        if (legals) {
+          this.legalCustomers = legals;
+          this._calculateStats();
+          this._applyLegalFilters();
+        }
+      });
   }
 
   /**
@@ -212,8 +279,7 @@ export class CustomersComponent implements OnInit, AfterViewInit, OnDestroy {
     if (index === 0) {
       this._loadCustomers();
     } else {
-      // Load legal customers if needed
-      // this._loadLegalCustomers();
+      this._loadLegalCustomers();
     }
   }
 
@@ -260,9 +326,11 @@ export class CustomersComponent implements OnInit, AfterViewInit, OnDestroy {
    * On view
    */
   onView(customer: NaturalCustomer): void {
-    if (customer.id) {
-      this._router.navigate(['/admin/customers', customer.id]);
-    }
+    this._dialog.open(NaturalCustomerDetailComponent, {
+      width: '900px',
+      maxWidth: '95vw',
+      data: { customer }
+    });
   }
 
   /**
@@ -270,7 +338,7 @@ export class CustomersComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   onEdit(customer: NaturalCustomer): void {
     if (customer.id) {
-      this._router.navigate(['/admin/customers', customer.id, 'edit']);
+      this._router.navigate(['./', customer.id, 'edit'], { relativeTo: this._router.routerState.root });
     }
   }
 
@@ -321,13 +389,89 @@ export class CustomersComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
+   * Load legal customers
+   */
+  private _loadLegalCustomers(): void {
+    this.isLoading = true;
+    
+    this._customersService.getLegalCustomers().subscribe({
+      next: (legals) => {
+        this.legalCustomers = legals || [];
+        this._applyLegalFilters();
+        this.isLoading = false;
+        this._calculateStats();
+      },
+      error: (error) => {
+        this.isLoading = false;
+        this._snackBar.open(
+          error?.error?.message || 'Error al cargar los clientes legales',
+          'Cerrar',
+          { duration: 5000 }
+        );
+      }
+    });
+  }
+
+  /**
+   * Apply legal filters
+   */
+  private _applyLegalFilters(): void {
+    let filtered = [...this.legalCustomers];
+
+    // Filter by search
+    const search = this.searchControlLegal.value?.toLowerCase() || '';
+    if (search) {
+      filtered = filtered.filter(l => 
+        l.name.toLowerCase().includes(search) ||
+        l.code.toLowerCase().includes(search) ||
+        l.email.toLowerCase().includes(search) ||
+        l.organism.toLowerCase().includes(search)
+      );
+    }
+
+    // Filter by state
+    const stateFilter = this.stateFilterLegal.value;
+    if (stateFilter && stateFilter !== 'all') {
+      filtered = filtered.filter(l => l.state === stateFilter);
+    }
+
+    this.dataSourceLegal.data = filtered;
+  }
+
+  /**
    * Calculate statistics
    */
   private _calculateStats(): void {
-    this.stats.total = this.customers.length;
     this.stats.natural = this.customers.length;
-    // Legal customers would be calculated separately
-    this.stats.legal = 0;
+    this.stats.legal = this.legalCustomers.length;
+    this.stats.total = this.stats.natural + this.stats.legal;
+  }
+
+  /**
+   * Get legal customer display name
+   */
+  getLegalDisplayName(legal: LegalCustomer): string {
+    return legal.name || 'Sin nombre';
+  }
+
+  /**
+   * On view legal
+   */
+  onViewLegal(legal: LegalCustomer): void {
+    this._dialog.open(LegalCustomerDetailComponent, {
+      width: '1000px',
+      maxWidth: '95vw',
+      data: { customer: legal }
+    });
+  }
+
+  /**
+   * Clear legal filters
+   */
+  clearLegalFilters(): void {
+    this.searchControlLegal.setValue('');
+    this.stateFilterLegal.setValue('all');
+    this._applyLegalFilters();
   }
 
   /**

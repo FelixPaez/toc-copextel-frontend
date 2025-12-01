@@ -10,6 +10,7 @@ import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/p
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -26,6 +27,9 @@ import { VendorsService } from './vendors.service';
 // Types
 import { Vendor } from './vendors.types';
 import { TablePagination } from '../../core/models/shared.types';
+
+// Constants
+import { Icons } from '../../core/constants';
 
 // Components
 import { VendorFormComponent } from './vendor-form/vendor-form.component';
@@ -49,6 +53,7 @@ import { VendorFormComponent } from './vendor-form/vendor-form.component';
     MatSortModule,
     MatChipsModule,
     MatMenuModule,
+    MatDividerModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -63,6 +68,9 @@ import { VendorFormComponent } from './vendor-form/vendor-form.component';
 export class VendorsComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+
+  // Expose Icons for template
+  Icons = Icons;
 
   // Table
   displayedColumns: string[] = ['name', 'email', 'phone', 'province', 'active', 'actions'];
@@ -204,7 +212,7 @@ export class VendorsComponent implements OnInit, AfterViewInit, OnDestroy {
    * On add vendor
    */
   onAddVendor(): void {
-    this._router.navigate(['/admin/vendors/new']);
+    this._router.navigate(['./new'], { relativeTo: this._router.routerState.root });
   }
 
   /**
@@ -212,7 +220,7 @@ export class VendorsComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   onEditVendor(vendor: Vendor): void {
     if (vendor.id) {
-      this._router.navigate(['/admin/vendors', vendor.id, 'edit']);
+      this._router.navigate(['./', vendor.id, 'edit'], { relativeTo: this._router.routerState.root });
     }
   }
 

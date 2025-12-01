@@ -29,6 +29,9 @@ import { AuthService } from '../../core/services/auth.service';
 import { Order, OrderStatus, PaymentWay, PaymentStatus } from './orders.types';
 import { TablePagination } from '../../core/models/shared.types';
 
+// Constants
+import { Icons } from '../../core/constants';
+
 /**
  * Orders Component
  * Componente para gestión de pedidos
@@ -63,6 +66,9 @@ import { TablePagination } from '../../core/models/shared.types';
 export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+
+  // Expose Icons for template
+  Icons = Icons;
 
   // Table
   displayedColumns: string[] = [
@@ -342,7 +348,7 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   onView(order: Order): void {
     if (order.id) {
-      this._router.navigate(['/admin/orders', order.id]);
+      this._router.navigate(['./', order.id], { relativeTo: this._router.routerState.root });
     }
   }
 
@@ -351,7 +357,7 @@ export class OrdersComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   onEdit(order: Order): void {
     if (order.id) {
-      this._router.navigate(['/admin/orders', order.id, 'edit']);
+      this._router.navigate(['./', order.id, 'edit'], { relativeTo: this._router.routerState.root });
     }
   }
 

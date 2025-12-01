@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { map, switchMap, take, tap } from 'rxjs/operators';
+import { map, switchMap, take, tap, catchError } from 'rxjs/operators';
 
 // Types
 import { IResponse, TablePagination } from '../../core/models/shared.types';
@@ -9,6 +9,10 @@ import { Slide } from './slides.types';
 
 // Variables
 import { environment } from '../../../../environments/environment';
+
+// Mock Data & Services
+import { MOCK_SLIDES } from '../../mocks/data/slides.mock';
+import { MockService } from '../../core/services/mock.service';
 
 // API URL
 const API_URL_GATEWAY = environment.API_URL_GATEWAY;
@@ -30,7 +34,10 @@ export class SlidesService {
   /**
    * Constructor
    */
-  constructor(private _httpClient: HttpClient) {
+  constructor(
+    private _httpClient: HttpClient,
+    private _mockService: MockService
+  ) {
   }
 
   // -----------------------------------------------------------------------------------------------------
@@ -68,6 +75,35 @@ export class SlidesService {
    * @param slide - Datos del slide a crear
    */
   public createSlide(slide: Slide): Observable<IResponse> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const newSlide: Slide = {
+        ...slide,
+        id: `slide-${Date.now()}`,
+        createdAt: new Date()
+      };
+      MOCK_SLIDES.unshift(newSlide);
+      
+      return this.slides$.pipe(
+        take(1),
+        switchMap(slides => {
+          if (!slides) {
+            slides = [];
+          }
+          return this._mockService.simulateDelay({
+            ok: true,
+            message: 'Slide creado exitosamente',
+            slide: newSlide
+          }).pipe(
+            tap(() => {
+              this._slides.next([newSlide, ...slides]);
+            })
+          );
+        })
+      );
+    }
+    
+    // Real API call
     return this.slides$.pipe(
       take(1),
       switchMap(slides => {
@@ -75,13 +111,17 @@ export class SlidesService {
           slides = [];
         }
         return this._httpClient.post<IResponse>(`${API_URL_GATEWAY}/helper/slides/`, slide).pipe(
-          map((response) => {
+          map((response: IResponse) => {
             // Update the slides with the new slide
             if (response.slide) {
               this._slides.next([response.slide, ...slides]);
             }
             // Return the response
             return response;
+          }),
+          catchError((error) => {
+            console.error('Error creating slide:', error);
+            return throwError(() => error);
           })
         );
       })
@@ -92,11 +132,30 @@ export class SlidesService {
    * Get slides
    */
   public getSlides(): Observable<IResponse> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      return this._mockService.simulateDelay({
+        ok: true,
+        slides: MOCK_SLIDES
+      }).pipe(
+        tap((response) => {
+          if (response.slides) {
+            this._slides.next(response.slides);
+          }
+        })
+      );
+    }
+    
+    // Real API call
     return this._httpClient.get<IResponse>(`${API_URL_GATEWAY}/helper/slides/`).pipe(
       tap((response) => {
         if (response.slides) {
           this._slides.next(response.slides);
         }
+      }),
+      catchError((error) => {
+        console.error('Error getting slides:', error);
+        return throwError(() => error);
       })
     );
   }
@@ -238,6 +297,40 @@ export class SlidesService {
       return throwError(() => new Error('Slide ID is required'));
     }
 
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const index = MOCK_SLIDES.findIndex(s => s.id === slide.id);
+      if (index === -1) {
+        return this._mockService.simulateError('Slide no encontrado', 404);
+      }
+      
+      const updatedSlide = { ...MOCK_SLIDES[index], ...slide };
+      MOCK_SLIDES[index] = updatedSlide;
+      
+      return this.slides$.pipe(
+        take(1),
+        switchMap(slides => {
+          if (!slides) {
+            return throwError(() => new Error('No slides available'));
+          }
+          return this._mockService.simulateDelay({
+            ok: true,
+            message: 'Slide actualizado exitosamente',
+            updatedSlide: updatedSlide
+          }).pipe(
+            tap(() => {
+              const slideIndex = slides.findIndex(item => item.id === slide.id);
+              if (slideIndex !== -1) {
+                slides[slideIndex] = updatedSlide;
+                this._slides.next(slides);
+              }
+            })
+          );
+        })
+      );
+    }
+
+    // Real API call
     return this.slides$.pipe(
       take(1),
       switchMap(slides => {
@@ -245,7 +338,7 @@ export class SlidesService {
           return throwError(() => new Error('No slides available'));
         }
         return this._httpClient.put<IResponse>(`${API_URL_GATEWAY}/helper/slides/${slide.id}`, slide).pipe(
-          map((response) => {
+          map((response: IResponse) => {
             if (!response.updatedSlide) {
               throw new Error('Update failed');
             }
@@ -263,6 +356,10 @@ export class SlidesService {
 
             // Return the response
             return response;
+          }),
+          catchError((error) => {
+            console.error('Error updating slide:', error);
+            return throwError(() => error);
           })
         );
       })
@@ -275,6 +372,38 @@ export class SlidesService {
    * @param id - ID del slide a eliminar
    */
   public deleteSlide(id: string): Observable<IResponse> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const index = MOCK_SLIDES.findIndex(s => s.id === id);
+      if (index === -1) {
+        return this._mockService.simulateError('Slide no encontrado', 404);
+      }
+      
+      MOCK_SLIDES.splice(index, 1);
+      
+      return this.slides$.pipe(
+        take(1),
+        switchMap(slides => {
+          if (!slides) {
+            return throwError(() => new Error('No slides available'));
+          }
+          return this._mockService.simulateDelay({
+            ok: true,
+            message: 'Slide eliminado exitosamente'
+          }).pipe(
+            tap(() => {
+              const slideIndex = slides.findIndex(item => item.id === id);
+              if (slideIndex !== -1) {
+                slides.splice(slideIndex, 1);
+                this._slides.next(slides);
+              }
+            })
+          );
+        })
+      );
+    }
+
+    // Real API call
     return this.slides$.pipe(
       take(1),
       switchMap(slides => {
@@ -296,6 +425,10 @@ export class SlidesService {
 
             // Return the response
             return response;
+          }),
+          catchError((error) => {
+            console.error('Error deleting slide:', error);
+            return throwError(() => error);
           })
         );
       })

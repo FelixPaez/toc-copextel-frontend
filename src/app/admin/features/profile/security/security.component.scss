@@ -1,0 +1,31 @@
+.security-container {
+  width: 100%;
+}
+
+.security-card {
+  max-width: 100%;
+}
+
+.security-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-field {
+  width: 100%;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--admin-gray-200);
+}
+
+.button-spinner {
+  display: inline-block;
+  margin-right: 8px;
+}
+

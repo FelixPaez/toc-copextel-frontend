@@ -1,0 +1,254 @@
+// Usar directamente las variables CSS globales definidas en admin.scss
+.couriers-container {
+  padding: 24px;
+  background-color: var(--admin-gray-100);
+  min-height: 100vh;
+  font-family: var(--admin-font-family);
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  background: linear-gradient(180deg, var(--admin-topbar-bg-start), var(--admin-topbar-bg-end));
+  border: 1px solid var(--admin-gray-200);
+  border-radius: var(--admin-radius);
+}
+
+.page-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--admin-gray-600);
+  font-size: var(--admin-font-size-sm);
+  margin-bottom: 6px;
+}
+
+.crumb {
+  cursor: pointer;
+  transition: var(--admin-transition-base);
+
+ 
+  &.current {
+    color: var(--admin-gray-800);
+    font-weight: var(--admin-font-weight-semibold);
+  }
+}
+
+.crumb-sep {
+  font-size: 12px;
+  width: 12px;
+  height: 12px;
+  color: var(--admin-gray-600);
+}
+
+.page-title {
+  margin: 0;
+  font-size: var(--admin-font-size-3xl);
+  font-weight: var(--admin-font-weight-bold);
+  letter-spacing: .2px;
+  color: var(--admin-gray-800);
+}
+
+.page-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.search-section {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  color: var(--admin-gray-600);
+  z-index: 1;
+}
+
+.search-input {
+  padding: 10px 12px 10px 40px;
+  border: 1px solid var(--admin-gray-300);
+  border-radius: var(--admin-radius);
+  font-size: var(--admin-font-size-base);
+  font-family: var(--admin-font-family);
+  width: 300px;
+
+  &:focus {
+    outline: none;
+    border-color: var(--admin-primary);
+    box-shadow: var(--admin-focus-ring);
+  }
+}
+
+.filters-card {
+  margin-bottom: var(--admin-gap);
+  border-radius: var(--admin-radius);
+  box-shadow: var(--admin-shadow);
+  
+  ::ng-deep .mat-mdc-card-content {
+    padding: var(--admin-card-padding);
+  }
+}
+
+.filters-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-field {
+  flex: 0 0 200px;
+  width: 200px;
+  max-width: 200px;
+  
+  ::ng-deep {
+    .mat-mdc-form-field {
+      width: 200px !important;
+      max-width: 200px !important;
+    }
+    
+    .mat-mdc-form-field-wrapper {
+      width: 200px !important;
+      max-width: 200px !important;
+    }
+    
+    .mat-mdc-text-field-wrapper {
+      width: 200px !important;
+      max-width: 200px !important;
+    }
+  }
+}
+
+.clear-filters-btn {
+  margin-left: auto;
+}
+
+.couriers-table-card {
+  border-radius: var(--admin-radius);
+  overflow: hidden;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--admin-gap) var(--admin-card-padding);
+  border-bottom: 1px solid var(--admin-gray-200);
+}
+
+.table-title {
+  margin: 0;
+  font-size: var(--admin-font-size-xl);
+  font-weight: var(--admin-font-weight-semibold);
+  color: var(--admin-gray-800);
+}
+
+.table-subtitle {
+  font-size: var(--admin-font-size-sm);
+  color: var(--admin-gray-600);
+  margin-top: 4px;
+  display: block;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  gap: var(--admin-gap);
+
+  p {
+    color: var(--admin-gray-600);
+    margin: 0;
+  }
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+// Usar estilos globales de admin.scss - solo estilos específicos aquí
+.couriers-table {
+  // Los estilos base están en admin.scss .admin-table
+}
+
+.courier-name {
+  font-weight: var(--admin-font-weight-semibold);
+  color: var(--admin-gray-800);
+}
+
+.courier-email {
+  color: var(--admin-gray-600);
+  font-size: var(--admin-font-size-base);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  gap: var(--admin-gap);
+  color: var(--admin-gray-600);
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: var(--admin-gray-300);
+  }
+
+  p {
+    margin: 0;
+    font-size: var(--admin-font-size-lg);
+  }
+}
+
+// Estilos globales en admin.scss - solo ajustes específicos si es necesario
+.actions-cell {
+  // Los estilos base están en admin.scss
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+
+  .filters-row {
+    flex-direction: column;
+    align-items: stretch;
+    
+    .filter-field {
+      width: 100% !important;
+      max-width: 100% !important;
+      
+      ::ng-deep {
+        .mat-mdc-form-field {
+          width: 100% !important;
+          max-width: 100% !important;
+        }
+      }
+    }
+  }
+}
+

@@ -32,15 +32,14 @@ import { map, shareReplay } from 'rxjs/operators';
         </div>
         <mat-nav-list class="nav-list">
           <a mat-list-item routerLink="dashboard" routerLinkActive="active" (click)="closeIfHandset(sidenav)"><mat-icon matListItemIcon>insights</mat-icon><span matListItemTitle>Estadísticas</span></a>
-          <a mat-list-item disabled><mat-icon matListItemIcon>mail</mat-icon><span matListItemTitle>Mensajes</span></a>
+          <a mat-list-item routerLink="messages" routerLinkActive="active" (click)="closeIfHandset(sidenav)"><mat-icon matListItemIcon>mail</mat-icon><span matListItemTitle>Mensajes</span></a>
 
           <div class="section-title">Operaciones</div>
           <a mat-list-item routerLink="products" routerLinkActive="active" (click)="closeIfHandset(sidenav)"><mat-icon matListItemIcon>inventory_2</mat-icon><span matListItemTitle>Productos</span></a>
           <a mat-list-item routerLink="orders" routerLinkActive="active" (click)="closeIfHandset(sidenav)"><mat-icon matListItemIcon>receipt_long</mat-icon><span matListItemTitle>Órdenes</span></a>
 
           <div class="section-title">Clientes</div>
-          <a mat-list-item routerLink="customers" routerLinkActive="active" (click)="closeIfHandset(sidenav)"><mat-icon matListItemIcon>person</mat-icon><span matListItemTitle>Personas Naturales</span></a>
-          <a mat-list-item disabled><mat-icon matListItemIcon>business</mat-icon><span matListItemTitle>Empresas</span></a>
+          <a mat-list-item routerLink="customers" routerLinkActive="active" (click)="closeIfHandset(sidenav)"><mat-icon matListItemIcon>people</mat-icon><span matListItemTitle>Clientes</span></a>
 
               <div class="section-title">Nomencladores</div>
               <a mat-list-item routerLink="categories" routerLinkActive="active" (click)="closeIfHandset(sidenav)"><mat-icon matListItemIcon>category</mat-icon><span matListItemTitle>Categorías</span></a>
@@ -50,11 +49,10 @@ import { map, shareReplay } from 'rxjs/operators';
               <a mat-list-item routerLink="users" routerLinkActive="active" (click)="closeIfHandset(sidenav)"><mat-icon matListItemIcon>person</mat-icon><span matListItemTitle>Usuarios</span></a>
               <a mat-list-item routerLink="vendors" routerLinkActive="active" (click)="closeIfHandset(sidenav)"><mat-icon matListItemIcon>business</mat-icon><span matListItemTitle>Vendedores</span></a>
               <a mat-list-item routerLink="info" routerLinkActive="active" (click)="closeIfHandset(sidenav)"><mat-icon matListItemIcon>info</mat-icon><span matListItemTitle>Información</span></a>
+              <a mat-list-item routerLink="couriers" routerLinkActive="active" (click)="closeIfHandset(sidenav)"><mat-icon matListItemIcon>local_shipping</mat-icon><span matListItemTitle>Transportistas</span></a>
 
-          <div class="section-title">Sistema</div>
-          
-          <a mat-list-item routerLink="reports" routerLinkActive="active" (click)="closeIfHandset(sidenav)"><mat-icon matListItemIcon>bar_chart</mat-icon><span matListItemTitle>Reportes</span></a>
-          <a mat-list-item routerLink="settings" routerLinkActive="active" (click)="closeIfHandset(sidenav)"><mat-icon matListItemIcon>settings</mat-icon><span matListItemTitle>Configuración</span></a>
+          <div class="section-title">Cuenta</div>
+          <a mat-list-item routerLink="profile" routerLinkActive="active" (click)="closeIfHandset(sidenav)"><mat-icon matListItemIcon>account_circle</mat-icon><span matListItemTitle>Mi Perfil</span></a>
         </mat-nav-list>
       </mat-sidenav>
       <mat-sidenav-content>
@@ -92,8 +90,35 @@ import { map, shareReplay } from 'rxjs/operators';
     </mat-sidenav-container>
   `,
   styles: [`
-    .admin-shell { height: 100vh; }
-    .topbar { position: sticky; top: 0; z-index: 10; background: linear-gradient(180deg, var(--admin-topbar-bg-start), var(--admin-topbar-bg-end)); color: var(--admin-gray-900); box-shadow: var(--admin-shadow); border-bottom: 1px solid var(--admin-gray-200); height: var(--admin-topbar-height); min-height: var(--admin-topbar-height); }
+    .admin-shell { 
+      height: 100vh; 
+      display: flex;
+      flex-direction: column;
+    }
+    
+    ::ng-deep .mat-sidenav-container {
+      height: 100vh;
+      overflow: hidden;
+    }
+    
+    ::ng-deep .mat-sidenav-content {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    .topbar { 
+      position: relative;
+      flex-shrink: 0;
+      z-index: 10; 
+      background: linear-gradient(180deg, var(--admin-topbar-bg-start), var(--admin-topbar-bg-end)); 
+      color: var(--admin-gray-900); 
+      box-shadow: var(--admin-shadow); 
+      border-bottom: 1px solid var(--admin-gray-200); 
+      height: var(--admin-topbar-height); 
+      min-height: var(--admin-topbar-height); 
+    }
     .menu-button { margin-right: 8px; }
     .toolbar-title { font-weight: 600; }
     .spacer { flex: 1; }
@@ -101,7 +126,13 @@ import { map, shareReplay } from 'rxjs/operators';
     .toolbar-icons { display: flex; align-items: center; gap: 8px; }
     .mini-avatar { width: 32px; height: 32px; font-weight: 700; }
 
-    .admin-sidenav { width: var(--admin-sidenav-width); background: linear-gradient(180deg, var(--admin-sidenav-bg-start), var(--admin-sidenav-bg-end)); border-right: 1px solid var(--admin-gray-200); }
+    .admin-sidenav { 
+      width: var(--admin-sidenav-width); 
+      background: linear-gradient(180deg, var(--admin-sidenav-bg-start), var(--admin-sidenav-bg-end)); 
+      border-right: 1px solid var(--admin-gray-200);
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
     .sidenav-header { background: linear-gradient(180deg, #ffffff, #f3f5ff); border-bottom: 1px solid var(--admin-gray-200); border-top: 1px solid rgba(255,255,255,0.6); border-radius: 0; }
     .nav-list a.mat-mdc-list-item { transition: background-color .2s ease, color .2s ease; }
     .nav-list a.mat-mdc-list-item:hover { background: rgba(0,0,0,.04); }
@@ -116,7 +147,14 @@ import { map, shareReplay } from 'rxjs/operators';
     .nav-list a.mat-mdc-list-item span { font-size: 14px; font-weight: 500; color: var(--admin-gray-800); line-height: 1; }
     .nav-list a.active { background: rgba(var(--admin-primary-rgb),0.10); border-left: 3px solid var(--admin-primary); }
 
-    .admin-content { padding: 8px; background: #f5f5f5; min-height: calc(100vh - var(--admin-topbar-height)); }
+    .admin-content { 
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 8px; 
+      background: #f5f5f5;
+      box-sizing: border-box;
+    }
 
     .loading-overlay {
       position: fixed;

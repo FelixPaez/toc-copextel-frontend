@@ -10,6 +10,7 @@ import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/p
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -27,6 +28,9 @@ import { CategoriesService } from '../categories/categories.service';
 // Types
 import { InventoryProduct } from './products.types';
 import { TablePagination } from '../../core/models/shared.types';
+
+// Constants
+import { Icons } from '../../core/constants';
 
 /**
  * Products Component
@@ -49,6 +53,7 @@ import { TablePagination } from '../../core/models/shared.types';
     MatSortModule,
     MatChipsModule,
     MatMenuModule,
+    MatDividerModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -61,6 +66,9 @@ import { TablePagination } from '../../core/models/shared.types';
 export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+
+  // Expose Icons for template
+  Icons = Icons;
 
   // Table
   displayedColumns: string[] = [
@@ -258,14 +266,14 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
    * On edit
    */
   onEdit(product: InventoryProduct): void {
-    this._router.navigate(['/admin/products', product.id, 'edit']);
+    this._router.navigate(['./', product.id, 'edit'], { relativeTo: this._router.routerState.root });
   }
 
   /**
    * On view
    */
   onView(product: InventoryProduct): void {
-    this._router.navigate(['/admin/products', product.id]);
+    this._router.navigate(['./', product.id], { relativeTo: this._router.routerState.root });
   }
 
   /**

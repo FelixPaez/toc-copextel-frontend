@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { AdminComponent } from './admin.component';
 import { AuthGuard } from './core/guards/auth.guard';
-import { RoleGuard } from './core/guards/role.guard';
 
 export const ADMIN_ROUTES: Routes = [
   // Auth routes (outside of admin layout)
@@ -82,21 +81,23 @@ export const ADMIN_ROUTES: Routes = [
             loadChildren: () => import('./features/vendors/vendors.module').then(m => m.VendorsModule)
           },
 
-      // Reports & Analytics
-      {
-        path: 'reports',
-        canActivate: [RoleGuard],
-        data: { roleGuard: { permissions: ['reports:read'], redirectTo: 'dashboard' } },
-        loadChildren: () => import('./features/reports/reports.module').then(m => m.ReportsModule)
-      },
+          // Profile Management
+          {
+            path: 'profile',
+            loadChildren: () => import('./features/profile/profile.module').then(m => m.ProfileModule)
+          },
 
-      // Settings
-      {
-        path: 'settings',
-        canActivate: [RoleGuard],
-        data: { roleGuard: { permissions: ['settings:read'], redirectTo: 'dashboard' } },
-        loadChildren: () => import('./features/settings/settings.module').then(m => m.SettingsModule)
-      },
+          // Couriers Management
+          {
+            path: 'couriers',
+            loadChildren: () => import('./features/couriers/couriers.module').then(m => m.CouriersModule)
+          },
+
+          // Messages Management
+          {
+            path: 'messages',
+            loadChildren: () => import('./features/messages/messages.module').then(m => m.MessagesModule)
+          },
 
       // Default redirect to dashboard
       {

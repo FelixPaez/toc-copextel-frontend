@@ -1,0 +1,78 @@
+<div class="messages-list-wrapper">
+  <div class="messages-list-panel">
+    <!-- Header -->
+    <div class="list-header">
+      <div class="header-left">
+        <button mat-icon-button class="sidebar-toggle-button" (click)="messagesComponent.drawer.toggle()">
+          <mat-icon>menu</mat-icon>
+        </button>
+        <h2 class="list-title">{{ category === 'all' ? 'Recibidos' : category === 'unread' ? 'No Leídos' : category === 'read' ? 'Leídos' : category === 'sent' ? 'Enviados' : category === 'starred' ? 'Favoritos' : category === 'important' ? 'Importantes' : 'Mensajes' }}</h2>
+      </div>
+      <div class="header-right">
+        <div class="search-input-container">
+          <mat-icon class="search-icon">search</mat-icon>
+          <input type="text" placeholder="Buscar mensajes..." class="search-input">
+        </div>
+        @if (pagination) {
+          <div class="pagination-info">
+            <span>{{ pagination.startIndex + 1 }} - {{ pagination.endIndex + 1 }} de {{ pagination.length }}</span>
+          </div>
+          <button mat-icon-button [disabled]="pagination.page === 0" (click)="onPageChange({pageIndex: pagination.page - 1, pageSize: pagination.size, length: pagination.length})">
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+          <button mat-icon-button [disabled]="pagination.page === pagination.lastPage" (click)="onPageChange({pageIndex: pagination.page + 1, pageSize: pagination.size, length: pagination.length})">
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (messagesLoading) {
+      <div class="loading-overlay">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </div>
+    }
+
+    <!-- Message List -->
+    @if (messages && messages.length > 0) {
+      <div class="message-items-container">
+        @for (message of messages; track trackByFn($index, message)) {
+          <a
+            class="message-item"
+            [class.unread]="!message.read"
+            [class.selected]="selectedMessage?.id === message.id"
+            (click)="onMessageSelected(message)">
+            <div class="message-header">
+              <span class="sender-name">{{ message.name }}</span>
+              @if (message.important) {
+                <mat-icon class="important-icon" matTooltip="Importante">label_important</mat-icon>
+              }
+              <span class="message-date">{{ message.createdAt | date:'shortDate' }}</span>
+            </div>
+            <div class="message-subject">{{ message.subject }}</div>
+            <div class="message-content">{{ message.content | slice:0:100 }}...</div>
+            <div class="message-indicators">
+              @if (message.attachments && message.attachments.length > 0) {
+                <mat-icon matTooltip="Adjuntos">attachment</mat-icon>
+              }
+              @if (message.starred) {
+                <mat-icon matTooltip="Favorito">star</mat-icon>
+              }
+            </div>
+          </a>
+        }
+      </div>
+    } @else if (!messagesLoading) {
+      <div class="no-messages">
+        <mat-icon>inbox</mat-icon>
+        <p>No hay mensajes en esta categoría.</p>
+      </div>
+    }
+  </div>
+
+  <!-- Message Detail Router Outlet -->
+  <div class="message-detail-panel">
+    <router-outlet></router-outlet>
+  </div>
+</div>
+

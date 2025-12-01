@@ -21,9 +21,6 @@ export class AuthGuard implements CanActivate, CanActivateChild, CanDeactivate<C
     private router: Router
   ) {}
 
-  /**
-   * Check if route can be activated
-   */
   canActivate(): Observable<boolean | UrlTree> {
     return this.authService.check().pipe(
       take(1),
@@ -31,7 +28,6 @@ export class AuthGuard implements CanActivate, CanActivateChild, CanDeactivate<C
         if (isAuthenticated) {
           return true;
         } else {
-          // Redirect to login page
           return this.router.createUrlTree(['/admin/auth/login'], {
             queryParams: { returnUrl: this.router.url }
           });
@@ -40,23 +36,14 @@ export class AuthGuard implements CanActivate, CanActivateChild, CanDeactivate<C
     );
   }
 
-  /**
-   * Check if child route can be activated
-   */
   canActivateChild(): Observable<boolean | UrlTree> {
     return this.canActivate();
   }
 
-  /**
-   * Check if route can be deactivated
-   */
   canDeactivate(component: CanComponentDeactivate): Observable<boolean> | Promise<boolean> | boolean {
     return component.canDeactivate ? component.canDeactivate() : true;
   }
 
-  /**
-   * Check if module can be loaded
-   */
   canLoad(): Observable<boolean> | Promise<boolean> | boolean {
     return this.authService.check().pipe(
       take(1),

@@ -1,0 +1,66 @@
+<div class="message-detail-wrapper">
+  @if (message) {
+    <!-- Header -->
+    <div class="detail-header">
+      <div class="header-left">
+        <button mat-icon-button (click)="goBack()" matTooltip="Volver a la lista">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h2 class="detail-subject">{{ message.subject }}</h2>
+      </div>
+      <div class="header-right">
+        <button mat-icon-button (click)="toggleImportant()" [matTooltip]="message.important ? 'Desmarcar como importante' : 'Marcar como importante'">
+          <mat-icon [color]="message.important ? 'warn' : ''">label_important</mat-icon>
+        </button>
+        <button mat-icon-button (click)="toggleStarred()" [matTooltip]="message.starred ? 'Desmarcar como favorito' : 'Marcar como favorito'">
+          <mat-icon [color]="message.starred ? 'accent' : ''">star</mat-icon>
+        </button>
+        <button mat-icon-button (click)="toggleRead()" [matTooltip]="message.read ? 'Marcar como no leído' : 'Marcar como leído'">
+          <mat-icon>{{ message.read ? 'mark_email_read' : 'mark_email_unread' }}</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Message Info -->
+    <div class="message-info-card">
+      <div class="sender-info">
+        <div class="avatar-placeholder">
+          <mat-icon>person</mat-icon>
+        </div>
+        <div class="sender-details">
+          <span class="sender-name">{{ message.name }}</span>
+          <span class="sender-email">{{ message.email }}</span>
+          @if (message.phone) {
+            <span class="sender-phone">{{ message.phone }}</span>
+          }
+        </div>
+      </div>
+      <div class="message-date">{{ message.createdAt | date:'medium' }}</div>
+    </div>
+
+    <!-- Message Content -->
+    <div class="message-content-card">
+      <p class="message-body">{{ message.content }}</p>
+
+      @if (message.attachments && message.attachments.length > 0) {
+        <div class="attachments-section">
+          <h3>Adjuntos ({{ message.attachments.length }})</h3>
+          <div class="attachment-list">
+            @for (attachment of message.attachments; track attachment) {
+              <a [href]="attachment" target="_blank" class="attachment-item">
+                <mat-icon>attachment</mat-icon>
+                <span>{{ attachment.split('/').pop() }}</span>
+              </a>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="no-message-selected">
+      <mat-icon>email</mat-icon>
+      <p>Seleccione un mensaje para ver los detalles.</p>
+    </div>
+  }
+</div>
+

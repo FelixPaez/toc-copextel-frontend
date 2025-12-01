@@ -1,0 +1,122 @@
+<div class="customer-detail-dialog">
+  <h2 mat-dialog-title>Detalles del Cliente</h2>
+
+  <mat-dialog-content>
+    <!-- Header with background -->
+    <div class="customer-header">
+      <!-- Background area -->
+    </div>
+
+    <!-- Customer Info -->
+    <div class="customer-info-container">
+      <!-- Photo and Name -->
+      <div class="customer-photo-section">
+        <div class="customer-photo">
+          @if (customer.imageUrl) {
+            <img [src]="customer.imageUrl" [alt]="getCustomerDisplayName()" />
+          } @else {
+            <div class="photo-placeholder">
+              <span class="photo-initials">{{ getCustomerInitials() }}</span>
+            </div>
+          }
+        </div>
+        <h3 class="customer-name">{{ getCustomerDisplayName() }}</h3>
+      </div>
+
+      <!-- Customer Details Grid -->
+      <div class="customer-details-grid">
+        <!-- Left Column -->
+        <div class="detail-column">
+          <div class="detail-item">
+            <mat-icon>badge</mat-icon>
+            <div class="detail-content">
+              <span class="detail-label">Número de Identidad</span>
+              <span class="detail-value">{{ customer.idNumber || 'Por definir número de identidad' }}</span>
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <mat-icon>email</mat-icon>
+            <div class="detail-content">
+              <span class="detail-label">Correo Electrónico</span>
+              <span class="detail-value">{{ customer.email || 'Por definir correo electrónico' }}</span>
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <mat-icon>phone</mat-icon>
+            <div class="detail-content">
+              <span class="detail-label">Teléfono</span>
+              <span class="detail-value">{{ customer.phone || 'Por definir teléfono' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Middle Column -->
+        <div class="detail-column">
+          <div class="detail-item">
+            <mat-icon>location_on</mat-icon>
+            <div class="detail-content">
+              <span class="detail-label">Dirección</span>
+              <span class="detail-value">{{ customer.address || 'Por definir dirección' }}</span>
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <mat-icon>public</mat-icon>
+            <div class="detail-content">
+              <span class="detail-label">Provincia</span>
+              <span class="detail-value">{{ customer.state || 'Por definir provincia' }}</span>
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <mat-icon>place</mat-icon>
+            <div class="detail-content">
+              <span class="detail-label">Municipio</span>
+              <span class="detail-value">{{ customer.city || 'Por definir municipio' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="detail-column">
+          <div class="detail-item">
+            <mat-icon>wc</mat-icon>
+            <div class="detail-content">
+              <span class="detail-label">Género</span>
+              <span class="detail-value">{{ customer.gender || 'Por definir género' }}</span>
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <mat-icon>cake</mat-icon>
+            <div class="detail-content">
+              <span class="detail-label">Fecha de Nacimiento</span>
+              <span class="detail-value">
+                @if (customer.birthDate) {
+                  {{ customer.birthDate | date:'mediumDate' }}
+                } @else {
+                  Por definir cumpleaños
+                }
+              </span>
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <mat-icon>calendar_today</mat-icon>
+            <div class="detail-content">
+              <span class="detail-label">Edad</span>
+              <span class="detail-value">{{ customer.age || 'Por definir edad' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="onClose()">Cerrar</button>
+  </mat-dialog-actions>
+</div>
+

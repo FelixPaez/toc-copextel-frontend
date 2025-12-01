@@ -1,0 +1,319 @@
+// Usar directamente las variables CSS globales definidas en admin.scss
+.on-sale-container {
+  padding: 24px;
+  background-color: var(--admin-gray-100);
+  min-height: calc(100vh - var(--admin-topbar-height) - 16px);
+  font-family: var(--admin-font-family);
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  background: linear-gradient(180deg, var(--admin-topbar-bg-start), var(--admin-topbar-bg-end));
+  border: 1px solid var(--admin-gray-200);
+  border-radius: var(--admin-radius);
+}
+
+.page-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--admin-gray-600);
+  font-size: 12px;
+  margin-bottom: 6px;
+
+  .crumb {
+    &.current {
+      font-weight: 600;
+      color: var(--admin-gray-800);
+    }
+
+    &[routerLink] {
+      cursor: pointer;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+.crumb-sep {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--admin-gray-500);
+}
+
+.page-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: .2px;
+  color: var(--admin-gray-800);
+}
+
+.page-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.search-section {
+  position: relative;
+  flex: 1;
+  max-width: 400px;
+
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--admin-gray-500);
+    z-index: 1;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 12px 12px 12px 44px;
+    border: 1px solid var(--admin-gray-300);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: 'Nunito', sans-serif;
+
+    &:focus {
+      outline: none;
+      border-color: var(--admin-primary);
+      box-shadow: 0 0 0 2px rgba(var(--admin-primary-rgb), 0.1);
+    }
+
+    &::placeholder {
+      color: var(--admin-gray-500);
+    }
+  }
+}
+
+.products-table-card {
+  border-radius: var(--admin-radius);
+  box-shadow: var(--admin-shadow);
+  overflow: hidden;
+
+  ::ng-deep .mat-mdc-card-content {
+    padding: 0;
+  }
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--admin-gray-200);
+  background: var(--admin-white);
+}
+
+.table-title {
+  margin: 0 0 4px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--admin-gray-800);
+}
+
+.table-subtitle {
+  font-size: 12px;
+  color: var(--admin-gray-600);
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 16px;
+
+  p {
+    color: var(--admin-gray-600);
+    font-size: 16px;
+  }
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+// Usar estilos globales de admin.scss - solo estilos específicos aquí
+.products-table {
+  // Los estilos base están en admin.scss .admin-table
+
+  .product-image {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--admin-gray-100);
+
+    &.no-photo {
+      background: linear-gradient(135deg, var(--admin-primary), var(--admin-primary-light));
+
+      .product-initials {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--admin-white);
+        text-transform: uppercase;
+      }
+    }
+
+    .product-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .product-code {
+    font-size: 13px;
+    color: var(--admin-gray-600);
+    font-family: 'Courier New', monospace;
+  }
+
+  .product-info {
+    h4 {
+      margin: 0 0 4px 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--admin-gray-800);
+    }
+
+    .product-description {
+      margin: 0;
+      font-size: 12px;
+      color: var(--admin-gray-600);
+      max-width: 300px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  .stock-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .stock-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--admin-gray-800);
+      min-width: 40px;
+    }
+
+    .stock-bar {
+      width: 60px;
+      height: 8px;
+      background: var(--admin-gray-200);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+
+      .stock-fill {
+        height: 100%;
+        transition: width 0.3s ease;
+
+        &.low {
+          background: var(--admin-danger);
+        }
+
+        &.medium {
+          background: var(--admin-warn);
+        }
+
+        &.high {
+          background: var(--admin-success);
+        }
+
+        &.out {
+          background: var(--admin-gray-300);
+        }
+      }
+    }
+  }
+
+  .product-price {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--admin-primary);
+  }
+
+  .status-active {
+    color: var(--admin-success);
+  }
+
+  .status-inactive {
+    color: var(--admin-gray-400);
+  }
+
+  .actions-cell {
+    .action-btn {
+      color: var(--admin-gray-600);
+
+      &:hover {
+        color: var(--admin-primary);
+      }
+    }
+  }
+
+  .no-data {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    gap: 16px;
+    color: var(--admin-gray-600);
+
+    mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      color: var(--admin-gray-400);
+    }
+
+    p {
+      margin: 0;
+      font-size: 16px;
+    }
+  }
+}
+
+::ng-deep .mat-mdc-paginator {
+  border-top: 1px solid var(--admin-gray-200);
+  background: var(--admin-white);
+}
+
+@media (max-width: 768px) {
+  .on-sale-container {
+    padding: 16px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-section {
+    max-width: 100%;
+  }
+}
+

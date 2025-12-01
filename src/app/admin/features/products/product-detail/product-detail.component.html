@@ -1,0 +1,289 @@
+<div class="product-detail-container">
+  @if (isLoading) {
+    <div class="loading-container">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Cargando producto...</p>
+    </div>
+  } @else {
+    <div class="page-header admin-card">
+      <div class="page-left">
+        <div class="breadcrumbs">
+          <span class="crumb">Tienda</span>
+          <mat-icon class="crumb-sep">chevron_right</mat-icon>
+          <a class="crumb" routerLink="../">Productos</a>
+          <mat-icon class="crumb-sep">chevron_right</mat-icon>
+          <span class="crumb current">{{ isEditMode ? product?.name || 'Editar' : 'Nuevo' }}</span>
+        </div>
+        <h1 class="page-title">{{ isEditMode ? (product?.name || 'Editar Producto') : 'Nuevo Producto' }}</h1>
+      </div>
+      <span class="spacer"></span>
+      <button 
+        mat-raised-button 
+        color="primary" 
+        [disabled]="productForm.invalid || isSaving" 
+        (click)="onSubmit()">
+        @if (isSaving) {
+          <mat-spinner diameter="20"></mat-spinner>
+        } @else {
+          <mat-icon>save</mat-icon>
+        }
+        {{ isEditMode ? 'Actualizar' : 'Guardar' }}
+      </button>
+    </div>
+
+    <form [formGroup]="productForm" class="product-form">
+      <mat-accordion class="sections">
+        <!-- Información General -->
+        <mat-expansion-panel class="admin-card" [expanded]="generalInfoExpanded">
+          <mat-expansion-panel-header>
+            <mat-panel-title>Información general</mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="form-grid">
+            <!-- Nombre -->
+            <mat-form-field appearance="outline" class="col-6">
+              <mat-label>Nombre</mat-label>
+              <input matInput formControlName="name" placeholder="Nombre del producto" required>
+              @if (productForm.get('name')?.hasError('required') && productForm.get('name')?.touched) {
+                <mat-error>El nombre es requerido</mat-error>
+              }
+            </mat-form-field>
+
+            <!-- Cantidad disponible -->
+            <mat-form-field appearance="outline" class="col-2">
+              <mat-label>Cantidad disponible</mat-label>
+              <input matInput type="number" formControlName="stock" min="0" required>
+              @if (productForm.get('stock')?.hasError('required') && productForm.get('stock')?.touched) {
+                <mat-error>La cantidad es requerida</mat-error>
+              }
+              @if (productForm.get('stock')?.hasError('min') && productForm.get('stock')?.touched) {
+                <mat-error>La cantidad debe ser mayor o igual a 0</mat-error>
+              }
+            </mat-form-field>
+
+            <!-- Cantidad en venta -->
+            <mat-form-field appearance="outline" class="col-2">
+              <mat-label>Cantidad en venta</mat-label>
+              <input matInput type="number" formControlName="onSale" min="0">
+              @if (productForm.get('onSale')?.hasError('invalid') && productForm.get('onSale')?.touched) {
+                <mat-error>{{ productForm.get('onSale')?.getError('invalid') }}</mat-error>
+              }
+            </mat-form-field>
+
+            <!-- Unidad de medida -->
+            <mat-form-field appearance="outline" class="col-2">
+              <mat-label>Unidad de medida</mat-label>
+              <mat-select formControlName="unit" required>
+                @for (unit of units; track unit) {
+                  <mat-option [value]="unit">{{ unit }}</mat-option>
+                }
+              </mat-select>
+              @if (productForm.get('unit')?.hasError('required') && productForm.get('unit')?.touched) {
+                <mat-error>La unidad es requerida</mat-error>
+              }
+            </mat-form-field>
+
+            <!-- Código -->
+            <mat-form-field appearance="outline" class="col-2">
+              <mat-label>Código</mat-label>
+              <input matInput formControlName="code" placeholder="Código del producto">
+            </mat-form-field>
+
+            <!-- Categoría -->
+            <mat-form-field appearance="outline" class="col-4">
+              <mat-label>Categoría</mat-label>
+              <mat-select formControlName="categoryId" required>
+                @for (category of categories; track category.id) {
+                  <mat-option [value]="category.id">{{ category.name }}</mat-option>
+                }
+              </mat-select>
+              @if (productForm.get('categoryId')?.hasError('required') && productForm.get('categoryId')?.touched) {
+                <mat-error>La categoría es requerida</mat-error>
+              }
+            </mat-form-field>
+
+            <!-- Peso -->
+            <mat-form-field appearance="outline" class="col-2">
+              <mat-label>Peso (kg)</mat-label>
+              <input matInput type="number" formControlName="weight" min="0">
+            </mat-form-field>
+
+            <!-- Volumen -->
+            <mat-form-field appearance="outline" class="col-2">
+              <mat-label>Volumen (m³)</mat-label>
+              <input matInput type="number" formControlName="volume" min="0">
+            </mat-form-field>
+
+            <!-- Dimensiones -->
+            <mat-form-field appearance="outline" class="col-2">
+              <mat-label>Dimensiones (L-A-H)</mat-label>
+              <input matInput formControlName="dimensions" placeholder="Ej: 10x20x30">
+            </mat-form-field>
+
+            <!-- Especificaciones -->
+            <mat-form-field appearance="outline" class="col-6">
+              <mat-label>Especificaciones</mat-label>
+              <textarea matInput formControlName="description" rows="4" placeholder="Descripción del producto"></textarea>
+            </mat-form-field>
+
+            <!-- Garantía -->
+            <mat-form-field appearance="outline" class="col-6">
+              <mat-label>Garantía</mat-label>
+              <textarea matInput formControlName="guaranty" rows="3" placeholder="Información de garantía"></textarea>
+            </mat-form-field>
+
+            <!-- Estado -->
+            <div class="col-6 toggle-line">
+              <span class="field-label">Estado</span>
+              <mat-slide-toggle formControlName="active" color="primary">
+                {{ productForm.get('active')?.value ? 'Activo' : 'Inactivo' }}
+              </mat-slide-toggle>
+            </div>
+          </div>
+        </mat-expansion-panel>
+
+        <!-- Niveles de Precios -->
+        <mat-expansion-panel class="admin-card" [expanded]="pricesExpanded">
+          <mat-expansion-panel-header>
+            <mat-panel-title>Niveles de precios</mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="price-block">
+            <!-- Sector Empresarial -->
+            <div class="price-row">
+              <div class="price-title">Sector Empresarial</div>
+              <mat-slide-toggle formControlName="sellToLegalCustomer" color="primary">
+                {{ productForm.get('sellToLegalCustomer')?.value ? 'Activo' : 'Inactivo' }}
+              </mat-slide-toggle>
+              <mat-form-field appearance="outline">
+                <mat-label>Precio CUP</mat-label>
+                <span matPrefix>CUP&nbsp;</span>
+                <input matInput type="number" formControlName="legalPriceCup" min="0">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Precio MLC</mat-label>
+                <span matPrefix>MLC&nbsp;</span>
+                <input matInput type="number" formControlName="legalPriceMlc" min="0">
+              </mat-form-field>
+            </div>
+
+            <!-- Personas Naturales -->
+            <div class="price-row">
+              <div class="price-title">Personas Naturales</div>
+              <mat-slide-toggle formControlName="sellToNaturalCustomer" color="primary">
+                {{ productForm.get('sellToNaturalCustomer')?.value ? 'Activo' : 'Inactivo' }}
+              </mat-slide-toggle>
+              <mat-form-field appearance="outline">
+                <mat-label>Precio CUP</mat-label>
+                <span matPrefix>CUP&nbsp;</span>
+                <input matInput type="number" formControlName="naturalPriceCup" min="0">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Precio MLC</mat-label>
+                <span matPrefix>MLC&nbsp;</span>
+                <input matInput type="number" formControlName="naturalPriceMlc" min="0">
+              </mat-form-field>
+            </div>
+
+            <!-- Mipymes y CNA -->
+            <div class="price-row">
+              <div class="price-title">Mipymes y CNA</div>
+              <mat-slide-toggle formControlName="sellToPymesCustomer" color="primary">
+                {{ productForm.get('sellToPymesCustomer')?.value ? 'Activo' : 'Inactivo' }}
+              </mat-slide-toggle>
+              <mat-form-field appearance="outline">
+                <mat-label>Precio CUP</mat-label>
+                <span matPrefix>CUP&nbsp;</span>
+                <input matInput type="number" formControlName="pymesPriceCup" min="0">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Precio MLC</mat-label>
+                <span matPrefix>MLC&nbsp;</span>
+                <input matInput type="number" formControlName="pymesPriceMlc" min="0">
+              </mat-form-field>
+            </div>
+          </div>
+        </mat-expansion-panel>
+
+        <!-- Servicios del Producto -->
+        <mat-expansion-panel class="admin-card" [expanded]="servicesExpanded">
+          <mat-expansion-panel-header>
+            <mat-panel-title>Servicios del producto</mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="services-block">
+            @for (serviceControl of servicesFormArray.controls; track $index) {
+              <div class="service-row">
+                <mat-form-field appearance="outline" class="service-field">
+                  <mat-label>Nombre del servicio</mat-label>
+                  <mat-select [formControl]="serviceControl.get('id')">
+                    <mat-option [value]="null">Seleccione un servicio</mat-option>
+                    @for (service of services; track service.id) {
+                      <mat-option [value]="service.id">{{ service.name }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+                <button 
+                  mat-icon-button 
+                  color="warn" 
+                  (click)="removeService($index)"
+                  matTooltip="Eliminar servicio">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            }
+            <button mat-stroked-button type="button" (click)="addService()">
+              <mat-icon>add</mat-icon>
+              Agregar servicio
+            </button>
+          </div>
+        </mat-expansion-panel>
+
+        <!-- Imágenes -->
+        <mat-expansion-panel class="admin-card" [expanded]="imagesExpanded">
+          <mat-expansion-panel-header>
+            <mat-panel-title>Imágenes</mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="images-block">
+            @if (imagesFormArray.length > 0) {
+              <div class="image-grid">
+                @for (imageControl of imagesFormArray.controls; track $index) {
+                  <div class="image-card">
+                    <img [src]="imageControl.value" alt="Imagen del producto" />
+                  </div>
+                }
+              </div>
+            } @else {
+              <p class="no-images">No hay imágenes cargadas</p>
+            }
+            <button mat-stroked-button type="button" (click)="onManageImages()">
+              <mat-icon>image</mat-icon>
+              Gestionar imágenes
+            </button>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+
+      <div class="actions-footer">
+        <button mat-stroked-button type="button" (click)="onCancel()">
+          <mat-icon>arrow_back</mat-icon>
+          Cancelar
+        </button>
+        <button 
+          mat-raised-button 
+          color="primary" 
+          [disabled]="productForm.invalid || isSaving" 
+          (click)="onSubmit()">
+          @if (isSaving) {
+            <mat-spinner diameter="20"></mat-spinner>
+          } @else {
+            <mat-icon>save</mat-icon>
+          }
+          {{ isEditMode ? 'Actualizar' : 'Guardar' }}
+        </button>
+      </div>
+    </form>
+  }
+</div>
+

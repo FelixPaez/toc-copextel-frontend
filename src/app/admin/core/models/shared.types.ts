@@ -62,6 +62,11 @@ export interface IResponse {
   slide?: any;
   updatedSlide?: any;
 
+  // Banners
+  banners?: any[];
+  banner?: any;
+  updatedBanner?: any;
+
   // Usuarios
   users?: any[];
   updatedUser?: any;
@@ -76,6 +81,11 @@ export interface IResponse {
   couriers?: any[];
   courier?: any;
   updatedCourier?: any;
+
+  // Mensajes
+  contactMessages?: any[];
+  contactMessage?: any;
+  contactUpdatedMessage?: any;
 
   // Otros
   imageId?: string;

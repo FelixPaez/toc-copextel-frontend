@@ -15,12 +15,31 @@
         
         <div class="detail-item">
           <span class="detail-label">Número de identidad:</span>
-          <span class="detail-value">{{ data.user.identityNumber }}</span>
+          <span class="detail-value">{{ data.user.idNumber }}</span>
         </div>
         
         <div class="detail-item">
           <span class="detail-label">Unidad Organizativa:</span>
-          <span class="detail-value">{{ data.user.organizationalUnit }}</span>
+          <span class="detail-value">{{ data.user.uo }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Usuario:</span>
+          <span class="detail-value">{{ data.user.username }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Cargo:</span>
+          <span class="detail-value">{{ data.user.title }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <span class="detail-label">Roles:</span>
+          <span class="detail-value">
+            @for (role of data.user.roles; track role) {
+              <span class="role-chip">{{ role }}</span>
+            }
+          </span>
         </div>
         
         <div class="detail-item">

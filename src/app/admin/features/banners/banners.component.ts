@@ -1,26 +1,35 @@
-import { Component, OnInit } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { Component, OnInit, OnDestroy, ViewChild, AfterViewInit } from '@angular/core';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatSortModule } from '@angular/material/sort';
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
-export interface Banner {
-  id: string;
-  title: string;
-  subtitle: string;
-  category: string;
-  image?: string;
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
+// Services
+import { BannersService } from './banners.service';
+import { ConfirmService } from '../../core/services/confirm.service';
+
+// Types
+import { Banner } from './banners.types';
+import { TablePagination } from '../../core/models/shared.types';
+
+// Constants
+import { Icons } from '../../core/constants';
 
 @Component({
   selector: 'app-banners',
@@ -30,6 +39,7 @@ export interface Banner {
   imports: [
     RouterModule,
     CommonModule,
+    ReactiveFormsModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
@@ -38,79 +48,222 @@ export interface Banner {
     MatSortModule,
     MatChipsModule,
     MatMenuModule,
+    MatDividerModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatProgressSpinnerModule,
+    MatTooltipModule,
+    MatDialogModule,
     MatSnackBarModule
   ]
 })
-export class BannersComponent implements OnInit {
-  
-  // Datos de ejemplo para banners
-  banners: Banner[] = [
-    {
-      id: '1',
-      title: 'Computadoras',
-      subtitle: 'Computadoras con componentes de ultima generacion',
-      category: 'Tecnología',
-      image: 'assets/images/products/headphone-1.jpg',
-      isActive: true,
-      createdAt: new Date('2024-01-15'),
-      updatedAt: new Date('2024-01-15')
-    },
-    {
-      id: '2',
-      title: 'Aire acondicionado',
-      subtitle: 'Disfruta del máximo confort en tu hogar u oficina, incluso en los días más calurosos.',
-      category: 'Electrodomésticos',
-      image: 'assets/images/products/headphone-2.jpg',
-      isActive: true,
-      createdAt: new Date('2024-01-14'),
-      updatedAt: new Date('2024-01-14')
-    },
-    {
-      id: '3',
-      title: 'Calentador solar',
-      subtitle: 'Nuestros calentadores solares son eficientes, duraderos y ecológicos, brindándote agua caliente todo el día, incluso en días nublados.',
-      category: 'Energía',
-      image: 'assets/images/products/headphone-3.jpg',
-      isActive: true,
-      createdAt: new Date('2024-01-13'),
-      updatedAt: new Date('2024-01-13')
-    }
-  ];
+export class BannersComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
 
+  // Expose Icons for template
+  Icons = Icons;
+
+  // Table
   displayedColumns: string[] = ['title', 'subtitle', 'isActive', 'actions'];
+  dataSource = new MatTableDataSource<Banner>([]);
+  banners: Banner[] = [];
+
+  // Search
+  searchControl = new FormControl('');
+
+  // Pagination
+  pagination: TablePagination | null = null;
+  pageSize = 10;
+  pageIndex = 0;
+
+  // Loading
+  isLoading = false;
+
+  // Private
+  private _unsubscribeAll: Subject<any> = new Subject<any>();
 
   constructor(
-    private router: Router,
-    private snackBar: MatSnackBar
+    private _bannersService: BannersService,
+    private _router: Router,
+    private _activatedRoute: ActivatedRoute,
+    private _snackBar: MatSnackBar,
+    private _confirmService: ConfirmService
   ) { }
 
   ngOnInit(): void {
-  }
+    // Subscribe to banners
+    this._bannersService.banners$.pipe(takeUntil(this._unsubscribeAll)).subscribe(banners => {
+      if (banners) {
+        this.banners = banners;
+        this.dataSource.data = banners;
+      }
+    });
 
-  onEdit(banner: Banner): void {
-    this.router.navigate(['/banners/edit', banner.id]);
-  }
+    // Subscribe to pagination
+    this._bannersService.pagination$.pipe(takeUntil(this._unsubscribeAll)).subscribe(pagination => {
+      if (pagination) {
+        this.pagination = pagination;
+      }
+    });
 
-  onDelete(banner: Banner): void {
-    if (confirm(`¿Estás seguro de que deseas eliminar el banner "${banner.title}"?`)) {
-      this.banners = this.banners.filter(b => b.id !== banner.id);
-      this.snackBar.open('Banner eliminado correctamente', 'Cerrar', {
-        duration: 3000,
-        horizontalPosition: 'center',
-        verticalPosition: 'top'
+    // Setup search
+    this.searchControl.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntil(this._unsubscribeAll)
+      )
+      .subscribe(() => {
+        this.pageIndex = 0;
+        this._loadBanners();
       });
+
+    // Load banners
+    this._loadBanners();
+  }
+
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  }
+
+  ngOnDestroy(): void {
+    this._unsubscribeAll.next(null);
+    this._unsubscribeAll.complete();
+  }
+
+  /**
+   * Load banners
+   */
+  private _loadBanners(): void {
+    this.isLoading = true;
+
+    const search = this.searchControl.value || '';
+    const sort = this.sort?.active || 'createdAt';
+    const order = this.sort?.direction || 'desc';
+
+    this._bannersService.getBanners(
+      this.pageIndex,
+      this.pageSize,
+      sort,
+      order as 'asc' | 'desc',
+      search
+    ).subscribe({
+      next: () => {
+        this.isLoading = false;
+      },
+      error: (error) => {
+        this.isLoading = false;
+        const errorMessage = error?.error?.message || error?.message || 'Error al cargar los banners';
+        this._snackBar.open(errorMessage, 'Cerrar', {
+          duration: 5000,
+          panelClass: ['error-snackbar']
+        });
+      }
+    });
+  }
+
+  /**
+   * On page change
+   */
+  onPageChange(event: PageEvent): void {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this._loadBanners();
+  }
+
+  /**
+   * On sort change
+   */
+  onSortChange(sort: Sort): void {
+    this._loadBanners();
+  }
+
+  /**
+   * On add banner
+   */
+  onAddBanner(): void {
+    this._router.navigate(['./new'], { relativeTo: this._activatedRoute });
+  }
+
+  /**
+   * On edit banner
+   */
+  onEdit(banner: Banner): void {
+    if (banner.id) {
+      this._router.navigate(['./', banner.id], { relativeTo: this._activatedRoute });
     }
   }
 
-  onToggleStatus(banner: Banner): void {
-    banner.isActive = !banner.isActive;
-    banner.updatedAt = new Date();
-    
-    const status = banner.isActive ? 'activado' : 'desactivado';
-    this.snackBar.open(`Banner ${status} correctamente`, 'Cerrar', {
-      duration: 3000,
-      horizontalPosition: 'center',
-      verticalPosition: 'top'
+  /**
+   * On delete banner
+   */
+  onDelete(banner: Banner): void {
+    if (!banner.id) return;
+
+    this._confirmService.confirm({
+      title: 'Eliminar Banner',
+      message: `¿Está seguro que desea eliminar el banner "${banner.title}"?`,
+      icon: 'delete',
+      type: 'warn'
+    }).subscribe(confirmed => {
+      if (confirmed) {
+        this._bannersService.deleteBanner(banner.id!)
+          .pipe(takeUntil(this._unsubscribeAll))
+          .subscribe({
+            next: () => {
+              this._snackBar.open('Banner eliminado exitosamente', 'Cerrar', {
+                duration: 3000,
+                panelClass: ['success-snackbar']
+              });
+              this._loadBanners();
+            },
+            error: (error) => {
+              const errorMessage = error?.error?.message || error?.message || 'Error al eliminar el banner';
+              this._snackBar.open(errorMessage, 'Cerrar', {
+                duration: 5000,
+                panelClass: ['error-snackbar']
+              });
+            }
+          });
+      }
     });
+  }
+
+  /**
+   * On toggle active
+   */
+  onToggleStatus(banner: Banner): void {
+    if (!banner.id) return;
+
+    this._bannersService.toggleBannerActive(banner.id, !banner.isActive)
+      .pipe(takeUntil(this._unsubscribeAll))
+      .subscribe({
+        next: () => {
+          this._snackBar.open(
+            `Banner ${banner.isActive ? 'desactivado' : 'activado'} exitosamente`,
+            'Cerrar',
+            { duration: 3000, panelClass: ['success-snackbar'] }
+          );
+          this._loadBanners();
+        },
+        error: (error) => {
+          const errorMessage = error?.error?.message || error?.message || 'Error al cambiar el estado';
+          this._snackBar.open(errorMessage, 'Cerrar', {
+            duration: 5000,
+            panelClass: ['error-snackbar']
+          });
+        }
+      });
+  }
+
+  /**
+   * Clear filters
+   */
+  clearFilters(): void {
+    this.searchControl.setValue('');
+    this.pageIndex = 0;
+    this._loadBanners();
   }
 }

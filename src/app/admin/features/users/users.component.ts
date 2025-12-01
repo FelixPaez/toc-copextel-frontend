@@ -10,6 +10,7 @@ import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/p
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -26,6 +27,9 @@ import { UsersService } from './users.service';
 // Types
 import { User } from './users.types';
 import { TablePagination } from '../../core/models/shared.types';
+
+// Constants
+import { Icons } from '../../core/constants';
 
 // Components
 import { UserDetailModalComponent } from './user-detail-modal/user-detail-modal.component';
@@ -50,6 +54,7 @@ import { PasswordUpdateModalComponent } from './password-update-modal/password-u
     MatSortModule,
     MatChipsModule,
     MatMenuModule,
+    MatDividerModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -64,6 +69,9 @@ import { PasswordUpdateModalComponent } from './password-update-modal/password-u
 export class UsersComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+
+  // Expose Icons for template
+  Icons = Icons;
 
   // Table
   displayedColumns: string[] = [
@@ -240,7 +248,7 @@ export class UsersComponent implements OnInit, AfterViewInit, OnDestroy {
    * On add user
    */
   onAddUser(): void {
-    this._router.navigate(['/admin/users/new']);
+    this._router.navigate(['./new'], { relativeTo: this._router.routerState.root });
   }
 
   /**
@@ -248,7 +256,7 @@ export class UsersComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   onEditUser(user: User): void {
     if (user.id) {
-      this._router.navigate(['/admin/users', user.id, 'edit']);
+      this._router.navigate(['./', user.id, 'edit'], { relativeTo: this._router.routerState.root });
     }
   }
 

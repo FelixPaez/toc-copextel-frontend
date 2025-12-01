@@ -1,0 +1,97 @@
+<div class="security-container">
+  <mat-card class="security-card admin-card animate-fade-in">
+    <mat-card-header>
+      <mat-card-title>Cambiar Contraseña</mat-card-title>
+      <mat-card-subtitle>Mantenga actualizada su contraseña</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="securityForm" class="security-form">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Contraseña Actual</mat-label>
+          <input
+            matInput
+            [type]="hideOldPassword ? 'password' : 'text'"
+            formControlName="oldPassword"
+            placeholder="Ingrese su contraseña actual">
+          <button
+            mat-icon-button
+            matSuffix
+            (click)="hideOldPassword = !hideOldPassword"
+            type="button">
+            <mat-icon>{{ hideOldPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (securityForm.get('oldPassword')?.hasError('required')) {
+            <mat-error>La contraseña actual es obligatoria</mat-error>
+          }
+          @if (securityForm.get('oldPassword')?.hasError('pattern')) {
+            <mat-error>La contraseña debe tener mayúsculas, minúsculas, números y símbolos</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Nueva Contraseña</mat-label>
+          <input
+            matInput
+            [type]="hideNewPassword ? 'password' : 'text'"
+            formControlName="newPassword"
+            placeholder="Ingrese su nueva contraseña">
+          <button
+            mat-icon-button
+            matSuffix
+            (click)="hideNewPassword = !hideNewPassword"
+            type="button">
+            <mat-icon>{{ hideNewPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (securityForm.get('newPassword')?.hasError('required')) {
+            <mat-error>La nueva contraseña es obligatoria</mat-error>
+          }
+          @if (securityForm.get('newPassword')?.hasError('pattern')) {
+            <mat-error>La contraseña debe tener mayúsculas, minúsculas, números y símbolos</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Confirmar Contraseña</mat-label>
+          <input
+            matInput
+            [type]="hideConfirmPassword ? 'password' : 'text'"
+            formControlName="confirmPassword"
+            placeholder="Confirme su nueva contraseña">
+          <button
+            mat-icon-button
+            matSuffix
+            (click)="hideConfirmPassword = !hideConfirmPassword"
+            type="button">
+            <mat-icon>{{ hideConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (securityForm.get('confirmPassword')?.hasError('required')) {
+            <mat-error>Confirmar la contraseña es obligatorio</mat-error>
+          }
+          @if (securityForm.get('confirmPassword')?.hasError('pattern')) {
+            <mat-error>La contraseña debe tener mayúsculas, minúsculas, números y símbolos</mat-error>
+          }
+          @if (securityForm.get('confirmPassword')?.hasError('mustMatch')) {
+            <mat-error>Las contraseñas no coinciden</mat-error>
+          }
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="onUpdatePassword()"
+            [disabled]="securityForm.invalid || isLoading">
+            @if (isLoading) {
+              <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
+            } @else {
+              <mat-icon>lock</mat-icon>
+            }
+            Actualizar Contraseña
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
+

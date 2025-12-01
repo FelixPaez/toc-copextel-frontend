@@ -1,23 +1,9 @@
-@use "sass:color";
-
-$primary-color: var(--admin-primary);
-$red-color: var(--admin-danger);
-$gray-100: var(--admin-gray-100);
-$gray-200: var(--admin-gray-200);
-$gray-300: var(--admin-gray-300);
-$gray-400: var(--admin-gray-400);
-$gray-500: var(--admin-gray-500);
-$gray-600: var(--admin-gray-600);
-$gray-700: var(--admin-gray-700);
-$gray-800: var(--admin-gray-800);
-$gray-900: var(--admin-gray-900);
-$white: var(--admin-white);
-
+// Usar directamente las variables CSS globales definidas en admin.scss
 .vendor-form-container {
   padding: 24px;
-  background-color: $gray-100;
+  background-color: var(--admin-gray-100);
   min-height: 100vh;
-  font-family: 'Nunito', sans-serif;
+  font-family: var(--admin-font-family);
 
   .page-header {
     display: flex;
@@ -27,7 +13,7 @@ $white: var(--admin-white);
     padding: 16px 20px;
     margin-bottom: 16px;
     background: linear-gradient(180deg, var(--admin-topbar-bg-start), var(--admin-topbar-bg-end));
-    border: 1px solid $gray-200;
+    border: 1px solid var(--admin-gray-200);
     border-radius: var(--admin-radius);
   }
 
@@ -40,7 +26,7 @@ $white: var(--admin-white);
     display: flex;
     align-items: center;
     gap: 6px;
-    color: $gray-600;
+    color: var(--admin-gray-600);
     font-size: 11px;
     margin-bottom: 6px;
   }
@@ -49,7 +35,7 @@ $white: var(--admin-white);
     font-size: 12px;
     width: 12px;
     height: 12px;
-    color: $gray-500;
+    color: var(--admin-gray-500);
     display: flex;
     align-items: center;
   }
@@ -59,7 +45,7 @@ $white: var(--admin-white);
     font-size: 28px;
     font-weight: 800;
     letter-spacing: .2px;
-    color: $gray-800;
+    color: var(--admin-gray-800);
   }
 
   .page-right {
@@ -70,12 +56,12 @@ $white: var(--admin-white);
 
   .btn-danger.mat-mdc-raised-button {
     background-color: var(--admin-danger);
-    color: $white;
+    color: var(--admin-white);
     box-shadow: var(--admin-shadow);
   }
 
   .btn-danger.mat-mdc-raised-button:hover {
-    background-color: color.adjust(#df0029, $lightness: -6%);
+    background-color: var(--admin-danger-hover);
   }
 
     .vendor-form {
@@ -87,7 +73,7 @@ $white: var(--admin-white);
         margin: 0;
         font-size: 16px;
         font-weight: 700;
-        color: $gray-800;
+        color: var(--admin-gray-800);
       }
 
       .form-content {
@@ -310,7 +296,7 @@ $white: var(--admin-white);
 
 // Expansion panels
 ::ng-deep .mat-expansion-panel {
-  border: 1px solid $gray-200;
+  border: 1px solid var(--admin-gray-200);
   border-radius: var(--admin-radius) !important;
   box-shadow: var(--admin-shadow) !important;
   margin-bottom: 16px;
@@ -325,13 +311,13 @@ $white: var(--admin-white);
     }
 
     .mat-expansion-panel-header-title {
-      color: $gray-800;
+      color: var(--admin-gray-800);
       font-weight: 600;
     }
 
     .mat-expansion-indicator {
       &::after {
-        color: $gray-600;
+        color: var(--admin-gray-600);
       }
     }
   }

@@ -1,13 +1,18 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { map, switchMap, take, tap } from 'rxjs/operators';
+import { map, switchMap, take, tap, delay } from 'rxjs/operators';
 
 // Types
 import { InventoryProduct, InventoryPagination } from './products.types';
 
 // Variables
 import { environment } from '../../../../environments/environment';
+
+// Mock Data & Services
+import { MOCK_PRODUCTS } from '../../mocks/data/products.mock';
+import { MockService } from '../../core/services/mock.service';
+import { applyMockPagination } from '../../mocks/mock-helpers';
 
 // API URL
 const API_URL_GATEWAY = environment.API_URL_GATEWAY;
@@ -28,7 +33,10 @@ export class OnSaleProductService {
   /**
    * Constructor
    */
-  constructor(private _httpClient: HttpClient) {
+  constructor(
+    private _httpClient: HttpClient,
+    private _mockService: MockService
+  ) {
   }
 
   // -----------------------------------------------------------------------------------------------------
@@ -76,8 +84,62 @@ export class OnSaleProductService {
     order: 'asc' | 'desc' | '' = 'asc',
     search: string = ''
   ): Observable<{ pagination: InventoryPagination; products: InventoryProduct[] }> {
-    // Nota: El endpoint puede necesitar ajuste según el backend real
-    // El proyecto viejo usa 'api/apps/ecommerce/inventory/products' pero puede ser diferente
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      // Filter products that have onSale > 0
+      let filtered = MOCK_PRODUCTS.filter(p => p.onSale && p.onSale > 0);
+
+      // Apply search filter
+      if (search) {
+        const searchLower = search.toLowerCase();
+        filtered = filtered.filter(p =>
+          p.name.toLowerCase().includes(searchLower) ||
+          p.code?.toLowerCase().includes(searchLower) ||
+          p.description?.toLowerCase().includes(searchLower)
+        );
+      }
+
+      // Apply sorting
+      filtered.sort((a, b) => {
+        let aValue: any = a[sort as keyof InventoryProduct];
+        let bValue: any = b[sort as keyof InventoryProduct];
+
+        if (typeof aValue === 'string') {
+          aValue = aValue.toLowerCase();
+          bValue = bValue.toLowerCase();
+        }
+
+        if (order === 'desc') {
+          return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+        }
+        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+      });
+
+      // Apply pagination
+      const paginated = applyMockPagination(filtered, page, size);
+      
+      // Convert TablePagination to InventoryPagination
+      const inventoryPagination: InventoryPagination = {
+        length: paginated.pagination.length || 0,
+        size: paginated.pagination.size || size,
+        page: paginated.pagination.page || page,
+        lastPage: paginated.pagination.lastPage || 0,
+        startIndex: paginated.pagination.startIndex || 0,
+        endIndex: paginated.pagination.endIndex || 0
+      };
+
+      return this._mockService.simulateDelay({
+        pagination: inventoryPagination,
+        products: paginated.data
+      }).pipe(
+        tap((response) => {
+          this._pagination.next(response.pagination);
+          this._onSaleProducts.next(response.products);
+        })
+      );
+    }
+
+    // Real API call
     return this._httpClient.get<{ pagination: InventoryPagination; products: InventoryProduct[] }>(
       `${API_URL_GATEWAY}/product/on-sale`,
       {

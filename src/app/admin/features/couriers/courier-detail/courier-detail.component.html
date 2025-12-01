@@ -1,0 +1,281 @@
+<div class="courier-detail-container">
+  <!-- Header -->
+  <div class="page-header admin-card animate-fade-in">
+    <div class="page-left">
+      <div class="breadcrumbs">
+        <span class="crumb">Tienda</span>
+        <mat-icon class="crumb-sep">chevron_right</mat-icon>
+        <a class="crumb" routerLink="../">Transportistas</a>
+        <mat-icon class="crumb-sep">chevron_right</mat-icon>
+        <span class="crumb current">{{ isEditMode ? 'Editar' : 'Nuevo' }}</span>
+      </div>
+      <h1 class="page-title">{{ isEditMode ? 'Editar Transportista' : 'Nuevo Transportista' }}</h1>
+    </div>
+    <div class="page-right">
+      <button mat-stroked-button (click)="onCancel()">
+        <mat-icon>arrow_back</mat-icon>
+        Cancelar
+      </button>
+      <button 
+        mat-raised-button 
+        color="primary"
+        [disabled]="courierForm.invalid || isSaving"
+        (click)="onSubmit()">
+        @if (isSaving) {
+          <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
+        } @else {
+          <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+        }
+        {{ isEditMode ? 'Guardar' : 'Crear' }}
+      </button>
+    </div>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-container">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Cargando transportista...</p>
+    </div>
+  } @else {
+    <mat-card class="form-card admin-card animate-fade-in">
+      <form [formGroup]="courierForm" class="courier-form">
+        <mat-accordion>
+          <!-- Información General -->
+          <mat-expansion-panel [expanded]="generalInfoExpanded">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <h3 class="section-title">Información General</h3>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <div class="form-content">
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-field-full">
+                  <mat-label>Nombre *</mat-label>
+                  <input matInput formControlName="name" placeholder="Nombre del transportista">
+                  @if (courierForm.get('name')?.hasError('required') && courierForm.get('name')?.touched) {
+                    <mat-error>El nombre es requerido</mat-error>
+                  }
+                </mat-form-field>
+              </div>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-field-half">
+                  <mat-label>Persona de Contacto *</mat-label>
+                  <input matInput formControlName="contact" placeholder="Nombre del contacto">
+                  @if (courierForm.get('contact')?.hasError('required') && courierForm.get('contact')?.touched) {
+                    <mat-error>El contacto es requerido</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="form-field-half">
+                  <mat-label>Correo Electrónico *</mat-label>
+                  <input matInput type="email" formControlName="email" placeholder="correo@ejemplo.com">
+                  @if (courierForm.get('email')?.hasError('required') && courierForm.get('email')?.touched) {
+                    <mat-error>El correo es requerido</mat-error>
+                  }
+                  @if (courierForm.get('email')?.hasError('email') && courierForm.get('email')?.touched) {
+                    <mat-error>Correo electrónico inválido</mat-error>
+                  }
+                </mat-form-field>
+              </div>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-field-half">
+                  <mat-label>Teléfono *</mat-label>
+                  <input matInput type="tel" formControlName="phone" placeholder="Teléfono">
+                  @if (courierForm.get('phone')?.hasError('required') && courierForm.get('phone')?.touched) {
+                    <mat-error>El teléfono es requerido</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="form-field-half">
+                  <mat-label>Estado *</mat-label>
+                  <mat-select formControlName="active">
+                    <mat-option [value]="true">Activo</mat-option>
+                    <mat-option [value]="false">Inactivo</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-field-full">
+                  <mat-label>Dirección *</mat-label>
+                  <input matInput formControlName="address" placeholder="Dirección completa">
+                  @if (courierForm.get('address')?.hasError('required') && courierForm.get('address')?.touched) {
+                    <mat-error>La dirección es requerida</mat-error>
+                  }
+                </mat-form-field>
+              </div>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-field-half">
+                  <mat-label>Provincia *</mat-label>
+                  <mat-select formControlName="state">
+                    @for (state of states; track state) {
+                      <mat-option [value]="state">{{ state }}</mat-option>
+                    }
+                  </mat-select>
+                  @if (courierForm.get('state')?.hasError('required') && courierForm.get('state')?.touched) {
+                    <mat-error>La provincia es requerida</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="form-field-half">
+                  <mat-label>Ciudad *</mat-label>
+                  <mat-select formControlName="city">
+                    @for (city of cities; track city) {
+                      <mat-option [value]="city">{{ city }}</mat-option>
+                    }
+                  </mat-select>
+                  @if (courierForm.get('city')?.hasError('required') && courierForm.get('city')?.touched) {
+                    <mat-error>La ciudad es requerida</mat-error>
+                  }
+                </mat-form-field>
+              </div>
+
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-field-full">
+                  <mat-label>Observaciones</mat-label>
+                  <textarea matInput formControlName="obs" rows="3" placeholder="Observaciones adicionales"></textarea>
+                </mat-form-field>
+              </div>
+            </div>
+          </mat-expansion-panel>
+
+          <!-- Destinos de Entrega -->
+          <mat-expansion-panel [expanded]="destinationsExpanded">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <h3 class="section-title">Destinos de Entrega</h3>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <div class="destinations-content">
+              <div class="destinations-layout">
+                <!-- Estados Panel -->
+                <div class="states-panel">
+                  <h4 class="panel-title">Provincias</h4>
+                  <div class="states-list">
+                    @for (state of states; track state) {
+                      <button
+                        type="button"
+                        class="state-button"
+                        [class.active]="selectedDeliveryState === state"
+                        (click)="goToStatePanel(state)">
+                        {{ state }}
+                      </button>
+                    }
+                  </div>
+                </div>
+
+                <!-- Ciudades Panel -->
+                <div class="cities-panel">
+                  @if (!selectedDeliveryState) {
+                    <div class="no-selection">
+                      <mat-icon>location_on</mat-icon>
+                      <p>Seleccione una provincia</p>
+                    </div>
+                  } @else {
+                    <div class="cities-content">
+                      <div class="cities-header">
+                        <h4 class="panel-title">Listado de municipios de {{ selectedDeliveryState }}</h4>
+                        <mat-slide-toggle [formControl]="allCitiesControl" color="primary">
+                          {{ allCitiesControl.value ? 'Precio por municipios' : 'Precio para toda la provincia' }}
+                        </mat-slide-toggle>
+                      </div>
+
+                      @if (!allCitiesControl.value) {
+                        <!-- Precio Global -->
+                        <form [formGroup]="globalCostForm" class="global-cost-form">
+                          <mat-form-field appearance="outline">
+                            <mat-label>Costo en CUP</mat-label>
+                            <input matInput type="number" formControlName="costCup" min="0">
+                            <button mat-icon-button matSuffix (click)="setCostCup()" matTooltip="Establecer precio en CUP para todos los municipios">
+                              <mat-icon>content_copy</mat-icon>
+                            </button>
+                          </mat-form-field>
+
+                          <mat-form-field appearance="outline">
+                            <mat-label>Costo en MLC</mat-label>
+                            <input matInput type="number" formControlName="costMlc" min="0">
+                            <button mat-icon-button matSuffix (click)="setCostMlc()" matTooltip="Establecer precio en MLC para todos los municipios">
+                              <mat-icon>content_copy</mat-icon>
+                            </button>
+                          </mat-form-field>
+                        </form>
+                      } @else {
+                        <!-- Precio por Ciudad -->
+                        <div class="cities-list">
+                          @for (cityControl of citiesFormArray.controls; track $index) {
+                            <div class="city-row">
+                              <div class="city-name">{{ cityControl.get('name')?.value }}</div>
+                              <mat-form-field appearance="outline" class="cost-field">
+                                <mat-label>Costo CUP</mat-label>
+                                <input matInput type="number" [formControl]="cityControl.get('costCup')" min="0">
+                              </mat-form-field>
+                              <mat-form-field appearance="outline" class="cost-field">
+                                <mat-label>Costo MLC</mat-label>
+                                <input matInput type="number" [formControl]="cityControl.get('costMlc')" min="0">
+                              </mat-form-field>
+                            </div>
+                          }
+                        </div>
+                      }
+
+                      <!-- Flash Message -->
+                      @if (flashMessage) {
+                        <div class="flash-message" [class.success]="flashMessage === 'success' || flashMessage === 'updated'" [class.error]="flashMessage === 'error'">
+                          <mat-icon>
+                            @if (flashMessage === 'success' || flashMessage === 'updated') {
+                              check_circle
+                            } @else {
+                              error
+                            }
+                          </mat-icon>
+                          <span>
+                            @if (flashMessage === 'success') {
+                              Costos guardados correctamente
+                            } @else if (flashMessage === 'updated') {
+                              Costos actualizados correctamente
+                            } @else {
+                              Error al guardar los costos
+                            }
+                          </span>
+                        </div>
+                      }
+
+                      <!-- Actions -->
+                      <div class="destinations-actions">
+                        <button 
+                          mat-raised-button 
+                          color="primary" 
+                          (click)="saveCitiesCosts()"
+                          [disabled]="isSavingDestinations || dynamicStatesForm.invalid">
+                          @if (isSavingDestinations) {
+                            <mat-spinner diameter="20"></mat-spinner>
+                          } @else {
+                            <mat-icon>save</mat-icon>
+                          }
+                          Guardar
+                        </button>
+                        <button 
+                          mat-stroked-button 
+                          color="warn" 
+                          (click)="clearCitiesCosts()"
+                          [disabled]="isSavingDestinations || !selectedDeliveryState">
+                          <mat-icon>delete</mat-icon>
+                          Borrar
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          </mat-expansion-panel>
+        </mat-accordion>
+      </form>
+    </mat-card>
+  }
+</div>

@@ -1,0 +1,66 @@
+.messages-sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--admin-white);
+}
+
+.sidebar-header {
+  padding: 24px 20px 16px;
+  border-bottom: 1px solid var(--admin-gray-200);
+}
+
+.sidebar-title {
+  margin: 0;
+  font-size: var(--admin-font-size-2xl);
+  font-weight: var(--admin-font-weight-bold);
+  color: var(--admin-gray-800);
+  letter-spacing: 0.2px;
+}
+
+.sidebar-compose {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--admin-gray-200);
+}
+
+.compose-button {
+  width: 100%;
+  height: 44px;
+  font-weight: var(--admin-font-weight-semibold);
+  border-radius: var(--admin-radius);
+
+  mat-icon {
+    margin-right: 8px;
+  }
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+
+  ::ng-deep .mat-mdc-list-item {
+    margin: 4px 12px;
+    border-radius: var(--admin-radius);
+    transition: var(--admin-transition-base);
+
+    &:hover {
+      background-color: var(--admin-gray-100);
+    }
+
+    &.active {
+      background-color: rgba(var(--admin-primary-rgb), 0.1);
+      color: var(--admin-primary);
+      font-weight: var(--admin-font-weight-semibold);
+
+      .mat-icon {
+        color: var(--admin-primary);
+      }
+    }
+
+    .mat-icon {
+      margin-right: 12px;
+    }
+  }
+}
+

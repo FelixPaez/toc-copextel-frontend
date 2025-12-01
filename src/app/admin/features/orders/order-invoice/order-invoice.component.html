@@ -1,0 +1,133 @@
+<div class="invoice-container">
+  @if (isLoading) {
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Cargando factura...</p>
+    </div>
+  } @else if (order) {
+    <!-- Print Actions (hidden when printing) -->
+    <div class="print-actions no-print">
+      <button mat-raised-button color="primary" (click)="onPrint()">
+        <mat-icon>print</mat-icon>
+        Imprimir
+      </button>
+      <button mat-stroked-button (click)="onBack()">
+        <mat-icon>arrow_back</mat-icon>
+        Volver
+      </button>
+    </div>
+
+    <!-- Invoice Content -->
+    <div class="invoice-content" id="htmlInvoice">
+      <div class="invoice-header">
+        <div class="invoice-info">
+          <div class="invoice-title">ORDEN</div>
+          <div class="invoice-number">#{{ order.orderNo }}</div>
+          <div class="info-row">
+            <span class="info-label">FECHA</span>
+            <span class="info-value">{{ order.createdAt | date:'short' }}</span>
+          </div>
+          @if (showPayedDate) {
+            <div class="info-row">
+              <span class="info-label">FECHA DE PAGO</span>
+              <span class="info-value">{{ order.payedAt | date:'short' }}</span>
+            </div>
+          } @else {
+            <div class="info-row">
+              <span class="info-label">ESTADO</span>
+              <span class="info-value">{{ order.status }}</span>
+            </div>
+          }
+          <div class="info-row">
+            <span class="info-label">TOTAL</span>
+            <span class="info-value">{{ order.total | number:'1.2-2' }} {{ order.currency }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">ESTADO</span>
+            <span class="info-value">{{ order.status }}</span>
+          </div>
+        </div>
+        <div class="company-info">
+          <div class="logo-placeholder">
+            <mat-icon>store</mat-icon>
+          </div>
+          <div class="company-details">
+            <div class="company-name">Copextel S.A.</div>
+            <div>Edificio Focsa, calle 17 esquina M,</div>
+            <div>Vedado, municipio Plaza de la Revolución, CP 10400</div>
+            <div>Provincia La Habana, Cuba</div>
+            <div>+53 783 33 33</div>
+            <div>toc@copextel.com</div>
+            <div>www.copextel.cu</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="beneficiary-info">
+        <div class="beneficiary-name">
+          {{ order.beneficiaryName }} {{ order.beneficiaryLastname1 }} {{ order.beneficiaryLastname2 }}
+        </div>
+        <div>Número de Identidad: {{ order.beneficiaryIdNumber }}</div>
+        <div>{{ order.address }}, municipio {{ order.city }}, provincia {{ order.state }}.</div>
+        <div>Celular: {{ order.beneficiaryCell }}</div>
+        @if (order.beneficiaryPhone) {
+          <div>Teléfono: {{ order.beneficiaryPhone }}</div>
+        }
+      </div>
+
+      <div class="products-section">
+        <div class="products-header">
+          <div class="col-product">PRODUCTOS</div>
+          <div class="col-quantity">CANTIDAD</div>
+          <div class="col-price">PRECIO</div>
+          <div class="col-total">TOTAL</div>
+        </div>
+
+        @for (item of order.products; track item.id || $index) {
+          <div class="product-row">
+            <div class="col-product">
+              <div class="product-name">Producto #{{ item.productId }}</div>
+            </div>
+            <div class="col-quantity">{{ item.quantity }}</div>
+            <div class="col-price">{{ item.productPrice | number:'1.2-2' }} {{ order.currency }}</div>
+            <div class="col-total">{{ getProductTotal(item) | number:'1.2-2' }} {{ order.currency }}</div>
+          </div>
+        }
+
+        <div class="totals-section">
+          <div class="total-row">
+            <span class="total-label">SUBTOTAL</span>
+            <span class="total-value">{{ order.subtotal | number:'1.2-2' }} {{ order.currency }}</span>
+          </div>
+          <div class="total-row">
+            <span class="total-label">COSTO DE ENVIO</span>
+            <span class="total-value">{{ order.shippingCost | number:'1.2-2' }} {{ order.currency }}</span>
+          </div>
+          @if (order.discount && order.discount > 0) {
+            <div class="total-row">
+              <span class="total-label">DESCUENTO</span>
+              <span class="total-value">-{{ order.discount | number:'1.2-2' }} {{ order.currency }}</span>
+            </div>
+          }
+          <div class="total-row final">
+            <span class="total-label">TOTAL</span>
+            <span class="total-value">{{ order.total | number:'1.2-2' }} {{ order.currency }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-note">
+        <div class="note-text">
+          Esta orden se cancelará automáticamente si no se realiza el pago en las próximas 72 horas.
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="error-container">
+      <mat-icon>error_outline</mat-icon>
+      <p>No se pudo cargar la factura</p>
+      <button mat-raised-button color="primary" (click)="onBack()">Volver</button>
+    </div>
+  }
+</div>
+

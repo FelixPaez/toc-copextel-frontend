@@ -1,0 +1,278 @@
+<div class="legal-customer-detail-dialog">
+  <h2 mat-dialog-title>Detalles del Cliente Jurídico</h2>
+
+  <mat-dialog-content>
+    <!-- Header with background -->
+    <div class="customer-header">
+      <!-- Background area -->
+    </div>
+
+    <!-- Customer Info -->
+    <div class="customer-info-container">
+      <!-- Logo and Name -->
+      <div class="customer-logo-section">
+        <div class="customer-logo">
+          @if (getCustomerLogo()) {
+            <img [src]="getCustomerLogo()" [alt]="customer.name" />
+          } @else {
+            <div class="logo-placeholder">
+              <span class="logo-initials">{{ getCustomerInitials() }}</span>
+            </div>
+          }
+        </div>
+        <h3 class="customer-name">{{ customer.name }}</h3>
+        @if (customer.code) {
+          <p class="customer-code">Código: {{ customer.code }}</p>
+        }
+      </div>
+
+      <!-- Tabs for different sections -->
+      <mat-tab-group class="customer-tabs">
+        <!-- Información General -->
+        <mat-tab label="Información General">
+          <div class="tab-content">
+            <div class="details-grid">
+              <div class="detail-item">
+                <mat-icon>business</mat-icon>
+                <div class="detail-content">
+                  <span class="detail-label">Organismo</span>
+                  <span class="detail-value">{{ customer.organism || 'No especificado' }}</span>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <mat-icon>email</mat-icon>
+                <div class="detail-content">
+                  <span class="detail-label">Correo Electrónico</span>
+                  <span class="detail-value">{{ customer.email || 'No especificado' }}</span>
+                </div>
+              </div>
+
+              @if (customer.webSite) {
+                <div class="detail-item">
+                  <mat-icon>language</mat-icon>
+                  <div class="detail-content">
+                    <span class="detail-label">Sitio Web</span>
+                    <span class="detail-value">
+                      <a [href]="customer.webSite" target="_blank" rel="noopener noreferrer">
+                        {{ customer.webSite }}
+                      </a>
+                    </span>
+                  </div>
+                </div>
+              }
+
+              <div class="detail-item">
+                <mat-icon>badge</mat-icon>
+                <div class="detail-content">
+                  <span class="detail-label">NIT</span>
+                  <span class="detail-value">{{ customer.nit || 'No especificado' }}</span>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <mat-icon>person</mat-icon>
+                <div class="detail-content">
+                  <span class="detail-label">Representante</span>
+                  <span class="detail-value">{{ customer.rep || 'No especificado' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-tab>
+
+        <!-- Dirección -->
+        <mat-tab label="Dirección">
+          <div class="tab-content">
+            <div class="details-grid">
+              <div class="detail-item">
+                <mat-icon>location_on</mat-icon>
+                <div class="detail-content">
+                  <span class="detail-label">Dirección</span>
+                  <span class="detail-value">{{ customer.address || 'No especificado' }}</span>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <mat-icon>public</mat-icon>
+                <div class="detail-content">
+                  <span class="detail-label">Provincia</span>
+                  <span class="detail-value">{{ customer.state || 'No especificado' }}</span>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <mat-icon>place</mat-icon>
+                <div class="detail-content">
+                  <span class="detail-label">Municipio</span>
+                  <span class="detail-value">{{ customer.city || 'No especificado' }}</span>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <mat-icon>flag</mat-icon>
+                <div class="detail-content">
+                  <span class="detail-label">País</span>
+                  <span class="detail-value">{{ customer.country || 'No especificado' }}</span>
+                </div>
+              </div>
+
+              @if (customer.postalCode) {
+                <div class="detail-item">
+                  <mat-icon>markunread_mailbox</mat-icon>
+                  <div class="detail-content">
+                    <span class="detail-label">Código Postal</span>
+                    <span class="detail-value">{{ customer.postalCode }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </mat-tab>
+
+        <!-- Representantes -->
+        <mat-tab label="Representantes">
+          <div class="tab-content">
+            <div class="representatives-section">
+              <!-- CEO -->
+              <div class="representative-card">
+                <h4 class="representative-title">
+                  <mat-icon>person</mat-icon>
+                  Director General (CEO)
+                </h4>
+                <div class="representative-details">
+                  <div class="detail-item">
+                    <mat-icon>badge</mat-icon>
+                    <div class="detail-content">
+                      <span class="detail-label">Nombre</span>
+                      <span class="detail-value">{{ customer.ceoName || 'No especificado' }}</span>
+                    </div>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>credit_card</mat-icon>
+                    <div class="detail-content">
+                      <span class="detail-label">CI</span>
+                      <span class="detail-value">{{ customer.ceoIdNumber || 'No especificado' }}</span>
+                    </div>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>phone</mat-icon>
+                    <div class="detail-content">
+                      <span class="detail-label">Teléfono</span>
+                      <span class="detail-value">{{ customer.ceoPhone || 'No especificado' }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- CFO -->
+              <div class="representative-card">
+                <h4 class="representative-title">
+                  <mat-icon>account_balance</mat-icon>
+                  Director Financiero (CFO)
+                </h4>
+                <div class="representative-details">
+                  <div class="detail-item">
+                    <mat-icon>badge</mat-icon>
+                    <div class="detail-content">
+                      <span class="detail-label">Nombre</span>
+                      <span class="detail-value">{{ customer.cfoName || 'No especificado' }}</span>
+                    </div>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>credit_card</mat-icon>
+                    <div class="detail-content">
+                      <span class="detail-label">CI</span>
+                      <span class="detail-value">{{ customer.cfoIdNumber || 'No especificado' }}</span>
+                    </div>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>phone</mat-icon>
+                    <div class="detail-content">
+                      <span class="detail-label">Teléfono</span>
+                      <span class="detail-value">{{ customer.cfoPhone || 'No especificado' }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-tab>
+
+        <!-- Cuentas Bancarias -->
+        <mat-tab label="Cuentas Bancarias">
+          <div class="tab-content">
+            <div class="accounts-section">
+              <!-- CUP Accounts -->
+              <div class="account-type-section">
+                <h4 class="account-type-title">
+                  <mat-icon>account_balance_wallet</mat-icon>
+                  Cuentas CUP
+                </h4>
+                <div class="account-details">
+                  <div class="detail-item">
+                    <mat-icon>account_balance</mat-icon>
+                    <div class="detail-content">
+                      <span class="detail-label">Cuenta Principal</span>
+                      <span class="detail-value">{{ customer.cupCount || 'No especificada' }}</span>
+                    </div>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>person</mat-icon>
+                    <div class="detail-content">
+                      <span class="detail-label">Cuenta Destinatario</span>
+                      <span class="detail-value">{{ customer.recipientCUPCount || 'No especificada' }}</span>
+                    </div>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>business</mat-icon>
+                    <div class="detail-content">
+                      <span class="detail-label">Cuenta Sucursal</span>
+                      <span class="detail-value">{{ customer.branchOfficeCUPCount || 'No especificada' }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- MLC Accounts -->
+              <div class="account-type-section">
+                <h4 class="account-type-title">
+                  <mat-icon>attach_money</mat-icon>
+                  Cuentas MLC
+                </h4>
+                <div class="account-details">
+                  <div class="detail-item">
+                    <mat-icon>account_balance</mat-icon>
+                    <div class="detail-content">
+                      <span class="detail-label">Cuenta Principal</span>
+                      <span class="detail-value">{{ customer.mlcCount || 'No especificada' }}</span>
+                    </div>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>person</mat-icon>
+                    <div class="detail-content">
+                      <span class="detail-label">Cuenta Destinatario</span>
+                      <span class="detail-value">{{ customer.recipientmlcCount || 'No especificada' }}</span>
+                    </div>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>business</mat-icon>
+                    <div class="detail-content">
+                      <span class="detail-label">Cuenta Sucursal</span>
+                      <span class="detail-value">{{ customer.branchOfficemlcCount || 'No especificada' }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="onClose()">Cerrar</button>
+  </mat-dialog-actions>
+</div>
+

@@ -19,8 +19,8 @@ import { HttpClientModule } from '@angular/common/http';
 // Core Module del admin
 import { CoreModule } from './admin/core/core.module';
 
-// Shared Module del admin
-import { SharedModule } from './shared/shared.module';
+// Shared Module del admin - Ya no necesario, componentes son standalone
+// import { SharedModule } from './shared/shared.module';
 
 // Material Providers
 import { MAT_DATE_LOCALE } from '@angular/material/core';
@@ -40,8 +40,8 @@ import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
     // NgbModule, // Comentado - plantilla original
     
     // Módulos del admin
-    CoreModule,
-    SharedModule
+    CoreModule
+    // SharedModule - Ya no necesario, componentes son standalone
   ],
   providers: [
     // Material Configuration

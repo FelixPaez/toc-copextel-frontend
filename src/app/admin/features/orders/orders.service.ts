@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
-import { map, pluck, switchMap, take, tap } from 'rxjs/operators';
+import { catchError, map, pluck, switchMap, take, tap } from 'rxjs/operators';
 
 // Types
 import { IResponse, TablePagination } from '../../core/models/shared.types';
@@ -9,6 +9,11 @@ import { Order, OrderUpdateStatus } from './orders.types';
 
 // Variables
 import { environment } from '../../../../environments/environment';
+
+// Mock Data & Services
+import { MOCK_ORDERS } from '../../mocks/data/orders.mock';
+import { MockService } from '../../core/services/mock.service';
+import { applyMockPagination } from '../../mocks/mock-helpers';
 
 // API URL
 const API_URL_GATEWAY = environment.API_URL_GATEWAY;
@@ -31,7 +36,10 @@ export class OrdersService {
   /**
    * Constructor
    */
-  constructor(private _httpClient: HttpClient) {
+  constructor(
+    private _httpClient: HttpClient,
+    private _mockService: MockService
+  ) {
   }
 
   // -----------------------------------------------------------------------------------------------------
@@ -86,6 +94,35 @@ export class OrdersService {
     order: 'asc' | 'desc' | '' = 'asc',
     search: string = ''
   ): Observable<IResponse> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const result = applyMockPagination(
+        MOCK_ORDERS,
+        page,
+        size,
+        sort || 'orderNo',
+        order,
+        search,
+        ['orderNo', 'beneficiaryName', 'beneficiaryLastname1', 'status'] as (keyof Order)[]
+      );
+      
+      return this._mockService.simulateDelay({
+        ok: true,
+        orders: result.data,
+        pagination: result.pagination
+      }).pipe(
+        tap((response) => {
+          if (response.pagination) {
+            this._pagination.next(response.pagination);
+          }
+          if (response.orders) {
+            this._orders.next(response.orders);
+          }
+        })
+      );
+    }
+    
+    // Real API call
     return this._httpClient.get<IResponse>(`${API_URL_GATEWAY}/orders/`, {
       params: {
         page: '' + page,
@@ -104,6 +141,10 @@ export class OrdersService {
         if (response.orders) {
           this._orders.next(response.orders);
         }
+      }),
+      catchError((error) => {
+        console.error('Error getting orders:', error);
+        return throwError(() => error);
       })
     );
   }
@@ -130,6 +171,38 @@ export class OrdersService {
       return throwError(() => new Error('vendorId is required'));
     }
 
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      // Filter orders by vendorId
+      let filteredOrders = MOCK_ORDERS.filter(o => o.vendorId === vendorId);
+      
+      const result = applyMockPagination(
+        filteredOrders,
+        page,
+        size,
+        sort || 'orderNo',
+        order,
+        search,
+        ['orderNo', 'beneficiaryName', 'beneficiaryLastname1', 'status'] as (keyof Order)[]
+      );
+      
+      return this._mockService.simulateDelay({
+        ok: true,
+        orders: result.data,
+        pagination: result.pagination
+      }).pipe(
+        tap((response) => {
+          if (response.pagination) {
+            this._pagination.next(response.pagination);
+          }
+          if (response.orders) {
+            this._orders.next(response.orders);
+          }
+        })
+      );
+    }
+
+    // Real API call
     return this._httpClient.get<IResponse>(`${API_URL_GATEWAY}/orders/filter-vendor/${vendorId}`, {
       params: {
         page: '' + page,
@@ -148,6 +221,10 @@ export class OrdersService {
         if (response.orders) {
           this._orders.next(response.orders);
         }
+      }),
+      catchError((error) => {
+        console.error('Error getting orders by vendor:', error);
+        return throwError(() => error);
       })
     );
   }
@@ -158,6 +235,20 @@ export class OrdersService {
    * @param orderId - ID del pedido
    */
   public getOrderById(orderId: number): Observable<Order> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const order = MOCK_ORDERS.find(o => o.id === orderId);
+      if (!order) {
+        return this._mockService.simulateError('Pedido no encontrado', 404);
+      }
+      return this._mockService.simulateDelay(order).pipe(
+        tap((order) => {
+          this._order.next(order);
+        })
+      );
+    }
+    
+    // Real API call
     return this._httpClient.get<IResponse>(`${API_URL_GATEWAY}/orders/${orderId}`).pipe(
       map((response) => {
         if (response.order) {
@@ -165,6 +256,10 @@ export class OrdersService {
           return response.order;
         }
         throw new Error('Order not found');
+      }),
+      catchError((error) => {
+        console.error('Error getting order by id:', error);
+        return throwError(() => error);
       })
     );
   }
@@ -179,6 +274,40 @@ export class OrdersService {
       return throwError(() => new Error('Order ID is required'));
     }
 
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const index = MOCK_ORDERS.findIndex(o => o.id === order.id);
+      if (index === -1) {
+        return this._mockService.simulateError('Pedido no encontrado', 404);
+      }
+      
+      const updatedOrder = { ...MOCK_ORDERS[index], ...order };
+      MOCK_ORDERS[index] = updatedOrder;
+      
+      return this.orders$.pipe(
+        take(1),
+        switchMap(orders => {
+          if (!orders) {
+            return throwError(() => new Error('No orders available'));
+          }
+          return this._mockService.simulateDelay({
+            ok: true,
+            message: 'Pedido actualizado exitosamente',
+            order: updatedOrder
+          }).pipe(
+            tap(() => {
+              const orderIndex = orders.findIndex(item => item.id === order.id);
+              if (orderIndex !== -1) {
+                orders[orderIndex] = updatedOrder;
+                this._orders.next(orders);
+              }
+            })
+          );
+        })
+      );
+    }
+
+    // Real API call
     return this.orders$.pipe(
       take(1),
       switchMap(orders => {
@@ -204,6 +333,10 @@ export class OrdersService {
 
             // Return the response
             return response;
+          }),
+          catchError((error) => {
+            console.error('Error updating order:', error);
+            return throwError(() => error);
           })
         );
       })
@@ -216,6 +349,54 @@ export class OrdersService {
    * @param data - Datos para actualizar el estado del pedido
    */
   public updateOrderStatus(data: OrderUpdateStatus): Observable<IResponse> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const index = MOCK_ORDERS.findIndex(o => o.id === data.orderId);
+      if (index === -1) {
+        return this._mockService.simulateError('Pedido no encontrado', 404);
+      }
+      
+      const order = MOCK_ORDERS[index];
+      const updatedOrder: Order = {
+        ...order,
+        status: data.status,
+        ready: data.ready ?? order.ready,
+        shipped: data.shipped ?? order.shipped,
+        delivered: data.delivered ?? order.delivered,
+        canceled: data.canceled ?? order.canceled,
+        cancelObs: data.cancelObs ?? order.cancelObs,
+        readyAt: data.ready ? new Date() : order.readyAt,
+        shippedAt: data.shipped ? new Date() : order.shippedAt,
+        deliveredAt: data.delivered ? new Date() : order.deliveredAt,
+        canceledAt: data.canceled ? new Date() : order.canceledAt,
+        changeStateAt: new Date()
+      };
+      MOCK_ORDERS[index] = updatedOrder;
+      
+      return this.orders$.pipe(
+        take(1),
+        switchMap(orders => {
+          if (!orders) {
+            return throwError(() => new Error('No orders available'));
+          }
+          return this._mockService.simulateDelay({
+            ok: true,
+            message: 'Estado del pedido actualizado exitosamente',
+            updatedOrder: updatedOrder
+          }).pipe(
+            tap(() => {
+              const orderIndex = orders.findIndex(item => item.id === data.orderId);
+              if (orderIndex !== -1) {
+                orders[orderIndex] = updatedOrder;
+                this._orders.next(orders);
+              }
+            })
+          );
+        })
+      );
+    }
+
+    // Real API call
     return this.orders$.pipe(
       take(1),
       switchMap(orders => {
@@ -241,6 +422,10 @@ export class OrdersService {
 
             // Return the response
             return response;
+          }),
+          catchError((error) => {
+            console.error('Error updating order status:', error);
+            return throwError(() => error);
           })
         );
       })
@@ -260,6 +445,46 @@ export class OrdersService {
     transactionUuid: string,
     paymentRefundIn: { amount: { total: string }; description: string }
   ): Observable<any> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const index = MOCK_ORDERS.findIndex(o => o.id === orderId);
+      if (index === -1) {
+        return this._mockService.simulateError('Pedido no encontrado', 404);
+      }
+      
+      const order = MOCK_ORDERS[index];
+      const updatedOrder: Order = {
+        ...order,
+        status: 'Reembolsada',
+        canceled: true,
+        canceledAt: new Date()
+      };
+      MOCK_ORDERS[index] = updatedOrder;
+      
+      return this.orders$.pipe(
+        take(1),
+        switchMap(orders => {
+          if (!orders) {
+            return throwError(() => new Error('No orders available'));
+          }
+          return this._mockService.simulateDelay({
+            ok: true,
+            message: 'Reembolso procesado exitosamente',
+            transactionUuid: transactionUuid
+          }).pipe(
+            tap(() => {
+              const orderIndex = orders.findIndex(item => item.id === orderId);
+              if (orderIndex !== -1) {
+                orders[orderIndex] = updatedOrder;
+                this._orders.next(orders);
+              }
+            })
+          );
+        })
+      );
+    }
+
+    // Real API call
     return this.orders$.pipe(
       take(1),
       switchMap(orders => {
@@ -298,6 +523,43 @@ export class OrdersService {
    * @param paymentRefundIn - Datos del reembolso
    */
   public transfermovilRefund(orderId: number, paymentRefundIn: any): Observable<any> {
+    // Mock mode
+    if (this._mockService.isMockMode) {
+      const index = MOCK_ORDERS.findIndex(o => o.id === orderId);
+      if (index === -1) {
+        return this._mockService.simulateError('Pedido no encontrado', 404);
+      }
+      
+      const order = MOCK_ORDERS[index];
+      const updatedOrder: Order = {
+        ...order,
+        status: 'Pendiente de Reembolso'
+      };
+      MOCK_ORDERS[index] = updatedOrder;
+      
+      return this.orders$.pipe(
+        take(1),
+        switchMap(orders => {
+          if (!orders) {
+            return throwError(() => new Error('No orders available'));
+          }
+          return this._mockService.simulateDelay({
+            ok: true,
+            message: 'Reembolso de Transfermóvil procesado exitosamente'
+          }).pipe(
+            tap(() => {
+              const orderIndex = orders.findIndex(item => item.id === orderId);
+              if (orderIndex !== -1) {
+                orders[orderIndex] = updatedOrder;
+                this._orders.next(orders);
+              }
+            })
+          );
+        })
+      );
+    }
+
+    // Real API call
     return this.orders$.pipe(
       take(1),
       switchMap(orders => {
