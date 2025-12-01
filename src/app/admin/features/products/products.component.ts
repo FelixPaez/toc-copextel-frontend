@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit, ViewChild, AfterViewInit } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -16,7 +16,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
@@ -24,6 +23,7 @@ import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 // Services
 import { ProductsService } from './products.service';
 import { CategoriesService } from '../categories/categories.service';
+import { ConfirmService } from '../../core/services/confirm.service';
 
 // Types
 import { InventoryProduct } from './products.types';
@@ -59,7 +59,6 @@ import { Icons } from '../../core/constants';
     MatSelectModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
-    MatDialogModule,
     MatSnackBarModule
   ]
 })
@@ -117,8 +116,9 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
     private _productsService: ProductsService,
     private _categoriesService: CategoriesService,
     private _router: Router,
-    private _dialog: MatDialog,
-    private _snackBar: MatSnackBar
+    private _activatedRoute: ActivatedRoute,
+    private _snackBar: MatSnackBar,
+    private _confirmService: ConfirmService
   ) {}
 
   // -----------------------------------------------------------------------------------------------------
@@ -129,11 +129,23 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
    * On init
    */
   ngOnInit(): void {
-    // Load categories
+    // Check if data was resolved
+    const resolvedData = this._activatedRoute.snapshot.data['data'];
+    if (resolvedData) {
+      // Use resolved data
+      this.categories = resolvedData.categories || [];
+      if (resolvedData.products && resolvedData.products.length > 0) {
+        this.products = resolvedData.products;
+        this._applyFilters();
+      }
+      if (resolvedData.pagination) {
+        this.pagination = resolvedData.pagination;
+      }
+    } else {
+      // Fallback: load data manually
     this._loadCategories();
-
-    // Load products
     this._loadProducts();
+    }
 
     // Setup search
     this.searchControl.valueChanges
@@ -280,14 +292,22 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
    * On delete
    */
   onDelete(product: InventoryProduct): void {
-    if (!confirm(`¿Está seguro de eliminar el producto "${product.name}"?`)) {
-      return;
-    }
-
     if (!product.id) {
       this._snackBar.open('Error: ID de producto no válido', 'Cerrar', {
         duration: 3000
       });
+      return;
+    }
+
+    this._confirmService.confirm({
+      title: 'Eliminar Producto',
+      message: `¿Está seguro de eliminar el producto "${product.name}"?`,
+      icon: 'delete',
+      type: 'warn',
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar'
+    }).pipe(takeUntil(this._unsubscribeAll)).subscribe(confirmed => {
+      if (!confirmed) {
       return;
     }
 
@@ -296,7 +316,8 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
       next: () => {
         this.isLoading = false;
         this._snackBar.open('Producto eliminado correctamente', 'Cerrar', {
-          duration: 3000
+            duration: 3000,
+            panelClass: ['success-snackbar']
         });
         this._loadProducts();
       },
@@ -305,9 +326,10 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
         this._snackBar.open(
           error?.error?.message || 'Error al eliminar el producto',
           'Cerrar',
-          { duration: 5000 }
+            { duration: 5000, panelClass: ['error-snackbar'] }
         );
       }
+      });
     });
   }
 

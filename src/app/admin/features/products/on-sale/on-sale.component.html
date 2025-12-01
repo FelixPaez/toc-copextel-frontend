@@ -31,7 +31,7 @@
           <h3 class="table-title">Listado de productos en venta</h3>
           @if (pagination) {
             <span class="table-subtitle">
-              Mostrando {{ pagination.startIndex || 0 }} - {{ pagination.endIndex || 0 }} de {{ pagination.length || 0 }} productos
+              Mostrando {{ (pagination.startIndex || 0) + 1 }} - {{ (pagination.endIndex || 0) + 1 }} de {{ pagination.length || 0 }} productos
             </span>
           }
         </div>
@@ -183,9 +183,9 @@
             <!-- No data row -->
             <tr class="mat-row" *matNoDataRow>
               <td class="mat-cell" [attr.colspan]="displayedColumns.length">
-                <div class="no-data">
+                <div class="empty-state">
                   <mat-icon>{{ Icons.PRODUCTS.INVENTORY_2 }}</mat-icon>
-                  <p>No hay productos en venta</p>
+                  <p>No se encontraron productos en venta</p>
                 </div>
               </td>
             </tr>

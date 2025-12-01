@@ -1,10 +1,11 @@
 /**
  * Message interface
+ * Compatible with backend API structure
  */
 export interface Message {
   id: string;
-  vendorId?: string;
-  clientId?: number;
+  vendorId: string;
+  clientId: number;
   userId?: number;
   name: string;
   email: string;

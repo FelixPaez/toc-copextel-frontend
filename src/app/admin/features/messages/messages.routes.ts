@@ -34,11 +34,8 @@ export const messagesRouteMatcher = (url: UrlSegment[]): UrlMatchResult | null =
     posParams['page'] = new UrlSegment('0', {});
   }
 
-  // The third segment is an optional message ID
-  if (url.length > 2) {
-    posParams['id'] = url[2];
-    consumedSegments.push(url[2]);
-  }
+  // Don't consume the third segment (message ID) - let the child route handle it
+  // The third segment will be available as :id in the child route
 
   return {
     consumed: consumedSegments,
@@ -61,7 +58,7 @@ export const MESSAGES_ROUTES: Routes = [
         component: MessagesListComponent,
         children: [
           {
-            path: ':id', // This path is matched by the custom matcher if an ID is present
+            path: ':id',
             component: MessagesDetailComponent
           }
         ]

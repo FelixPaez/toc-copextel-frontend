@@ -259,6 +259,29 @@
   }
 }
 
+// Empty state global para todas las tablas
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  gap: var(--admin-gap);
+  color: var(--admin-gray-600);
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: var(--admin-gray-300);
+  }
+
+  p {
+    margin: 0;
+    font-size: var(--admin-font-size-lg);
+  }
+}
+
 // Celdas de acciones - estilo consistente
 .actions-cell {
   display: flex;
@@ -381,10 +404,14 @@
     justify-content: space-between;
   }
   
-  .mat-mdc-paginator-page-size-label,
-  .mat-mdc-paginator-range-label {
+  .mat-mdc-paginator-page-size-label {
     color: var(--admin-gray-600);
     font-size: 12px;
+  }
+  
+  // Ocultar el texto "1 – 5 of 5" del mat-paginator (redundante)
+  .mat-mdc-paginator-range-label {
+    display: none !important;
   }
   
   .mat-mdc-paginator-navigation-previous,
@@ -589,4 +616,8 @@
   color: var(--admin-white);
 }
 
+// Ocultar el texto "1 – 5 of 5" del mat-paginator (redundante)
+::ng-deep .mat-mdc-paginator-range-label {
+  display: none !important;
+}
 

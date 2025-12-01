@@ -96,7 +96,7 @@ export const ADMIN_ROUTES: Routes = [
           // Messages Management
           {
             path: 'messages',
-            loadChildren: () => import('./features/messages/messages.module').then(m => m.MessagesModule)
+            loadChildren: () => import('./features/messages/messages.routes').then(m => m.MESSAGES_ROUTES)
           },
 
       // Default redirect to dashboard

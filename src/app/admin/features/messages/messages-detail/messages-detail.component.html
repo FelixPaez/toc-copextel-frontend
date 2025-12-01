@@ -2,22 +2,22 @@
   @if (message) {
     <!-- Header -->
     <div class="detail-header">
-      <div class="header-left">
-        <button mat-icon-button (click)="goBack()" matTooltip="Volver a la lista">
-          <mat-icon>arrow_back</mat-icon>
+      <div class="header-main">
+        <button mat-icon-button (click)="goBack()" matTooltip="Volver a la lista" aria-label="Volver a la lista" class="back-button">
+          <mat-icon aria-hidden="true">arrow_back</mat-icon>
         </button>
         <h2 class="detail-subject">{{ message.subject }}</h2>
-      </div>
-      <div class="header-right">
-        <button mat-icon-button (click)="toggleImportant()" [matTooltip]="message.important ? 'Desmarcar como importante' : 'Marcar como importante'">
-          <mat-icon [color]="message.important ? 'warn' : ''">label_important</mat-icon>
-        </button>
-        <button mat-icon-button (click)="toggleStarred()" [matTooltip]="message.starred ? 'Desmarcar como favorito' : 'Marcar como favorito'">
-          <mat-icon [color]="message.starred ? 'accent' : ''">star</mat-icon>
-        </button>
-        <button mat-icon-button (click)="toggleRead()" [matTooltip]="message.read ? 'Marcar como no leído' : 'Marcar como leído'">
-          <mat-icon>{{ message.read ? 'mark_email_read' : 'mark_email_unread' }}</mat-icon>
-        </button>
+        <div class="header-actions">
+          <button mat-icon-button (click)="toggleImportant()" [matTooltip]="message.important ? 'Desmarcar como importante' : 'Marcar como importante'" [attr.aria-pressed]="message.important" aria-label="Marcar como importante" [class.active]="message.important">
+            <mat-icon [color]="message.important ? 'warn' : ''" aria-hidden="true">label_important</mat-icon>
+          </button>
+          <button mat-icon-button (click)="toggleStarred()" [matTooltip]="message.starred ? 'Desmarcar como favorito' : 'Marcar como favorito'" [attr.aria-pressed]="message.starred" aria-label="Marcar como favorito" [class.active]="message.starred">
+            <mat-icon [color]="message.starred ? 'accent' : ''" aria-hidden="true">star</mat-icon>
+          </button>
+          <button mat-icon-button (click)="toggleRead()" [matTooltip]="message.read ? 'Marcar como no leído' : 'Marcar como leído'" [attr.aria-pressed]="message.read" aria-label="Marcar como leído" [class.active]="message.read">
+            <mat-icon aria-hidden="true">{{ message.read ? 'mark_email_read' : 'mark_email_unread' }}</mat-icon>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -40,7 +40,9 @@
 
     <!-- Message Content -->
     <div class="message-content-card">
-      <p class="message-body">{{ message.content }}</p>
+      <div class="message-body-wrapper">
+        <p class="message-body">{{ message.content }}</p>
+      </div>
 
       @if (message.attachments && message.attachments.length > 0) {
         <div class="attachments-section">

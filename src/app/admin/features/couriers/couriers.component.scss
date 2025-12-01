@@ -197,27 +197,7 @@
   font-size: var(--admin-font-size-base);
 }
 
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 48px;
-  gap: var(--admin-gap);
-  color: var(--admin-gray-600);
-
-  mat-icon {
-    font-size: 48px;
-    width: 48px;
-    height: 48px;
-    color: var(--admin-gray-300);
-  }
-
-  p {
-    margin: 0;
-    font-size: var(--admin-font-size-lg);
-  }
-}
+// Empty state está definido globalmente en admin.scss
 
 // Estilos globales en admin.scss - solo ajustes específicos si es necesario
 .actions-cell {

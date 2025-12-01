@@ -62,7 +62,7 @@
           <h3 class="table-title">Listado de vendedores</h3>
           @if (pagination) {
             <span class="table-subtitle">
-              Mostrando {{ pagination.startIndex || 0 }} - {{ pagination.endIndex || 0 }} de {{ pagination.length || 0 }} vendedores
+              Mostrando {{ (pagination.startIndex || 0) + 1 }} - {{ (pagination.endIndex || 0) + 1 }} de {{ pagination.length || 0 }} vendedores
             </span>
           }
         </div>

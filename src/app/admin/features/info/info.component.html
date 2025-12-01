@@ -18,7 +18,7 @@
           Cancelar
         </button>
       }
-      <button mat-raised-button class="btn-danger" (click)="onUpdateAll()">
+      <button mat-raised-button color="primary" (click)="onUpdateAll()">
         <mat-icon>{{ isEditMode ? Icons.ACTIONS.SAVE : Icons.ACTIONS.EDIT }}</mat-icon>
         {{ isEditMode ? 'Guardar' : 'Actualizar' }}
       </button>
@@ -189,7 +189,7 @@
         </table>
 
         <div class="section-actions">
-          <button mat-raised-button class="btn-danger" (click)="onAddSocialNetwork()">
+          <button mat-raised-button color="primary" (click)="onAddSocialNetwork()">
             <mat-icon>{{ Icons.ACTIONS.ADD }}</mat-icon>
             Nueva
           </button>

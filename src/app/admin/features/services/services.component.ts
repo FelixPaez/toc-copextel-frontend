@@ -23,6 +23,7 @@ import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
 // Services
 import { CopextelServicesService } from './services.service';
+import { ConfirmService } from '../../core/services/confirm.service';
 
 // Types
 import { CopextelService } from './services.types';
@@ -104,7 +105,8 @@ export class ServicesComponent implements OnInit, AfterViewInit, OnDestroy {
     private _servicesService: CopextelServicesService,
     private _router: Router,
     private _dialog: MatDialog,
-    private _snackBar: MatSnackBar
+    private _snackBar: MatSnackBar,
+    private _confirmService: ConfirmService
   ) {}
 
   // -----------------------------------------------------------------------------------------------------
@@ -298,7 +300,15 @@ export class ServicesComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    if (!confirm(`¿Está seguro de eliminar el servicio "${service.name}"?`)) {
+    this._confirmService.confirm({
+      title: 'Eliminar Servicio',
+      message: `¿Está seguro de eliminar el servicio "${service.name}"?`,
+      icon: 'delete',
+      type: 'warn',
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar'
+    }).pipe(takeUntil(this._unsubscribeAll)).subscribe(confirmed => {
+      if (!confirmed) {
       return;
     }
 
@@ -309,7 +319,8 @@ export class ServicesComponent implements OnInit, AfterViewInit, OnDestroy {
         this._snackBar.open('Servicio eliminado exitosamente', 'Cerrar', {
           duration: 3000,
           horizontalPosition: 'center',
-          verticalPosition: 'top'
+            verticalPosition: 'top',
+            panelClass: ['success-snackbar']
         });
         this._loadServices();
       },
@@ -318,9 +329,10 @@ export class ServicesComponent implements OnInit, AfterViewInit, OnDestroy {
         this._snackBar.open(
           error?.error?.message || 'Error al eliminar el servicio',
           'Cerrar',
-          { duration: 5000 }
+            { duration: 5000, panelClass: ['error-snackbar'] }
         );
       }
+      });
     });
   }
 

@@ -23,6 +23,7 @@ import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
 // Services
 import { SlidesService } from './slides.service';
+import { ConfirmService } from '../../core/services/confirm.service';
 
 // Types
 import { Slide } from './slides.types';
@@ -103,7 +104,8 @@ export class SlidesComponent implements OnInit, AfterViewInit, OnDestroy {
     private _slidesService: SlidesService,
     private _router: Router,
     private _dialog: MatDialog,
-    private _snackBar: MatSnackBar
+    private _snackBar: MatSnackBar,
+    private _confirmService: ConfirmService
   ) {}
 
   // -----------------------------------------------------------------------------------------------------
@@ -285,7 +287,15 @@ export class SlidesComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    if (!confirm(`¿Está seguro de eliminar la diapositiva "${slide.title}"?`)) {
+    this._confirmService.confirm({
+      title: 'Eliminar Diapositiva',
+      message: `¿Está seguro de eliminar la diapositiva "${slide.title}"?`,
+      icon: 'delete',
+      type: 'warn',
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar'
+    }).pipe(takeUntil(this._unsubscribeAll)).subscribe(confirmed => {
+      if (!confirmed) {
       return;
     }
 
@@ -296,7 +306,8 @@ export class SlidesComponent implements OnInit, AfterViewInit, OnDestroy {
         this._snackBar.open('Diapositiva eliminada exitosamente', 'Cerrar', {
           duration: 3000,
           horizontalPosition: 'center',
-          verticalPosition: 'top'
+            verticalPosition: 'top',
+            panelClass: ['success-snackbar']
         });
         this._loadSlides();
       },
@@ -305,9 +316,10 @@ export class SlidesComponent implements OnInit, AfterViewInit, OnDestroy {
         this._snackBar.open(
           error?.error?.message || 'Error al eliminar la diapositiva',
           'Cerrar',
-          { duration: 5000 }
+            { duration: 5000, panelClass: ['error-snackbar'] }
         );
       }
+      });
     });
   }
 

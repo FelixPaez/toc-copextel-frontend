@@ -58,9 +58,10 @@ export function applyMockPagination<T>(
   // Apply pagination
   const length = filtered.length;
   const startIndex = page * size;
-  const endIndex = Math.min(startIndex + size, length);
+  const endIndexExclusive = Math.min(startIndex + size, length);
+  const endIndexInclusive = length > 0 ? Math.max(endIndexExclusive - 1, startIndex) : 0;
   const lastPage = Math.max(Math.ceil(length / size) - 1, 0);
-  const paginated = filtered.slice(startIndex, endIndex);
+  const paginated = filtered.slice(startIndex, endIndexExclusive);
 
   const pagination: TablePagination = {
     length,
@@ -68,7 +69,7 @@ export function applyMockPagination<T>(
     page,
     lastPage,
     startIndex,
-    endIndex: endIndex - 1
+    endIndex: endIndexInclusive
   };
 
   return { data: paginated, pagination };

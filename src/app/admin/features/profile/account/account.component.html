@@ -67,10 +67,8 @@
             [disabled]="profileForm.invalid || isLoading">
             @if (isLoading) {
               <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
-            } @else {
-              <mat-icon>save</mat-icon>
-            }
-            Actualizar Perfil
+            } 
+            <span>Actualizar Perfil</span>
           </button>
         </div>
       </form>

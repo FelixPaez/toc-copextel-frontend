@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit, ViewChild, AfterViewInit } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -24,6 +24,7 @@ import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
 // Services
 import { CategoriesService } from './categories.service';
+import { ConfirmService } from '../../core/services/confirm.service';
 
 // Types
 import { Category } from './categories.types';
@@ -107,7 +108,9 @@ export class CategoriesComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   constructor(
     private _categoriesService: CategoriesService,
+    private _confirmService: ConfirmService,
     private _router: Router,
+    private _activatedRoute: ActivatedRoute,
     private _dialog: MatDialog,
     private _snackBar: MatSnackBar
   ) {}
@@ -120,8 +123,25 @@ export class CategoriesComponent implements OnInit, AfterViewInit, OnDestroy {
    * On init
    */
   ngOnInit(): void {
-    // Load categories
+    // Check if categories were resolved
+    const resolvedCategories = this._activatedRoute.snapshot.data['categories'];
+    if (resolvedCategories && resolvedCategories.length > 0) {
+      // Use resolved data
+      this.categories = resolvedCategories;
+      this._applyFilters();
+    } else {
+      // Fallback: subscribe to service
+      this._categoriesService.categories$
+        .pipe(takeUntil(this._unsubscribeAll))
+        .subscribe(categories => {
+          if (categories) {
+            this.categories = categories;
+            this._applyFilters();
+          }
+        });
+      // Load categories if not resolved
     this._loadCategories();
+    }
 
     // Setup search
     this.searchControl.valueChanges
@@ -141,16 +161,6 @@ export class CategoriesComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe(() => {
         this.pageIndex = 0;
         this._applyFilters();
-      });
-
-    // Subscribe to categories
-    this._categoriesService.categories$
-      .pipe(takeUntil(this._unsubscribeAll))
-      .subscribe(categories => {
-        if (categories) {
-          this.categories = categories;
-          this._applyFilters();
-        }
       });
 
     // Subscribe to pagination
@@ -291,7 +301,15 @@ export class CategoriesComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    if (!confirm(`¿Está seguro de eliminar la categoría "${category.name}"?`)) {
+    this._confirmService.confirm({
+      title: 'Eliminar Categoría',
+      message: `¿Está seguro de eliminar la categoría "${category.name}"?`,
+      icon: 'delete',
+      type: 'warn',
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar'
+    }).pipe(takeUntil(this._unsubscribeAll)).subscribe(confirmed => {
+      if (!confirmed) {
       return;
     }
 
@@ -302,7 +320,8 @@ export class CategoriesComponent implements OnInit, AfterViewInit, OnDestroy {
         this._snackBar.open('Categoría eliminada exitosamente', 'Cerrar', {
           duration: 3000,
           horizontalPosition: 'center',
-          verticalPosition: 'top'
+            verticalPosition: 'top',
+            panelClass: ['success-snackbar']
         });
         this._loadCategories();
       },
@@ -311,9 +330,10 @@ export class CategoriesComponent implements OnInit, AfterViewInit, OnDestroy {
         this._snackBar.open(
           error?.error?.message || 'Error al eliminar la categoría',
           'Cerrar',
-          { duration: 5000 }
+            { duration: 5000, panelClass: ['error-snackbar'] }
         );
       }
+      });
     });
   }
 

@@ -17,12 +17,12 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
 // Services
 import { VendorsService } from './vendors.service';
+import { ConfirmService } from '../../core/services/confirm.service';
 
 // Types
 import { Vendor } from './vendors.types';
@@ -59,7 +59,6 @@ import { VendorFormComponent } from './vendor-form/vendor-form.component';
     MatSelectModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
-    MatDialogModule,
     MatSnackBarModule
   ],
   templateUrl: './vendors.component.html',
@@ -103,8 +102,8 @@ export class VendorsComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private _vendorsService: VendorsService,
     private _router: Router,
-    private _dialog: MatDialog,
-    private _snackBar: MatSnackBar
+    private _snackBar: MatSnackBar,
+    private _confirmService: ConfirmService
   ) {}
 
   // -----------------------------------------------------------------------------------------------------
@@ -235,7 +234,15 @@ export class VendorsComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    if (!confirm(`¿Está seguro de eliminar el vendedor "${vendor.name}"?`)) {
+    this._confirmService.confirm({
+      title: 'Eliminar Vendedor',
+      message: `¿Está seguro de eliminar el vendedor "${vendor.name}"?`,
+      icon: 'delete',
+      type: 'warn',
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar'
+    }).pipe(takeUntil(this._unsubscribeAll)).subscribe(confirmed => {
+      if (!confirmed) {
       return;
     }
 
@@ -246,7 +253,8 @@ export class VendorsComponent implements OnInit, AfterViewInit, OnDestroy {
         this._snackBar.open('Vendedor eliminado exitosamente', 'Cerrar', {
           duration: 3000,
           horizontalPosition: 'center',
-          verticalPosition: 'top'
+            verticalPosition: 'top',
+            panelClass: ['success-snackbar']
         });
         this._loadVendors();
       },
@@ -255,9 +263,10 @@ export class VendorsComponent implements OnInit, AfterViewInit, OnDestroy {
         this._snackBar.open(
           error?.error?.message || 'Error al eliminar el vendedor',
           'Cerrar',
-          { duration: 5000 }
+            { duration: 5000, panelClass: ['error-snackbar'] }
         );
       }
+      });
     });
   }
 

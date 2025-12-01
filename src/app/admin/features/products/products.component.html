@@ -73,7 +73,7 @@
           <h3 class="table-title">Listado de productos en almacén</h3>
           @if (pagination) {
             <span class="table-subtitle">
-              Mostrando {{ pagination.startIndex || 0 }} - {{ pagination.endIndex || 0 }} de {{ pagination.length || 0 }} productos
+              Mostrando {{ (pagination.startIndex || 0) + 1 }} - {{ (pagination.endIndex || 0) + 1 }} de {{ pagination.length || 0 }} productos
             </span>
           }
         </div>

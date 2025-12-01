@@ -274,27 +274,7 @@
     }
   }
 
-  .no-data {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 60px 20px;
-    gap: 16px;
-    color: var(--admin-gray-600);
-
-    mat-icon {
-      font-size: 48px;
-      width: 48px;
-      height: 48px;
-      color: var(--admin-gray-400);
-    }
-
-    p {
-      margin: 0;
-      font-size: 16px;
-    }
-  }
+  // Empty state está definido globalmente en admin.scss
 }
 
 ::ng-deep .mat-mdc-paginator {

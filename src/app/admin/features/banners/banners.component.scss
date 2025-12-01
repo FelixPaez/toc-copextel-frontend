@@ -94,7 +94,7 @@
 }
 
 /* Header de la tabla fuera del nodo .banners-table */
-.table-header { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding: 16px 20px 12px 20px; margin-bottom: 0; }
+.table-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 16px 20px 12px 20px; margin-bottom: 0; }
 .table-right { display: flex; align-items: center; gap: 8px; }
 .table-title { margin: 0; font-size: 16px; font-weight: 700; color: var(--admin-gray-800); white-space: nowrap; }
 

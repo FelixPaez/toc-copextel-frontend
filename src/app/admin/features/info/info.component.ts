@@ -16,6 +16,9 @@ import { MatDividerModule } from '@angular/material/divider';
 // Constants
 import { Icons } from '../../core/constants';
 
+// Services
+import { ConfirmService } from '../../core/services/confirm.service';
+
 // Components
 import { SocialNetworkFormComponent } from './social-network-form/social-network-form.component';
 
@@ -74,7 +77,8 @@ export class InfoComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private confirmService: ConfirmService
   ) {
     // Initialize forms
     this.footerInfoForm = this.fb.group({
@@ -152,14 +156,24 @@ export class InfoComponent implements OnInit {
   }
 
   onDeleteSocialNetwork(socialNetwork: SocialNetwork): void {
-    if (confirm(`¿Estás seguro de que deseas eliminar la red social "${socialNetwork.name}"?`)) {
+    this.confirmService.confirm({
+      title: 'Eliminar Red Social',
+      message: `¿Estás seguro de que deseas eliminar la red social "${socialNetwork.name}"?`,
+      icon: 'delete',
+      type: 'warn',
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar'
+    }).subscribe(confirmed => {
+      if (confirmed) {
       this.socialNetworks = this.socialNetworks.filter(s => s.id !== socialNetwork.id);
       this.snackBar.open('Red social eliminada exitosamente!', 'Cerrar', {
         duration: 3000,
         horizontalPosition: 'center',
-        verticalPosition: 'top'
+          verticalPosition: 'top',
+          panelClass: ['success-snackbar']
       });
     }
+    });
   }
 
   // Toggle edit mode and expand all sections

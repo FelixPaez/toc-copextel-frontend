@@ -26,9 +26,6 @@ const API_URL_GATEWAY = environment.API_URL_GATEWAY;
   providedIn: 'root'
 })
 export class MessagesService {
-  // Public properties
-  public selectedMessageChanged: BehaviorSubject<Message | null> = new BehaviorSubject<Message | null>(null);
-
   // Private properties
   private _message: ReplaySubject<Message | null> = new ReplaySubject<Message | null>(1);
   private _messages: ReplaySubject<Message[]> = new ReplaySubject<Message[]>(1);
@@ -152,7 +149,6 @@ export class MessagesService {
         }
       }),
       catchError((error) => {
-        console.error('Error getting all messages:', error);
         return throwError(() => error);
       })
     );
@@ -193,7 +189,6 @@ export class MessagesService {
         }
       }),
       catchError((error) => {
-        console.error('Error getting messages by vendor:', error);
         return throwError(() => error);
       })
     );
@@ -202,7 +197,7 @@ export class MessagesService {
   /**
    * Get messages by user
    */
-  public getMessagesByUser(userId: number): Observable<IResponse> {
+  public getMessagesByUser(userId: number | string): Observable<IResponse> {
     // Mock mode
     if (this._mockService.isMockMode) {
       const messages = MOCK_MESSAGES.filter(m => m.userId === userId);
@@ -224,7 +219,7 @@ export class MessagesService {
     }
 
     // Real API call
-    return this._httpClient.get<IResponse>(`${API_URL_GATEWAY}/notify/messages/by-user/${userId}`).pipe(
+    return this._httpClient.get<IResponse>(`${API_URL_GATEWAY}/notify/messages/by-user/${userId.toString()}`).pipe(
       tap((response) => {
         if (response.contactMessages) {
           this._messages.next(response.contactMessages);
@@ -234,7 +229,6 @@ export class MessagesService {
         }
       }),
       catchError((error) => {
-        console.error('Error getting messages by user:', error);
         return throwError(() => error);
       })
     );
@@ -244,22 +238,53 @@ export class MessagesService {
    * Get message by id
    */
   public getMessageById(id: string): Observable<Message> {
+    // First try to get from current messages list
     return this.messages$.pipe(
       take(1),
-      map((messages) => {
-        const message = messages.find(item => item.id === id) || null;
+      switchMap((messages) => {
+        let message = messages?.find(item => item.id === id) || null;
+
+        // If not found in current messages and in mock mode, search in MOCK_MESSAGES
+        if (!message && this._mockService.isMockMode) {
+          message = MOCK_MESSAGES.find(item => item.id === id) || null;
+          // If found in mock, add it to the current messages list
+          if (message && messages) {
+            const index = messages.findIndex(m => m.id === id);
+            if (index === -1) {
+              this._messages.next([...messages, message]);
+            }
+          }
+        }
 
         if (message) {
           this._message.next(message);
+          return of(message);
         }
 
-        return message;
-      }),
-      switchMap((message) => {
-        if (!message) {
-          return throwError(() => new Error(`No existe un mensaje con ese id: ${id}`));
+        // If not found and not in mock mode, try API call
+        if (!this._mockService.isMockMode) {
+          return this._httpClient.get<IResponse>(`${API_URL_GATEWAY}/notify/messages/${id}`).pipe(
+            map((response) => {
+              if (response.contactMessage) {
+                this._message.next(response.contactMessage);
+                // Also add to messages list if not already there
+                if (messages) {
+                  const index = messages.findIndex(m => m.id === id);
+                  if (index === -1) {
+                    this._messages.next([...messages, response.contactMessage]);
+                  }
+                }
+                return response.contactMessage;
+              }
+              throw new Error(`No existe un mensaje con ese id: ${id}`);
+            }),
+            catchError((error) => {
+              return throwError(() => new Error(`No existe un mensaje con ese id: ${id}`));
+            })
+          );
         }
-        return of(message);
+
+        return throwError(() => new Error(`No existe un mensaje con ese id: ${id}`));
       })
     );
   }
@@ -281,16 +306,14 @@ export class MessagesService {
       return this.messages$.pipe(
         take(1),
         switchMap(messages => {
-          if (!messages) {
-            messages = [];
-          }
+          const currentMessages = messages || [];
           return this._mockService.simulateDelay({
             ok: true,
             message: 'Mensaje creado exitosamente',
             contactMessage: newMessage
           }).pipe(
             tap(() => {
-              this._messages.next([newMessage, ...messages]);
+              this._messages.next([newMessage, ...currentMessages]);
             })
           );
         })
@@ -303,12 +326,12 @@ export class MessagesService {
       switchMap(messages => this._httpClient.post<IResponse>(`${API_URL_GATEWAY}/notify/messages/`, message).pipe(
         map((response) => {
           if (response.contactMessage) {
-            this._messages.next([...messages, response.contactMessage]);
+            const currentMessages = messages || [];
+            this._messages.next([...currentMessages, response.contactMessage]);
           }
           return response;
         }),
         catchError((error) => {
-          console.error('Error creating message:', error);
           return throwError(() => error);
         })
       ))
@@ -336,10 +359,28 @@ export class MessagesService {
       return this.messages$.pipe(
         take(1),
         switchMap(messages => {
-          const msgIndex = messages.findIndex(item => item.id === id);
-          if (msgIndex !== -1) {
-            messages[msgIndex] = updatedMessage;
-            this._messages.next(messages);
+          // Preserve current pagination before updating
+          const currentPagination = this._pagination.value;
+          
+          if (messages) {
+            const msgIndex = messages.findIndex(item => item.id === id);
+            if (msgIndex !== -1) {
+              // Create a new array to ensure the observable emits
+              const updatedMessages = [...messages];
+              updatedMessages[msgIndex] = updatedMessage;
+              this._messages.next(updatedMessages);
+              // Restore pagination to preserve it
+              if (currentPagination) {
+                this._pagination.next(currentPagination);
+              }
+            } else {
+              // If message not in current list, still emit to trigger sidebar update
+              this._messages.next([...messages]);
+              // Restore pagination to preserve it
+              if (currentPagination) {
+                this._pagination.next(currentPagination);
+              }
+            }
           }
           this._message.next(updatedMessage);
           return this._mockService.simulateDelay(updatedMessage);
@@ -353,10 +394,21 @@ export class MessagesService {
       switchMap(messages => this._httpClient.put<IResponse>(`${API_URL_GATEWAY}/notify/messages/${id}`, message).pipe(
         map((response) => {
           if (response.contactUpdatedMessage) {
-            const index = messages.findIndex(item => item.id === id);
-            if (index !== -1) {
-              messages[index] = response.contactUpdatedMessage;
-              this._messages.next(messages);
+            // Preserve current pagination before updating
+            const currentPagination = this._pagination.value;
+            
+            if (messages) {
+              const index = messages.findIndex(item => item.id === id);
+              if (index !== -1) {
+                // Create a new array to ensure the observable emits
+                const updatedMessages = [...messages];
+                updatedMessages[index] = response.contactUpdatedMessage;
+                this._messages.next(updatedMessages);
+                // Restore pagination to preserve it
+                if (currentPagination) {
+                  this._pagination.next(currentPagination);
+                }
+              }
             }
             this._message.next(response.contactUpdatedMessage);
             return response.contactUpdatedMessage;
@@ -364,7 +416,6 @@ export class MessagesService {
           throw new Error('Update failed');
         }),
         catchError((error) => {
-          console.error('Error updating message:', error);
           return throwError(() => error);
         })
       ))
@@ -400,10 +451,12 @@ export class MessagesService {
       return this.messages$.pipe(
         take(1),
         switchMap(messages => {
-          const msgIndex = messages.findIndex(item => item.id === id);
-          if (msgIndex !== -1) {
-            messages.splice(msgIndex, 1);
-            this._messages.next(messages);
+          if (messages) {
+            const msgIndex = messages.findIndex(item => item.id === id);
+            if (msgIndex !== -1) {
+              messages.splice(msgIndex, 1);
+              this._messages.next(messages);
+            }
           }
           return this._mockService.simulateDelay(true);
         })
@@ -415,15 +468,16 @@ export class MessagesService {
       take(1),
       switchMap(messages => this._httpClient.delete<IResponse>(`${API_URL_GATEWAY}/notify/messages/${id}`).pipe(
         map(() => {
-          const index = messages.findIndex(item => item.id === id);
-          if (index !== -1) {
-            messages.splice(index, 1);
-            this._messages.next(messages);
+          if (messages) {
+            const index = messages.findIndex(item => item.id === id);
+            if (index !== -1) {
+              messages.splice(index, 1);
+              this._messages.next(messages);
+            }
           }
           return true;
         }),
         catchError((error) => {
-          console.error('Error deleting message:', error);
           return throwError(() => error);
         })
       ))
@@ -443,31 +497,34 @@ export class MessagesService {
       return this.messages$.pipe(
         take(1),
         switchMap(messages => {
-          messages.forEach(message => {
-            message.read = true;
-          });
-          this._messages.next(messages);
+          if (messages) {
+            messages.forEach(message => {
+              message.read = true;
+            });
+            this._messages.next(messages);
+          }
           return this._mockService.simulateDelay(true);
         })
       );
     }
 
     // Real API call
-    return this.messages$.pipe(
-      take(1),
-      switchMap(messages => this._httpClient.get<boolean>(`${API_URL_GATEWAY}/notify/messages/mark-all-as-read`).pipe(
-        map((isUpdated: boolean) => {
-          messages.forEach(message => {
-            message.read = true;
-          });
-          this._messages.next(messages);
-          return isUpdated;
-        }),
-        catchError((error) => {
-          console.error('Error marking all as read:', error);
-          return throwError(() => error);
-        })
-      ))
+    return this._httpClient.post<{ ok: boolean }>(`${API_URL_GATEWAY}/notify/messages/mark-all-as-read`, {}).pipe(
+      map((response) => {
+        // Update local state
+        this.messages$.pipe(take(1)).subscribe(messages => {
+          if (messages) {
+            messages.forEach(message => {
+              message.read = true;
+            });
+            this._messages.next(messages);
+          }
+        });
+        return response.ok || true;
+      }),
+      catchError((error) => {
+        return throwError(() => error);
+      })
     );
   }
 }

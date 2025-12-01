@@ -23,6 +23,7 @@ import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
 // Services
 import { UsersService } from './users.service';
+import { ConfirmService } from '../../core/services/confirm.service';
 
 // Types
 import { User } from './users.types';
@@ -114,7 +115,8 @@ export class UsersComponent implements OnInit, AfterViewInit, OnDestroy {
     private _usersService: UsersService,
     private _router: Router,
     private _dialog: MatDialog,
-    private _snackBar: MatSnackBar
+    private _snackBar: MatSnackBar,
+    private _confirmService: ConfirmService
   ) {}
 
   // -----------------------------------------------------------------------------------------------------
@@ -312,7 +314,15 @@ export class UsersComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     const displayName = this.getUserDisplayName(user);
-    if (!confirm(`¿Está seguro de eliminar el usuario "${displayName}"?`)) {
+    this._confirmService.confirm({
+      title: 'Eliminar Usuario',
+      message: `¿Está seguro de eliminar el usuario "${displayName}"?`,
+      icon: 'delete',
+      type: 'warn',
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar'
+    }).pipe(takeUntil(this._unsubscribeAll)).subscribe(confirmed => {
+      if (!confirmed) {
       return;
     }
 
@@ -321,7 +331,8 @@ export class UsersComponent implements OnInit, AfterViewInit, OnDestroy {
       next: () => {
         this.isLoading = false;
         this._snackBar.open('Usuario eliminado exitosamente', 'Cerrar', {
-          duration: 3000
+            duration: 3000,
+            panelClass: ['success-snackbar']
         });
         this._loadUsers();
       },
@@ -330,9 +341,10 @@ export class UsersComponent implements OnInit, AfterViewInit, OnDestroy {
         this._snackBar.open(
           error?.error?.message || 'Error al eliminar el usuario',
           'Cerrar',
-          { duration: 5000 }
+            { duration: 5000, panelClass: ['error-snackbar'] }
         );
       }
+      });
     });
   }
 

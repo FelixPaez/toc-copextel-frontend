@@ -30,41 +30,40 @@ import { map, shareReplay } from 'rxjs/operators';
           <div class="brand">Panel de Control</div>
           <small class="brand-sub">Un vistazo rápido a los principales indicadores</small>
         </div>
-        <mat-nav-list class="nav-list">
-          <a mat-list-item routerLink="dashboard" routerLinkActive="active" (click)="closeIfHandset(sidenav)"><mat-icon matListItemIcon>insights</mat-icon><span matListItemTitle>Estadísticas</span></a>
-          <a mat-list-item routerLink="messages" routerLinkActive="active" (click)="closeIfHandset(sidenav)"><mat-icon matListItemIcon>mail</mat-icon><span matListItemTitle>Mensajes</span></a>
+        <nav class="nav-list" role="navigation" aria-label="Navegación principal">
+          <mat-nav-list>
+            <a mat-list-item routerLink="dashboard" routerLinkActive="active" (click)="closeIfHandset(sidenav)" aria-label="Ir al Dashboard"><mat-icon matListItemIcon aria-hidden="true">insights</mat-icon><span matListItemTitle>Estadísticas</span></a>
+            <a mat-list-item routerLink="messages" routerLinkActive="active" (click)="closeIfHandset(sidenav)" aria-label="Ver mensajes"><mat-icon matListItemIcon aria-hidden="true">mail</mat-icon><span matListItemTitle>Mensajes</span></a>
 
-          <div class="section-title">Operaciones</div>
-          <a mat-list-item routerLink="products" routerLinkActive="active" (click)="closeIfHandset(sidenav)"><mat-icon matListItemIcon>inventory_2</mat-icon><span matListItemTitle>Productos</span></a>
-          <a mat-list-item routerLink="orders" routerLinkActive="active" (click)="closeIfHandset(sidenav)"><mat-icon matListItemIcon>receipt_long</mat-icon><span matListItemTitle>Órdenes</span></a>
+            <div class="section-title" role="heading" aria-level="2">Operaciones</div>
+            <a mat-list-item routerLink="products" routerLinkActive="active" (click)="closeIfHandset(sidenav)" aria-label="Gestionar productos"><mat-icon matListItemIcon aria-hidden="true">inventory_2</mat-icon><span matListItemTitle>Productos</span></a>
+            <a mat-list-item routerLink="orders" routerLinkActive="active" (click)="closeIfHandset(sidenav)" aria-label="Gestionar órdenes"><mat-icon matListItemIcon aria-hidden="true">receipt_long</mat-icon><span matListItemTitle>Órdenes</span></a>
 
-          <div class="section-title">Clientes</div>
-          <a mat-list-item routerLink="customers" routerLinkActive="active" (click)="closeIfHandset(sidenav)"><mat-icon matListItemIcon>people</mat-icon><span matListItemTitle>Clientes</span></a>
+            <div class="section-title" role="heading" aria-level="2">Clientes</div>
+            <a mat-list-item routerLink="customers" routerLinkActive="active" (click)="closeIfHandset(sidenav)" aria-label="Gestionar clientes"><mat-icon matListItemIcon aria-hidden="true">people</mat-icon><span matListItemTitle>Clientes</span></a>
 
-              <div class="section-title">Nomencladores</div>
-              <a mat-list-item routerLink="categories" routerLinkActive="active" (click)="closeIfHandset(sidenav)"><mat-icon matListItemIcon>category</mat-icon><span matListItemTitle>Categorías</span></a>
-              <a mat-list-item routerLink="slides" routerLinkActive="active" (click)="closeIfHandset(sidenav)"><mat-icon matListItemIcon>slideshow</mat-icon><span matListItemTitle>Diapositivas</span></a>
-              <a mat-list-item routerLink="banners" routerLinkActive="active" (click)="closeIfHandset(sidenav)"><mat-icon matListItemIcon>campaign</mat-icon><span matListItemTitle>Banners</span></a>
-              <a mat-list-item routerLink="services" routerLinkActive="active" (click)="closeIfHandset(sidenav)"><mat-icon matListItemIcon>handyman</mat-icon><span matListItemTitle>Servicios</span></a>
-              <a mat-list-item routerLink="users" routerLinkActive="active" (click)="closeIfHandset(sidenav)"><mat-icon matListItemIcon>person</mat-icon><span matListItemTitle>Usuarios</span></a>
-              <a mat-list-item routerLink="vendors" routerLinkActive="active" (click)="closeIfHandset(sidenav)"><mat-icon matListItemIcon>business</mat-icon><span matListItemTitle>Vendedores</span></a>
-              <a mat-list-item routerLink="info" routerLinkActive="active" (click)="closeIfHandset(sidenav)"><mat-icon matListItemIcon>info</mat-icon><span matListItemTitle>Información</span></a>
-              <a mat-list-item routerLink="couriers" routerLinkActive="active" (click)="closeIfHandset(sidenav)"><mat-icon matListItemIcon>local_shipping</mat-icon><span matListItemTitle>Transportistas</span></a>
+            <div class="section-title" role="heading" aria-level="2">Nomencladores</div>
+            <a mat-list-item routerLink="categories" routerLinkActive="active" (click)="closeIfHandset(sidenav)" aria-label="Gestionar categorías"><mat-icon matListItemIcon aria-hidden="true">category</mat-icon><span matListItemTitle>Categorías</span></a>
+            <a mat-list-item routerLink="slides" routerLinkActive="active" (click)="closeIfHandset(sidenav)" aria-label="Gestionar diapositivas"><mat-icon matListItemIcon aria-hidden="true">slideshow</mat-icon><span matListItemTitle>Diapositivas</span></a>
+            <a mat-list-item routerLink="banners" routerLinkActive="active" (click)="closeIfHandset(sidenav)" aria-label="Gestionar banners"><mat-icon matListItemIcon aria-hidden="true">campaign</mat-icon><span matListItemTitle>Banners</span></a>
+            <a mat-list-item routerLink="services" routerLinkActive="active" (click)="closeIfHandset(sidenav)" aria-label="Gestionar servicios"><mat-icon matListItemIcon aria-hidden="true">handyman</mat-icon><span matListItemTitle>Servicios</span></a>
+            <a mat-list-item routerLink="users" routerLinkActive="active" (click)="closeIfHandset(sidenav)" aria-label="Gestionar usuarios"><mat-icon matListItemIcon aria-hidden="true">person</mat-icon><span matListItemTitle>Usuarios</span></a>
+            <a mat-list-item routerLink="vendors" routerLinkActive="active" (click)="closeIfHandset(sidenav)" aria-label="Gestionar vendedores"><mat-icon matListItemIcon aria-hidden="true">business</mat-icon><span matListItemTitle>Vendedores</span></a>
+            <a mat-list-item routerLink="info" routerLinkActive="active" (click)="closeIfHandset(sidenav)" aria-label="Gestionar información"><mat-icon matListItemIcon aria-hidden="true">info</mat-icon><span matListItemTitle>Información</span></a>
+            <a mat-list-item routerLink="couriers" routerLinkActive="active" (click)="closeIfHandset(sidenav)" aria-label="Gestionar transportistas"><mat-icon matListItemIcon aria-hidden="true">local_shipping</mat-icon><span matListItemTitle>Transportistas</span></a>
 
-          <div class="section-title">Cuenta</div>
-          <a mat-list-item routerLink="profile" routerLinkActive="active" (click)="closeIfHandset(sidenav)"><mat-icon matListItemIcon>account_circle</mat-icon><span matListItemTitle>Mi Perfil</span></a>
-        </mat-nav-list>
+            <div class="section-title" role="heading" aria-level="2">Cuenta</div>
+            <a mat-list-item routerLink="profile" routerLinkActive="active" (click)="closeIfHandset(sidenav)" aria-label="Ver mi perfil"><mat-icon matListItemIcon aria-hidden="true">account_circle</mat-icon><span matListItemTitle>Mi Perfil</span></a>
+          </mat-nav-list>
+        </nav>
       </mat-sidenav>
       <mat-sidenav-content>
         <mat-toolbar class="topbar">
           <button mat-icon-button class="menu-button" aria-label="Alternar menú" (click)="sidenav.toggle()"><mat-icon>menu</mat-icon></button>
           <span class="toolbar-title">Bienvenido, {{ currentUser?.fullName || 'Administrador Sistema' }}</span>
           <span class="spacer"></span>
-          <div class="toolbar-icons">
-            <button mat-icon-button aria-label="Pantalla completa"><mat-icon>open_in_full</mat-icon></button>
-            <button mat-icon-button aria-label="Cuadrícula"><mat-icon>grid_view</mat-icon></button>
-            <button mat-icon-button aria-label="Notificaciones"><mat-icon>notifications_none</mat-icon></button>
-            <button mat-mini-fab color="primary" class="mini-avatar" [matMenuTriggerFor]="userMenu">{{ (currentUser?.fullName || 'A').charAt(0) }}</button>
+          <div class="toolbar-icons" role="toolbar" aria-label="Herramientas de la barra superior">
+            <button mat-mini-fab color="primary" class="mini-avatar" [matMenuTriggerFor]="userMenu" aria-label="Menú de usuario" type="button" [attr.aria-expanded]="false">{{ (currentUser?.fullName || 'A').charAt(0) }}</button>
           </div>
           <mat-menu #userMenu="matMenu">
             <div class="user-info">

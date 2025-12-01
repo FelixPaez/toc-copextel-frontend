@@ -125,8 +125,10 @@
 
 /* Styles for individual message items */
 .message-items-container {
-  flex-grow: 1;
+  flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0; /* Important for flex children to allow scrolling */
   -webkit-overflow-scrolling: touch; /* For smooth scrolling on iOS */
 }
 

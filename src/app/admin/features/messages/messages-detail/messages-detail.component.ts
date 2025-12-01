@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, take } from 'rxjs/operators';
 
 import { MessagesService } from '../messages.service';
 import { Message } from '../messages.types';
@@ -40,29 +40,65 @@ export class MessagesDetailComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    // Get message id from route
+    // Listen to paramMap changes
     this._activatedRoute.paramMap
       .pipe(
-        takeUntil(this._unsubscribeAll),
-        // switchMap(params => this._messagesService.getMessageById(params.get('id') as string))
+        takeUntil(this._unsubscribeAll)
       )
       .subscribe(params => {
         const messageId = params.get('id');
         if (messageId) {
-          this._messagesService.getMessageById(messageId)
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe({
-              next: (message) => {
+          this.loadMessage(messageId);
+        } else {
+          this.message = null;
+          this._changeDetectorRef.markForCheck();
+        }
+      });
+    
+    // Also try snapshot in case paramMap hasn't fired yet
+    const snapshotId = this._activatedRoute.snapshot.params['id'] || 
+                      this._activatedRoute.snapshot.paramMap.get('id');
+    if (snapshotId) {
+      this.loadMessage(snapshotId);
+    }
+  }
+
+  private loadMessage(messageId: string): void {
+    // First try to get from current messages list (take only first emission)
+    this._messagesService.messages$
+      .pipe(
+        take(1),
+        takeUntil(this._unsubscribeAll)
+      )
+      .subscribe(messages => {
+        if (messages && messages.length > 0) {
+          const foundMessage = messages.find(m => m.id === messageId);
+              if (foundMessage) {
+            this.message = foundMessage;
+            this._changeDetectorRef.markForCheck();
+            return;
+          }
+        }
+        
+        // If not found in list, try to get by ID from service
+        this._messagesService.getMessageById(messageId)
+          .pipe(takeUntil(this._unsubscribeAll))
+          .subscribe({
+            next: (message) => {
+              if (message) {
                 this.message = message;
                 this._changeDetectorRef.markForCheck();
-              },
-              error: (err) => {
-                console.error('Error loading message detail:', err);
-                this._snackBar.open('Error al cargar el detalle del mensaje', 'Cerrar', { duration: 3000, panelClass: ['error-snackbar'] });
-                this._router.navigate(['../'], { relativeTo: this._activatedRoute });
+              } else {
+                this.message = null;
+                this._changeDetectorRef.markForCheck();
               }
-            });
-        }
+            },
+            error: (err) => {
+              this.message = null;
+              this._snackBar.open('Error al cargar el detalle del mensaje', 'Cerrar', { duration: 3000, panelClass: ['error-snackbar'] });
+              this._changeDetectorRef.markForCheck();
+            }
+          });
       });
   }
 
@@ -82,8 +118,7 @@ export class MessagesDetailComponent implements OnInit, OnDestroy {
             this._snackBar.open(`Mensaje marcado como ${this.message?.read ? 'leído' : 'no leído'}`, 'Cerrar', { duration: 2000 });
             this._changeDetectorRef.markForCheck();
           },
-          error: (err) => {
-            console.error('Error toggling read status:', err);
+          error: () => {
             this._snackBar.open('Error al actualizar estado de lectura', 'Cerrar', { duration: 3000, panelClass: ['error-snackbar'] });
           }
         });
@@ -101,8 +136,7 @@ export class MessagesDetailComponent implements OnInit, OnDestroy {
             this._snackBar.open(`Mensaje marcado como ${this.message?.important ? 'importante' : 'no importante'}`, 'Cerrar', { duration: 2000 });
             this._changeDetectorRef.markForCheck();
           },
-          error: (err) => {
-            console.error('Error toggling important status:', err);
+          error: () => {
             this._snackBar.open('Error al actualizar estado de importancia', 'Cerrar', { duration: 3000, panelClass: ['error-snackbar'] });
           }
         });
@@ -120,8 +154,7 @@ export class MessagesDetailComponent implements OnInit, OnDestroy {
             this._snackBar.open(`Mensaje marcado como ${this.message?.starred ? 'favorito' : 'no favorito'}`, 'Cerrar', { duration: 2000 });
             this._changeDetectorRef.markForCheck();
           },
-          error: (err) => {
-            console.error('Error toggling starred status:', err);
+          error: () => {
             this._snackBar.open('Error al actualizar estado de favorito', 'Cerrar', { duration: 3000, panelClass: ['error-snackbar'] });
           }
         });
@@ -129,7 +162,15 @@ export class MessagesDetailComponent implements OnInit, OnDestroy {
   }
 
   public goBack(): void {
-    this._router.navigate(['../'], { relativeTo: this._activatedRoute });
+    // Navigate back to list without the ID
+    const parentRoute = this._activatedRoute.parent;
+    if (parentRoute) {
+      const filter = parentRoute.snapshot.params['filter'] || 'all';
+      const page = parentRoute.snapshot.params['page'] || 0;
+      this._router.navigate(['/messages', filter, page]);
+    } else {
+      this._router.navigate(['/messages/all/0']);
+    }
   }
 }
 
